@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gender Analyzer - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">📊</span>
+                <h1>GenderAnalyzer</h1>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-label">Kanal tanlash</div>
+                <select id="chat-selector" class="chat-select">
+                    {% for chat in chats %}
+                    <option value="{{ chat.id }}">{{ chat.name }}</option>
+                    {% endfor %}
+                </select>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h2 id="chat-title">Boshqaruv paneli</h2>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">👥</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Jami a'zolar</span>
+                        <h3 id="total-count">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">👨</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Erkaklar</span>
+                        <h3 id="male-count">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon pink">👩</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Ayollar</span>
+                        <h3 id="female-count">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon gray">🚫</div>
+                    <div class="stat-info">
+                        <span class="stat-label">O'chirilgan</span>
+                        <h3 id="deleted-count">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>Jinslar nisbati</h3>
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data Table Section -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3>A'zolar ro'yxati</h3>
+                    <div class="filters">
+                        <input type="text" id="search-input" placeholder="Ism yoki username..." class="filter-input">
+                        <select id="gender-filter" class="filter-select">
+                            <option value="All">Barchasi</option>
+                            <option value="Male">Erkaklar</option>
+                            <option value="Female">Ayollar</option>
+                            <option value="Deleted">O'chirilganlar</option>
+                            <option value="Unknown">Aniqlanmagan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="members-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Ism</th>
+                                <th>Familiya</th>
+                                <th>Username</th>
+                                <th>Jinsi</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- JS orqali to'ldiriladi -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button id="prev-page" class="btn-page">Oldingi</button>
+                    <span id="page-info">Sahifa 1 / 1</span>
+                    <button id="next-page" class="btn-page">Keyingi</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

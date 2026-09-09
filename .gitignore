@@ -1,0 +1,36 @@
+# === Sirlar ===
+.env
+.env.*
+!.env.example
+*.session
+*.session-journal
+
+# === Ma'lumotlar bazasi (real foydalanuvchi ma'lumotlari) ===
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# === Virtual muhitlar (~458 MB) ===
+venv/
+.venv/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# === Cache ===
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Runtime chiqishlar ===
+*.log
+outputs/
+renders/
+uploads/
+
+# === OS ===
+.DS_Store

@@ -1,0 +1,23 @@
+# Sirlar
+.env
+.env.*
+!.env.example
+
+*.db
+*.db-shm
+*.db-wal
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+node_modules/
+*.sqlite3
+renders/
+uploads/
