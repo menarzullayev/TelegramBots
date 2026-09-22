@@ -1,0 +1,16 @@
+[Unit]
+Description=TezMafia Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/nsn/Workspace/TelegramBots/tezmafia
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/nsn/Workspace/TelegramBots/tezmafia/.venv/bin/tezmafia
+Restart=on-failure
+RestartSec=5
+Nice=10
+
+[Install]
+WantedBy=default.target

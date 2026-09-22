@@ -1,0 +1,38 @@
+name: TezMafia Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "tezmafia/**"
+      - ".github/workflows/tezmafia-deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: systemd user service (SSH)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || vars.TEZMAFIA_DEPLOY == 'true'
+    # Optional: create `tezmafia-production` in GitHub Environments for approval gates.
+    # environment: tezmafia-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync and restart on host
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.TEZMAFIA_SSH_HOST }}
+          username: ${{ secrets.TEZMAFIA_SSH_USER }}
+          key: ${{ secrets.TEZMAFIA_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            REPO="${{ secrets.TEZMAFIA_DEPLOY_PATH }}"
+            cd "$REPO"
+            git fetch origin main
+            git checkout main
+            git pull --ff-only origin main
+            cd tezmafia
+            .venv/bin/pip install -e ".[dev]" -q
+            systemctl --user restart tezmafia.service
+            systemctl --user is-active tezmafia.service
