@@ -16,10 +16,10 @@ jobs:
     # Optional: create `tezmafia-production` in GitHub Environments for approval gates.
     # environment: tezmafia-production
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Sync and restart on host
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.TEZMAFIA_SSH_HOST }}
           username: ${{ secrets.TEZMAFIA_SSH_USER }}
