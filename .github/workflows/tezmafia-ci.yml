@@ -30,7 +30,6 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: tezmafia/pyproject.toml
 
       - name: Install package
         run: pip install -e ".[dev]"

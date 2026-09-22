@@ -13,7 +13,8 @@ jobs:
     name: systemd user service (SSH)
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
-    environment: tezmafia-production
+    # Optional: create `tezmafia-production` in GitHub Environments for approval gates.
+    # environment: tezmafia-production
     steps:
       - uses: actions/checkout@v4
 
