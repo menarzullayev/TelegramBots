@@ -1,0 +1,35 @@
+[project]
+name = "tezmafia"
+version = "1.0.0"
+description = "Production Telegram Mafia bot (group + DM engine)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aiogram>=3.22.0",
+  "aiosqlite>=0.21.0",
+  "sqlalchemy[asyncio]>=2.0.36",
+  "pydantic-settings>=2.6.0",
+  "pydantic>=2.10.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0"]
+
+[project.scripts]
+tezmafia = "tezmafia.__main__:main"
+tezmafia-qa = "tezmafia.qa_gate:main"
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["tezmafia*"]
+
+[tool.setuptools.package-data]
+tezmafia = ["locales/*.json"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["qa: JIRA QA board ticket"]

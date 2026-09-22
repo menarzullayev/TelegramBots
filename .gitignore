@@ -34,3 +34,9 @@ uploads/
 
 # === OS ===
 .DS_Store
+
+# === TezMafia runtime (public repo) ===
+tezmafia/data/
+tezmafia/.pytest_cache/
+tezmafia/.tgcloud/
+tezmafia/docs/qa/last-run.json
