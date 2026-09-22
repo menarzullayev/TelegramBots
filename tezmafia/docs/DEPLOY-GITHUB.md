@@ -11,11 +11,13 @@ Workflow: `.github/workflows/tezmafia-ci.yml`
 
 Fake `BOT_TOKEN` va in-memory sqlite — `.env` kerak emas.
 
-## CD (faqat `main`, `tezmafia/**` o‘zgarganda)
+## CD (SSH deploy)
 
 Workflow: `.github/workflows/tezmafia-deploy.yml`
 
 SSH orqali hostda `git pull` + `pip install -e ".[dev]"` + `systemctl --user restart tezmafia.service`.
+
+**Avtomatik `main` deploy:** Repository → Settings → Secrets and variables → **Variables** → `TEZMAFIA_DEPLOY` = `true` (secrets qo‘yilgandan keyin). Aks holda faqat **Actions → Run workflow** (manual).
 
 ### GitHub Secrets (Settings → Secrets and variables → Actions)
 

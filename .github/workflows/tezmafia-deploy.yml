@@ -12,7 +12,7 @@ jobs:
   deploy:
     name: systemd user service (SSH)
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch' || vars.TEZMAFIA_DEPLOY == 'true'
     # Optional: create `tezmafia-production` in GitHub Environments for approval gates.
     # environment: tezmafia-production
     steps:
