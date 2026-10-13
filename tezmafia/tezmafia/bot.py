@@ -1266,21 +1266,35 @@ async def assert_polling_contract(bot: Bot) -> None:
         raise RuntimeError(f"DECISION-10: webhook attached ({host}); polling contract broken")
 
 
-async def setup_bot_profile(bot: Bot) -> None:
-    marker = Path("data/.profile_ok")
-    if not marker.exists():
-        try:
+async def _sync_bot_profile(bot: Bot) -> None:
+    """Per-language bot description; re-applied only when the catalog texts change."""
+    profile = {lang: (t(lang, "profile.short"), t(lang, "profile.desc")) for lang in LANGS}
+    digest = hashlib.sha1(json.dumps(profile, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]
+    marker = Path("data") / f".profile_{digest}"
+    if marker.exists():
+        return
+    previous = list(Path("data").glob(".profile_*"))
+    try:
+        if not previous:
+            # setMyName is flood-limited for hours; the name never changes, so set it once.
             await bot.set_my_name("TezMafia")
-            await bot.set_my_short_description("Qorashahar — guruhingiz uchun klassik Mafiya. Hakam — bot.")
-            await bot.set_my_description(
-                "TezMafia — guruhingizni Qorashaharga aylantiradi. Bot — hakam: rollarni shaxsiy xabarda "
-                "tarqatadi, tun va kunni boshqaradi, ovozlarni sanaydi. 5 kishidan boshlab. "
-                "Botni guruhga qo‘shing va /mafia yozing."
-            )
-            marker.parent.mkdir(exist_ok=True)
-            marker.write_text("ok\n", encoding="utf-8")
-        except Exception:
-            log.warning("profile texts skipped (flood or reject)", exc_info=True)
+        for lang, tg in [("uz", None), *TG_LANG.items()]:
+            short, desc = profile[lang]
+            kwargs: dict = {"language_code": tg} if tg else {}
+            await bot.set_my_short_description(short, **kwargs)
+            await bot.set_my_description(desc, **kwargs)
+        Path("data").mkdir(exist_ok=True)
+        for old in previous:
+            old.unlink(missing_ok=True)
+        marker.write_text(digest + "\n", encoding="utf-8")
+    except TelegramRetryAfter as exc:
+        log.warning("profile texts flood retry_after=%s", getattr(exc, "retry_after", "?"))
+    except Exception:
+        log.warning("profile texts skipped (flood or reject)", exc_info=True)
+
+
+async def setup_bot_profile(bot: Bot) -> None:
+    await _sync_bot_profile(bot)
     await _sync_bot_commands(bot)
     await bot.set_my_default_administrator_rights(
         ChatAdministratorRights(

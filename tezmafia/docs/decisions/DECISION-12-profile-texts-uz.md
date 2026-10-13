@@ -1,6 +1,6 @@
 # DECISION-12 — Bot profil matnlari uz
 
-**Status:** accepted  
+**Status:** superseded by DECISION-14 (2026-10-14)  
 **Date:** 2026-09-22  
 **Decider:** user (AskUserQuestion `profile-i18n`)  
 **Depends on:** DECISION-09
