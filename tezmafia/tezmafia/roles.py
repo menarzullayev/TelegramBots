@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
+from tezmafia.i18n import role_title
+
 
 class Role(StrEnum):
     CITIZEN = "citizen"
@@ -58,29 +60,8 @@ ROLE_FACTION = {
     Role.SNITCH: Faction.NEUTRAL,
 }
 
-ROLE_UZ = {
-    Role.CITIZEN: "Tinch aholi",
-    Role.MAFIA: "Qora qo‘l",
-    Role.DON: "Don",
-    Role.DETECTIVE: "Komissar",
-    Role.SERGEANT: "Serjant",
-    Role.DOCTOR: "Shifokor",
-    Role.MANIAC: "Manyak",
-    Role.HOOKER: "Oshiq",
-    Role.LAWYER: "Advokat",
-    Role.SUICIDE: "O‘z joniga qasd",
-    Role.HOBO: "Darvesh",
-    Role.LUCKY: "Omadli",
-    Role.KAMIKAZE: "Kamikadze",
-    Role.MAYOR: "Hokim",
-    Role.JOURNALIST: "Jurnalist",
-    Role.KILLER: "Qotil",
-    Role.WEREWOLF: "Bo‘ri",
-    Role.ARSONIST: "O‘t qo‘yuvchi",
-    Role.MAGE: "Sehrgar",
-    Role.CROOK: "Firibgar",
-    Role.SNITCH: "Xufiya",
-}
+# Single source of truth is locales/uz.json; this mirror only exists for callers that want a dict.
+ROLE_UZ = {role: role_title("uz", role.value) for role in Role}
 
 NIGHT_ROLES = {
     Role.MAFIA,

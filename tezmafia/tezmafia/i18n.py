@@ -66,7 +66,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Novo jogo",
     },
     "join": {
-        "uz": "Lobbyga qo‘shilish",
+        "uz": "Stolga qo‘shilish",
         "en": "Join lobby",
         "ru": "Войти в лобби",
         "az": "Lobbeyə qoşul",
@@ -79,7 +79,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Entrar no lobby",
     },
     "leave": {
-        "uz": "Lobbydan chiqish",
+        "uz": "Stoldan chiqish",
         "en": "Leave lobby",
         "ru": "Выйти из лобби",
         "az": "Lobbidən çıx",
@@ -92,7 +92,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Sair do lobby",
     },
     "extend": {
-        "uz": "Lobby vaqtini uzaytirish",
+        "uz": "Kutish vaqtini uzaytirish",
         "en": "Extend lobby time",
         "ru": "Продлить лобби",
         "az": "Lobbi vaxtını uzat",
@@ -105,7 +105,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Prolongar o lobby",
     },
     "next": {
-        "uz": "Keyingi faza",
+        "uz": "Keyingi bosqich",
         "en": "Next phase",
         "ru": "Следующая фаза",
         "az": "Növbəti mərhələ",
@@ -118,7 +118,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Próxima fase",
     },
     "status": {
-        "uz": "Holat",
+        "uz": "Hozir nima bo‘lyapti",
         "en": "Status",
         "ru": "Статус",
         "az": "Status",
@@ -131,7 +131,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Status",
     },
     "status_dm": {
-        "uz": "Mening o‘yinim",
+        "uz": "Mening stolim",
         "en": "My game",
         "ru": "Моя игра",
         "az": "Oyunum",
@@ -144,7 +144,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Meu jogo",
     },
     "roles": {
-        "uz": "Rollar",
+        "uz": "Rollar katalogi",
         "en": "Roles",
         "ru": "Роли",
         "az": "Rollar",
@@ -170,7 +170,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Perfil",
     },
     "shop": {
-        "uz": "Do‘kon",
+        "uz": "Qora bozor",
         "en": "Shop",
         "ru": "Магазин",
         "az": "Mağaza",
@@ -183,7 +183,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Loja",
     },
     "buy": {
-        "uz": "Xarid: /buy maska",
+        "uz": "Sotib olish, masalan: /buy niqob",
         "en": "Buy: /buy mask",
         "ru": "Купить: /buy maska",
         "az": "Al: /buy maska",
@@ -196,7 +196,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Comprar: /buy maska",
     },
     "top": {
-        "uz": "Reyting",
+        "uz": "Qorashahar afsonalari",
         "en": "Leaderboard",
         "ru": "Рейтинг",
         "az": "Reytinq",
@@ -209,7 +209,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Ranking",
     },
     "settings": {
-        "uz": "Til / sozlama",
+        "uz": "Til va sozlamalar",
         "en": "Language / settings",
         "ru": "Язык / настройки",
         "az": "Dil / ayarlar",
@@ -235,7 +235,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Cancelar o jogo",
     },
     "help": {
-        "uz": "Qoidalar",
+        "uz": "Yordam va qoidalar",
         "en": "Rules",
         "ru": "Правила",
         "az": "Qaydalar",
@@ -248,7 +248,7 @@ _CMD: dict[str, dict[str, str]] = {
         "br": "Regras",
     },
     "start": {
-        "uz": "DM ochish",
+        "uz": "Botni ishga tushirish",
         "en": "Open DM",
         "ru": "Открыть ЛС",
         "az": "DM aç",
@@ -317,6 +317,10 @@ def role_card_body(lang: str, role: str) -> str:
 
 def role_dm_body(lang: str, role: str) -> str:
     return t(lang, f"role.{role}.dm")
+
+
+def phase_label(lang: str, phase: str) -> str:
+    return t(lang, f"phase.{phase}")
 
 
 def item_title(lang: str, key: str) -> str:
