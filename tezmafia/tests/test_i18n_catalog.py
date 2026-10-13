@@ -38,6 +38,17 @@ def test_catalog_mismatches_catches_broken_entries() -> None:
     assert catalog_mismatches(source, {**source, "d": "x"}) == ["extra:d"]
 
 
+def test_bot_profile_texts_fit_telegram_limits() -> None:
+    # Bot API: short description <= 120 chars, description <= 512, command description 1..256.
+    for lang in LANGS:
+        assert 0 < len(t(lang, "profile.short")) <= 120, lang
+        assert 0 < len(t(lang, "profile.desc")) <= 512, lang
+        assert "/mafia" in t(lang, "profile.desc"), lang
+        for key in ("mafia", "join", "status_dm", "buy", "help", "start"):
+            assert 0 < len(cmd(lang, key)) <= 256, (lang, key)
+            assert cmd(lang, key) != key, (lang, key)
+
+
 def test_phase_labels_translated_for_all_langs() -> None:
     for lang in LANGS:
         for phase in Phase:

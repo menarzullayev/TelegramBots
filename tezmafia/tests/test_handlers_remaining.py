@@ -497,11 +497,27 @@ async def test_setup_profile_branches(app: App, tmp_path, monkeypatch) -> None:
     await setup_bot_profile(bot)  # type: ignore[arg-type]
     langs = [c.kwargs.get("language_code") for c in bot.set_my_commands.await_args_list]
     assert None in langs and "en" in langs and "uk" in langs
-    marker = tmp_path / "data" / ".profile_ok"
-    marker.parent.mkdir(exist_ok=True)
-    marker.write_text("ok\n")
+    # setMyName flood aborts the profile sync: nothing sent, no marker, so the next start retries.
+    bot.set_my_description.assert_not_awaited()
+    assert not list((tmp_path / "data").glob(".profile_*"))
+
+    legacy = tmp_path / "data" / ".profile_ok"
+    legacy.parent.mkdir(exist_ok=True)
+    legacy.write_text("ok\n")
     bot.set_my_name = AsyncMock()
     await setup_bot_profile(bot)  # type: ignore[arg-type]
+    # A previous marker means the name is already set; only the per-language texts go out.
+    bot.set_my_name.assert_not_awaited()
+    desc_langs = [c.kwargs.get("language_code") for c in bot.set_my_description.await_args_list]
+    short_langs = [c.kwargs.get("language_code") for c in bot.set_my_short_description.await_args_list]
+    assert desc_langs == short_langs
+    assert None in desc_langs and "en" in desc_langs and "uk" in desc_langs and "pt" in desc_langs
+    assert not legacy.exists()
+    assert len(list((tmp_path / "data").glob(".profile_*"))) == 1
+
+    sent = bot.set_my_description.await_count
+    await setup_bot_profile(bot)  # type: ignore[arg-type]
+    assert bot.set_my_description.await_count == sent  # unchanged texts are not re-sent
 
 
 @pytest.mark.asyncio
