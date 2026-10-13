@@ -35,12 +35,19 @@ ITEMS: dict[str, dict[str, object]] = {
 
 ALIASES = {
     "himoya": "shield",
+    "qalqon": "shield",
     "tun": "shield",
     "sud": "vote_shield",
     "maska": "mask",
+    "niqob": "mask",
     "hujjat": "fake_id",
     "miltiq": "gun",
+    "to‘pponcha": "gun",
+    "to'pponcha": "gun",
+    "topponcha": "gun",
     "qotil": "killer_shield",
+    "jallod": "killer_shield",
+    "nimcha": "killer_shield",
 }
 
 ROLE_TICKET_COST = 35

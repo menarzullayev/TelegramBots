@@ -55,7 +55,7 @@ from tezmafia.engine import (
     start,
 )
 from tezmafia.emoji import FX
-from tezmafia.i18n import LANGS, TG_LANG, cmd, t
+from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import chats_kb, host_kb, lang_kb, lobby_kb, lynch_kb, menu_kb, night_kb, roles_kb, shop_kb, vote_kb
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
 from tezmafia import texts
@@ -567,14 +567,16 @@ def _is_group(message: Message) -> bool:
 @router.message(Command("mafia", "newgame", "game"))
 async def cmd_mafia(message: Message) -> None:
     if not message.from_user or not _is_group(message):
-        await message.answer("O‘yinni guruhda /mafia bilan oching.")
+        await message.answer(t(await _lang(message.chat.id), "mafia.group_only"))
         return
     async with app.lock:
         existing = await app.store.active_in_chat(message.chat.id)
         if existing and existing.phase != Phase.FINISHED:
-            await app.refresh_lobby(existing) if existing.phase == Phase.LOBBY else await message.answer(
-                f"Bu guruhda o‘yin bor ({existing.phase})."
-            )
+            if existing.phase == Phase.LOBBY:
+                await app.refresh_lobby(existing)
+            else:
+                lang = await _lang(message.chat.id)
+                await message.answer(t(lang, "mafia.busy", phase=phase_label(lang, existing.phase)))
             return
         game = new_game(message.chat.id, message.from_user.id, **app.cfg())
         join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
@@ -605,7 +607,11 @@ async def cmd_join(message: Message) -> None:
         await app.refresh_lobby(game)
         if not game.by_user(message.from_user.id) or not game.by_user(message.from_user.id).dm_ok:
             await message.answer(
-                f"DM oching: https://t.me/{app.settings.bot_username}?start=g_{game.id}",
+                t(
+                    await _lang(message.chat.id),
+                    "join.open_dm",
+                    link=f"https://t.me/{app.settings.bot_username}?start=g_{game.id}",
+                ),
                 link_preview_options=NO_PREVIEW,
             )
 
@@ -638,7 +644,9 @@ async def cmd_status(message: Message) -> None:
         if not game:
             await message.answer(t(lang, "status.none"))
             return
-        await message.answer(t(lang, "status.phase", phase=game.phase, n=len(game.alive_players())))
+        await message.answer(
+            t(lang, "status.phase", phase=phase_label(lang, game.phase), n=len(game.alive_players()))
+        )
         return
     lang = await _lang(message.chat.id)
     game = await app.store.active_in_chat(message.chat.id)
@@ -648,7 +656,15 @@ async def cmd_status(message: Message) -> None:
     if game.phase == Phase.LOBBY:
         await app.refresh_lobby(game)
         return
-    await message.answer(t(lang, "status.live", phase=game.phase, round=game.round, n=len(game.alive_players())))
+    await message.answer(
+        t(
+            lang,
+            "status.live",
+            phase=phase_label(lang, game.phase),
+            round=game.round,
+            n=len(game.alive_players()),
+        )
+    )
 
 
 @router.message(Command("roles"))
@@ -1255,10 +1271,11 @@ async def setup_bot_profile(bot: Bot) -> None:
     if not marker.exists():
         try:
             await bot.set_my_name("TezMafia")
-            await bot.set_my_short_description("Qora shahar. Guruhda klassik Mafia.")
+            await bot.set_my_short_description("Qorashahar — guruhingiz uchun klassik Mafiya. Hakam — bot.")
             await bot.set_my_description(
-                "TezMafia — guruhda klassik Mafia. Bot hakam: tun/kun, DM rollar, ovoz, mute. "
-                "5–16 o‘yinchi. Guruhda /mafia, keyin Join + DM ochish, host Start."
+                "TezMafia — guruhingizni Qorashaharga aylantiradi. Bot — hakam: rollarni shaxsiy xabarda "
+                "tarqatadi, tun va kunni boshqaradi, ovozlarni sanaydi. 5 kishidan boshlab. "
+                "Botni guruhga qo‘shing va /mafia yozing."
             )
             marker.parent.mkdir(exist_ok=True)
             marker.write_text("ok\n", encoding="utf-8")
