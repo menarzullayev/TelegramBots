@@ -31,6 +31,7 @@ from tezmafia.engine import (
 from tezmafia.keyboards import lobby_kb, night_kb, roles_kb, vote_kb
 from tezmafia.roles import Role, bag_for
 from tezmafia import texts
+from tezmafia.i18n import t
 
 
 def _ready(n: int = 5, host: int = 100) -> object:
@@ -306,8 +307,8 @@ def test_texts_and_emoji_and_keyboards() -> None:
     g = _ready(5)
     _force(g, ["mafia", "detective", "citizen", "citizen", "citizen"])
     assert "tg-emoji" in texts.lobby_text(g, "bot")
-    assert "Qora" in texts.roles_public(g)
-    assert "Qora qo‘l" in texts.role_dm(g, 100)
+    assert t("uz", "role.mafia") in texts.roles_public(g)
+    assert t("uz", "role.mafia") in texts.role_dm(g, 100)
     assert "Komissar" in texts.role_dm(g, 101)
     assert "Tinch" in texts.role_dm(g, 102)
     assert texts.role_dm(g, 999)
@@ -320,14 +321,14 @@ def test_texts_and_emoji_and_keyboards() -> None:
     g.night_saved = True
     g.night_miss = False
     g.last_death_seat = None
-    assert "Shifokor" in texts.day_group(g, True)
+    assert t("uz", "day.saved") in texts.day_group(g, True)
     g.night_saved = False
     g.last_death_seat = 5
     g.last_death_role = "citizen"
     g.last_death_cause = "night"
-    assert "uyiga" in texts.day_group(g, True)
+    assert t("uz", "day.death", name="|").split("|")[0] in texts.day_group(g, True)
     assert "Sud" in texts.vote_group(g)
-    assert "ovoz yo‘q" in texts.vote_tally(g)
+    assert t("uz", "vote.none") in texts.vote_tally(g)
     set_vote  # keep import used
     begin_voting(g, 0, 10)
     set_vote(g, 101, 1)
@@ -336,12 +337,12 @@ def test_texts_and_emoji_and_keyboards() -> None:
     g.last_death_seat = 1
     g.last_death_cause = "vote"
     g.last_death_role = "mafia"
-    assert "sud" in texts.elim_group(g, False, True)
+    assert t("uz", "elim.out", name="|").split("|")[0] in texts.elim_group(g, False, True)
     g.winner = "mafia"
-    assert "quladi" in texts.game_over(g)
+    assert t("uz", "go.mafia") in texts.game_over(g)
     g.winner = "town"
-    assert "nafas" in texts.game_over(g)
-    assert "Game Over" in texts.game_over_short(g)
+    assert t("uz", "go.town") in texts.game_over(g)
+    assert t("uz", "go.header") in texts.game_over_short(g)
     assert "Qorashahar" in texts.help_html()
     for code in ("not_lobby", "too_few", "dm_pending"):
         assert texts.start_reason(code)
@@ -359,7 +360,7 @@ def test_texts_and_emoji_and_keyboards() -> None:
         "unknown",
     ):
         assert texts.action_reason(code)
-    assert "Qora" in texts.detective_result("X", True)
+    assert t("uz", "role.mafia") in texts.detective_result("X", True)
     assert "tinch" in texts.detective_result("X", False)
     assert texts.dm_opened()
     assert texts.cancelled()
@@ -394,12 +395,12 @@ def test_win_check_neither() -> None:
 def test_remaining_branches() -> None:
     g = new_game(1, 1)
     join(g, 1, "A", None)
-    assert "quloq" in texts.lobby_text(g, "bot")
+    assert t("uz", "lobby.pending") in texts.lobby_text(g, "bot")
     g7 = _ready(7)
     start(g7, rng=random.Random(1))
     doctor = next(p for p in g7.players if p.role == "doctor")
     det = next(p for p in g7.players if p.role == "detective")
-    assert "Shifokor" in texts.role_dm(g7, doctor.user_id)
+    assert t("uz", "role.doctor") in texts.role_dm(g7, doctor.user_id)
     assert night_kb(g7, det.user_id).inline_keyboard
     assert night_kb(g7, doctor.user_id).inline_keyboard
     g = _ready(5)
@@ -410,13 +411,13 @@ def test_remaining_branches() -> None:
     assert "Tong" in texts.day_group(g, True)
     g.last_death_seat = None
     g.last_death_cause = None
-    assert "yetarli" in texts.elim_group(g, False, True)
+    assert t("uz", "elim.none") in texts.elim_group(g, False, True)
     assert texts.help_text()
     assert "rollar" in texts.roles_catalog().lower() or "Rol" in texts.roles_catalog()
-    assert "Qora" in texts.role_card("mafia")
+    assert t("uz", "role.mafia") in texts.role_card("mafia")
     assert texts.role_card("missing-role")
     g.winner = "mafia"
-    assert "Qora" in texts.game_over_short(g)
+    assert t("uz", "go.short.mafia") in texts.game_over_short(g)
     for w in ("maniac", "suicide", "arsonist", "snitch", "mage", "crook"):
         g.winner = w
         assert texts.game_over_short(g)

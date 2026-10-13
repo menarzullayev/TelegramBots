@@ -27,6 +27,7 @@ from tezmafia.engine import (
 from tezmafia.keyboards import lang_kb, lynch_kb, night_kb
 from tezmafia.roles import ROLE_FACTION, Role, bag_for
 from tezmafia import texts
+from tezmafia.i18n import t
 
 
 def _ready(n: int = 5) -> object:
@@ -203,7 +204,7 @@ def test_sergeant_mayor_lynch_extend() -> None:
                 assert not b.style
     host = host_kb("qorashahar_mafia_bot")
     host_labels = [b.text for row in host.inline_keyboard for b in row]
-    assert "Stolga kirish" in host_labels
+    assert t("uz", "btn.enter") in host_labels
     assert any(b.url and "startgroup" in (b.url or "") for row in host.inline_keyboard for b in row)
     chats = chats_kb([live], "qorashahar_mafia_bot")
     assert chats.inline_keyboard
@@ -214,7 +215,7 @@ def test_sergeant_mayor_lynch_extend() -> None:
     live.winner = "maniac"
     assert "Manyak" in texts.game_over(live)
     live.winner = "suicide"
-    assert "qasd" in texts.game_over_short(live)
+    assert t("uz", "go.short.suicide") in texts.game_over_short(live)
     assert texts.lynch_text(live)
     assert texts.profile_text("A", 1, 1)
     assert texts.top_text([])
@@ -340,9 +341,9 @@ def test_az_roles_and_detective_shoot() -> None:
         p.alive = False
     assert win_check(g) == Winner.CROOK
     g.winner = "arsonist"
-    assert "yondi" in texts.game_over(g)
+    assert t("uz", "go.arsonist") in texts.game_over(g)
     g.winner = "snitch"
-    assert "Xufiya" in texts.game_over_short(g)
+    assert t("uz", "go.short.snitch") in texts.game_over_short(g)
 
 
 def test_afk_two_nights_kills_night_roles() -> None:
@@ -471,10 +472,10 @@ def test_shop_items_and_detective_n1() -> None:
         p.pop("shop_gun", None)
     restored = from_dict(blob)
     assert restored.players[0].shop_shield is False
-    assert "Dollar" in texts.profile_text("A", 1, 1, 35, 1, {"shield": 1})
-    assert "himoya" in texts.shop_text(10, 0, {}).lower() or "Himoya" in texts.shop_text(10, 0, {})
-    assert "Qotildan" in texts.shop_text(10, 0, {})
-    assert "tekshiruv" in texts.action_reason("no_first_shoot")
+    assert t("uz", "profile.wallet", coins=35, gems=1) in texts.profile_text("A", 1, 1, 35, 1, {"shield": 1})
+    assert t("uz", "item.shield.title") in texts.shop_text(10, 0, {})
+    assert t("uz", "item.killer_shield.title") in texts.shop_text(10, 0, {})
+    assert t("uz", "action.no_first_shoot") in texts.action_reason("no_first_shoot")
     from tezmafia.shop import resolve_item, resolve_role
 
     assert resolve_item("maska") == "mask"
@@ -486,4 +487,4 @@ def test_shop_items_and_detective_n1() -> None:
 
     assert resolve_role(ROLE_UZ[Role.DOCTOR]) == "doctor"
     assert resolve_role("???") is None
-    assert "Keyingi rol" in texts.profile_text("A", 1, 1, 0, 0, {}, "detective")
+    assert t("uz", "profile.next", title="|").split("|")[0] in texts.profile_text("A", 1, 1, 0, 0, {}, "detective")

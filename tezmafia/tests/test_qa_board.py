@@ -19,7 +19,7 @@ from aiogram.filters import CommandObject
 from aiogram.types import Chat, User
 
 from tezmafia import bot as botmod
-from tezmafia import texts
+from tezmafia import i18n, texts
 from tezmafia.bot import App
 from tezmafia.config import Settings
 from tezmafia.db import Store
@@ -232,7 +232,7 @@ async def qa_06(tmp, mp):
     assert len(ROLE_UZ) == 21
     assert "killer_shield" in ITEMS
     assert "/buy" in texts.help_html()
-    assert "Do‘kon" in texts.shop_text(0, 0, {})
+    assert i18n.t("uz", "shop.title") in texts.shop_text(0, 0, {})
 
 
 async def qa_07(tmp, mp):
@@ -707,7 +707,7 @@ async def qa_54(tmp, mp):
 
 async def qa_55(tmp, mp):
     labels = [b.text for row in menu_kb().inline_keyboard for b in row]
-    assert "Profil" in labels and "Do‘kon" in labels
+    assert i18n.t("uz", "btn.profile") in labels and i18n.t("uz", "btn.shop") in labels
     assert all(len(t) >= 2 for t in labels)
 
 
@@ -981,7 +981,7 @@ async def qa_87(tmp, mp):
     for p in g.players[1:]:
         p.alive = False
     win_check(g)
-    assert "Qora" in texts.game_over(g) or "quladi" in texts.game_over(g)
+    assert i18n.t("uz", "go.mafia") in texts.game_over(g)
 
 
 async def qa_88(tmp, mp):

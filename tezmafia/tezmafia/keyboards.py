@@ -155,14 +155,13 @@ def host_kb(bot_username: str, lang: str = "uz") -> InlineKeyboardMarkup:
 
 
 def chats_kb(games: list[Game], bot_username: str, lang: str = "uz") -> InlineKeyboardMarkup:
-    from tezmafia.i18n import t
+    from tezmafia.i18n import phase_label, t
 
     rows: list[list[InlineKeyboardButton]] = []
     for game in games[:8]:
         deep = f"https://t.me/{bot_username}?start=g_{game.id}"
-        rows.append(
-            [_btn(t(lang, "chats.table", phase=game.phase, n=len(game.players)), url=deep, emoji="door")]
-        )
+        label = t(lang, "chats.table", phase=phase_label(lang, game.phase), n=len(game.players))
+        rows.append([_btn(label, url=deep, emoji="door")])
     rows.append([_btn(t(lang, "btn.add_group"), url=add_group_url(bot_username), emoji="robot")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
