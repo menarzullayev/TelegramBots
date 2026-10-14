@@ -3,6 +3,21 @@
 Qarorlar: `docs/decisions/DECISION-15-modernization-2026.md`. Har bosqich — alohida PR, CI yashil bo‘lgach merge va
 production'da o‘lchash. Bosqich ichidagi kattaroq tanlovlar egasi bilan `AskUserQuestion` orqali kelishiladi.
 
+## Holat (2026-10-14)
+
+| Bosqich | Holat | PR |
+| --- | --- | --- |
+| F0 Ishga tushirish | ✅ Windows: supervisor + Task Scheduler; Linux skripti tayyor (birinchi Linux yuklanishida o‘rnatiladi) | #6, #9, #11 |
+| F1 Asos | ✅ | #6 |
+| F2 Qoidalar | ✅ telegra.ph sahifalar, BotFather'da privacy havolasi | #7 |
+| F3 Bot API 10.3 | ✅ | #8 |
+| F4 Stars | ✅ (haqiqiy to‘lov hali sinalmagan — invoice ko‘rinishi tekshirildi) | #10 |
+| F5 O‘yin | ✅ | #12 |
+| F6 Mini App | ✅ https://mafia.bugvector.uz/ | #13 |
+| F7 Server | ⏳ 1000+ foydalanuvchidan keyin | — |
+
+Ish tartibi: `docs/DEPLOY-LOCAL.md`.
+
 ## F0 — Ishga tushirish va kuzatuv
 - Windows: Task Scheduler orqali login/boot'da avto-start, qulasa qayta ishga tushish, bitta nusxa kafolati.
 - Linux (dual-boot): systemd user service, D: diskdagi umumiy `data/`; ma’lumot yo‘llari absolyut (`DATA_DIR`).
