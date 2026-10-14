@@ -42,6 +42,16 @@ class UserStat(Base):
     first_seen: Mapped[float | None] = mapped_column(Float, default=time.time, nullable=True)
 
 
+class Activity(Base):
+    """One row per user, day and channel ("dm" / "group"): the bot's own DAU/MAU source."""
+
+    __tablename__ = "activity"
+
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    channel: Mapped[str] = mapped_column(String(8), primary_key=True)
+
+
 class ChatPref(Base):
     __tablename__ = "prefs"
 
@@ -107,6 +117,12 @@ class Store:
                 row.updated_at = time.time()
             await s.commit()
 
+    async def prune_activity(self, keep_days: int = 400) -> None:
+        cutoff = time.strftime("%Y-%m-%d", time.localtime(time.time() - keep_days * 86400))
+        async with self.session() as s:
+            await s.execute(delete(Activity).where(Activity.day < cutoff))
+            await s.commit()
+
     async def prune_finished(self, older_than_days: float) -> int:
         """Delete finished games last touched before the cutoff (rows without a timestamp are kept)."""
         cutoff = time.time() - older_than_days * 86400
@@ -126,6 +142,7 @@ class Store:
         async with self.session() as s:
             stats = await s.execute(delete(UserStat).where(UserStat.user_id == user_id))
             prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
+            await s.execute(delete(Activity).where(Activity.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
             for row in rows:
                 data = json.loads(row.payload)
@@ -140,6 +157,22 @@ class Store:
                     scrubbed += 1
             await s.commit()
         return {"stats": stats.rowcount or 0, "prefs": prefs.rowcount or 0, "games": scrubbed}
+
+    async def touch_activity(self, day: str, user_id: int, channel: str) -> None:
+        async with self.session() as s:
+            await s.execute(
+                text("INSERT OR IGNORE INTO activity (day, user_id, channel) VALUES (:d, :u, :c)"),
+                {"d": day, "u": user_id, "c": channel},
+            )
+            await s.commit()
+
+    async def active_users(self, since_day: str, channel: str | None = None) -> int:
+        """Distinct users active on or after since_day (YYYY-MM-DD), optionally in one channel."""
+        q = select(func.count(func.distinct(Activity.user_id))).where(Activity.day >= since_day)
+        if channel:
+            q = q.where(Activity.channel == channel)
+        async with self.session() as s:
+            return (await s.execute(q)).scalar_one()
 
     async def report_since(self, since: float) -> dict[str, int]:
         """Counters for the owner's daily report."""
