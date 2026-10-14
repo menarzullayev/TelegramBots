@@ -58,6 +58,7 @@ from tezmafia.engine import (
     begin_voting,
     can_start,
     cancel,
+    end_if_stalemate,
     extend_lobby,
     join,
     kick,
@@ -542,6 +543,9 @@ class App:
             await self.enter_day(game, from_night=False)
 
     async def enter_night(self, game: Game) -> None:
+        if end_if_stalemate(game):
+            await self.finish(game)
+            return
         begin_night(game, time.time(), self.timer(game, "night"))
         await self.persist(game)
         self.schedule(game.id, self.timer(game, "night"), lambda: self._timed_resolve_night(game.id))
@@ -644,7 +648,7 @@ class App:
 
         lang = await self.lang(player.user_id)
         result = t(lang, "card.draw" if game.winner == "draw" else "card.win" if won else "card.loss")
-        winner = t(lang, f"go.short.{game.winner}") if game.winner else ""
+        winner = t(lang, f"go.short.{texts.outcome_key(game)}") if game.winner else ""
         line = f"{result} — {winner}".rstrip(" —.")
         footer = t(lang, "card.footer", level=level_of(totals["xp"]), games=totals["games"])
         caption = escape(line) + (f"\n\n{extra}" if extra else "")
