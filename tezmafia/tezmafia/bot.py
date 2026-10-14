@@ -1762,7 +1762,8 @@ async def _mod_target(message: Message, command: CommandObject, game: Game | Non
         p = game.by_seat(seat)
         return (p.user_id, p.first_name) if p else None
     if arg.isdigit() and len(arg) > 3:
-        return int(arg), arg
+        known = (await app.store.get_account(int(arg)))["name"]  # show a name, not the raw id, when we know it
+        return int(arg), known or arg
     return None
 
 
@@ -1786,7 +1787,7 @@ async def _mod_prelude(message: Message, command: CommandObject) -> tuple[str, G
         return None
     lang = await _lang(message.chat.id)
     if not await _is_admin(message.chat.id, message.from_user.id):
-        await message.answer(t(lang, "config.admin_only"))
+        await message.answer(t(lang, "mod.admin_only"))
         return None
     game = await app.store.active_in_chat(message.chat.id)
     target = await _mod_target(message, command, game)

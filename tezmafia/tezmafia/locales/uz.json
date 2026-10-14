@@ -449,5 +449,6 @@
   "go.short.draw": "durang bilan tugadi.",
   "card.draw": "Durang",
   "go.stalemate": "Uch kecha-kunduz hech kim o‘lmadi — shahar holdan toydi. Durang.",
-  "go.short.stalemate": "durang — uch aylanma hech kim o‘lmadi."
+  "go.short.stalemate": "durang — uch aylanma hech kim o‘lmadi.",
+  "mod.admin_only": "Bu buyruq faqat guruh adminlari uchun."
 }

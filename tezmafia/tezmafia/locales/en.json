@@ -449,5 +449,6 @@
   "go.short.draw": "ended in a draw.",
   "card.draw": "Draw",
   "go.stalemate": "Three nights and days without a death — the town is exhausted. A draw.",
-  "go.short.stalemate": "a draw — nobody died for three rounds."
+  "go.short.stalemate": "a draw — nobody died for three rounds.",
+  "mod.admin_only": "This command is for group admins only."
 }
