@@ -493,5 +493,19 @@
   "premium.only": "Opsi ini ada di premium grup: /premium",
   "gs.months": "📅 Per bulan:",
   "gs.month_row": "{month}: {players} pemain · #1 {name} ({wins})",
-  "cmd.premium": "Premium grup"
+  "cmd.premium": "Premium grup",
+  "pass.title": "🎟 Pass Qorashahar — {season}",
+  "pass.soon": "Pass musim dimulai {season}.",
+  "pass.progress": "Tingkat {tier}/{tiers} · {xp} XP ({left} XP lagi)",
+  "pass.tracks": "Jalur gratis: koin tiap tingkat, permata tiap ke-5.\nBerbayar: permata, koin, skin di tingkat 10, lencana 🎟 di 20.",
+  "pass.premium_on": "⭐ Jalur berbayar terbuka.",
+  "btn.pass_claim": "🎁 Ambil ({n})",
+  "btn.pass_buy": "⭐ {stars} — jalur berbayar",
+  "pass.claimed": "Diambil: +{coins} koin, +{gems} permata{extra}",
+  "pass.extra_skin": ", skin baru: {name}",
+  "pass.extra_badge": ", lencana 🎟",
+  "pass.nothing": "Belum ada yang bisa diambil — terus bermain.",
+  "pass.inv_desc": "Jalur berbayar musim {season}: permata, koin, skin dan lencana 🎟.",
+  "pass.paid": "⭐ Jalur berbayar terbuka ({season}). /pass untuk ambil.",
+  "cmd.pass": "Pass musim"
 }

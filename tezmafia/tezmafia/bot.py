@@ -98,6 +98,7 @@ from tezmafia.keyboards import (
     menu_kb,
     my_role_kb,
     night_kb,
+    pass_kb,
     premium_kb,
     rematch_kb,
     remind_kb,
@@ -1938,6 +1939,76 @@ def _month_back(back: int) -> str:
     return f"{y:04d}-{m:02d}"
 
 
+async def _pass_view(user_id: int, lang: str) -> tuple[str, Any]:
+    from tezmafia.season_pass import PASS_START, PASS_TIERS, PASS_XP_PER_TIER, active, claimable, tier_of
+
+    season = time.strftime("%Y-%m")
+    if not active(season):
+        return t(lang, "pass.soon", season=PASS_START), None
+    xp, premium, taken = await app.store.pass_state(season, user_id)
+    tier = tier_of(xp)
+    left = 0 if tier >= PASS_TIERS else (tier + 1) * PASS_XP_PER_TIER - xp
+    lines = [f"<b>{t(lang, 'pass.title', season=season)}</b>",
+             t(lang, "pass.progress", tier=tier, tiers=PASS_TIERS, xp=xp, left=left), "", t(lang, "pass.tracks")]
+    if premium:
+        lines.append(t(lang, "pass.premium_on"))
+    return "\n".join(lines), pass_kb(len(claimable(xp, premium, taken)), premium, lang)
+
+
+@router.message(Command("pass"))
+async def cmd_pass(message: Message) -> None:
+    if not message.from_user:
+        return
+    lang = await _lang(message.chat.id)
+    text, kb = await _pass_view(message.from_user.id, lang)
+    await message.answer(text, reply_markup=kb)
+
+
+@router.callback_query(F.data.startswith("ps:"))
+async def cb_pass(query: CallbackQuery) -> None:
+    from tezmafia.season_pass import active
+
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user:
+        await query.answer()
+        return
+    user, lang, season = query.from_user, await _lang(query.from_user.id), time.strftime("%Y-%m")
+    if not active(season):
+        await query.answer()
+        return
+    if parts[1] == "buy":
+        title, desc, stars, _coins = _product("pass", lang)  # type: ignore[misc]
+        try:
+            await app.bot.send_invoice(
+                user.id, title=title, description=desc, payload=f"pass:{user.id}:{season}", currency="XTR",
+                prices=[LabeledPrice(label=title, amount=stars)],
+            )
+        except TelegramForbiddenError:
+            await query.answer(t(lang, "stars.open_dm"), show_alert=True)
+            return
+        await query.answer()
+        return
+    if parts[1] == "claim":
+        got = await app.store.claim_pass(season, user.id, user.first_name)
+        if not got["ids"]:
+            await query.answer(t(lang, "pass.nothing"), show_alert=True)
+            return
+        extra = ""
+        if got["skin"]:
+            extra += t(lang, "pass.extra_skin", name=t(lang, f"skin.{got['skin']}"))
+        if got["badge"]:
+            extra += t(lang, "pass.extra_badge")
+        await query.answer(t(lang, "pass.claimed", coins=got["coins"], gems=got["gems"], extra=extra), show_alert=True)
+        if query.message:
+            text, kb = await _pass_view(user.id, lang)
+            try:
+                await query.message.edit_text(text, reply_markup=kb)
+            except TelegramAPIError:
+                pass
+        return
+    await query.answer()
+
+
 @router.message(Command("premium"))
 async def cmd_premium(message: Message) -> None:
     from tezmafia.shop import GROUP_PREMIUM_STARS
@@ -2617,6 +2688,11 @@ def _product(key: str, lang: str) -> tuple[str, str, int, int] | None:
     """(title, description, stars, coins) for a Stars product key, or None."""
     if key == "vip":
         return "TezMafia VIP", t(lang, "stars.inv_desc_vip"), VIP_STARS, 0
+    if key == "pass":
+        from tezmafia.season_pass import PASS_STARS
+
+        season = time.strftime("%Y-%m")
+        return f"Qorashahar pass {season}", t(lang, "pass.inv_desc", season=season), PASS_STARS, 0
     if key == "gp":
         from tezmafia.shop import GROUP_PREMIUM_STARS
 
@@ -2704,6 +2780,12 @@ async def on_paid(message: Message) -> None:
         return
     if key == "gp":
         await _activate_premium(pay, user, lang, message)
+        return
+    if key == "pass":
+        parts = pay.invoice_payload.split(":")
+        season = parts[2] if len(parts) > 2 else time.strftime("%Y-%m")
+        await app.store.set_pass_premium(season, user.id)
+        await message.answer(t(lang, "pass.paid", season=season))
         return
     acc = await app.store.get_account(user.id)
     await message.answer(t(lang, "stars.paid_coins", coins=coins, balance=acc["coins"]))
@@ -2851,6 +2933,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="help", description=cmd(lang, "help")),
         BotCommand(command="profile", description=cmd(lang, "profile")),
         BotCommand(command="skins", description=cmd(lang, "skins")),
+        BotCommand(command="pass", description=cmd(lang, "pass")),
         BotCommand(command="shop", description=cmd(lang, "shop")),
         BotCommand(command="buy", description=cmd(lang, "buy")),
         BotCommand(command="roles", description=cmd(lang, "roles")),
@@ -2874,7 +2957,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot", "skins", "premium",
+        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot", "skins", "premium", "pass",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

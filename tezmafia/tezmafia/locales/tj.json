@@ -493,5 +493,19 @@
   "premium.only": "Ин танзим бо премиуми гурӯҳ кушода мешавад: /premium",
   "gs.months": "📅 Аз рӯи моҳҳо:",
   "gs.month_row": "{month}: {players} бозингар · ҷойи 1 {name} ({wins})",
-  "cmd.premium": "Премиуми гурӯҳ"
+  "cmd.premium": "Премиуми гурӯҳ",
+  "pass.title": "🎟 Пасси Қорашаҳр — {season}",
+  "pass.soon": "Пасси мавсимӣ аз {season} оғоз мешавад.",
+  "pass.progress": "Зина {tier}/{tiers} · {xp} XP (то навбатӣ {left} XP)",
+  "pass.tracks": "Роҳи ройгон: ҳар зина coin, ҳар 5-ум алмос.\nПулакӣ: алмос, coin, дар 10 скин, дар 20 нишони 🎟.",
+  "pass.premium_on": "⭐ Роҳи пулакӣ кушода.",
+  "btn.pass_claim": "🎁 Гирифтан ({n})",
+  "btn.pass_buy": "⭐ {stars} — роҳи пулакӣ",
+  "pass.claimed": "Гирифта шуд: +{coins} coin, +{gems} алмос{extra}",
+  "pass.extra_skin": ", скини нав: {name}",
+  "pass.extra_badge": ", нишони 🎟",
+  "pass.nothing": "Ҳоло мукофоти гирифтанӣ нест — бозиро идома диҳед.",
+  "pass.inv_desc": "Роҳи пулакии мавсими {season}: алмос, coin, скин ва нишони 🎟.",
+  "pass.paid": "⭐ Роҳи пулакӣ кушода шуд ({season}). /pass — мукофотҳоро гиред.",
+  "cmd.pass": "Пасси мавсимӣ"
 }

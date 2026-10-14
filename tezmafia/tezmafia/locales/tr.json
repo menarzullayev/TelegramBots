@@ -493,5 +493,19 @@
   "premium.only": "Bu seçenek grup premium ile açılır: /premium",
   "gs.months": "📅 Aylara göre:",
   "gs.month_row": "{month}: {players} oyuncu · 1. {name} ({wins})",
-  "cmd.premium": "Grup premium"
+  "cmd.premium": "Grup premium",
+  "pass.title": "🎟 Qorashahar pass — {season}",
+  "pass.soon": "Sezon pass {season} başlıyor.",
+  "pass.progress": "Seviye {tier}/{tiers} · {xp} XP (sonrakine {left} XP)",
+  "pass.tracks": "Ücretsiz yol: her seviyede coin, her 5'te elmas.\nÜcretli: elmas, coin, 10'da skin, 20'de 🎟 rozeti.",
+  "pass.premium_on": "⭐ Ücretli yol açık.",
+  "btn.pass_claim": "🎁 Al ({n})",
+  "btn.pass_buy": "⭐ {stars} — ücretli yol",
+  "pass.claimed": "Alındı: +{coins} coin, +{gems} elmas{extra}",
+  "pass.extra_skin": ", yeni skin: {name}",
+  "pass.extra_badge": ", 🎟 rozeti",
+  "pass.nothing": "Henüz alınacak bir şey yok — oynamaya devam.",
+  "pass.inv_desc": "{season} sezonunun ücretli yolu: elmas, coin, skin ve 🎟 rozeti.",
+  "pass.paid": "⭐ Ücretli yol açıldı ({season}). /pass ile al.",
+  "cmd.pass": "Sezon pass"
 }

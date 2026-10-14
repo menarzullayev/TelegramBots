@@ -103,6 +103,18 @@ class GroupFounder(Base):
     rewarded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class PassProgress(Base):
+    """Season pass: XP earned in a month, whether the paid track is bought, and rewards taken."""
+
+    __tablename__ = "pass_progress"
+
+    season: Mapped[str] = mapped_column(String(7), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    premium: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    claimed: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+
+
 class ChatPremium(Base):
     __tablename__ = "chat_premium"
 
@@ -429,6 +441,7 @@ class Store:
             await s.execute(delete(GamePlayer).where(GamePlayer.user_id == user_id))
             await s.execute(delete(FairPlay).where(FairPlay.user_id == user_id))
             await s.execute(delete(Cosmetic).where(Cosmetic.user_id == user_id))
+            await s.execute(delete(PassProgress).where(PassProgress.user_id == user_id))
             # chat_bans stay: a moderation record must not be erasable by the banned user.
             await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
@@ -627,6 +640,16 @@ class Store:
                             " games = games + 1, wins = wins + :w, points = points + :pt"
                         ),
                         {**p, "k": week, "pt": 1 + 3 * w},
+                    )
+                from tezmafia.season_pass import active as pass_active
+
+                if pass_active(season):
+                    await s.execute(
+                        text(
+                            "INSERT INTO pass_progress (season, user_id, xp, premium, claimed) VALUES (:s, :u, :x, 0, '[]')"
+                            " ON CONFLICT(season, user_id) DO UPDATE SET xp = xp + :x"
+                        ),
+                        {"s": season, "u": uid, "x": xp},
                     )
                 delta = -penalty if afk else bonus
                 await s.execute(
@@ -859,6 +882,65 @@ class Store:
             "players": int(players),
             "top": await self.season_top(season, chat_id=chat_id, limit=5),
         }
+
+    # --- season pass ---------------------------------------------------------------------------
+
+    async def pass_state(self, season: str, user_id: int) -> tuple[int, bool, set[str]]:
+        async with self.session() as s:
+            row = await s.get(PassProgress, (season, user_id))
+            return (row.xp, bool(row.premium), set(json.loads(row.claimed or "[]"))) if row else (0, False, set())
+
+    async def set_pass_premium(self, season: str, user_id: int) -> None:
+        async with self.session() as s:
+            await s.execute(
+                text(
+                    "INSERT INTO pass_progress (season, user_id, xp, premium, claimed) VALUES (:s, :u, 0, 1, '[]')"
+                    " ON CONFLICT(season, user_id) DO UPDATE SET premium = 1"
+                ),
+                {"s": season, "u": user_id},
+            )
+            await s.commit()
+
+    async def claim_pass(self, season: str, user_id: int, name: str) -> dict[str, Any]:
+        """Pay every reached, untaken reward once (one transaction); returns what was given."""
+        from tezmafia.season_pass import PASS_BADGE, claimable, total
+        from tezmafia.shop import SKINS
+
+        async with self.session() as s:
+            row = await s.get(PassProgress, (season, user_id))
+            if row is None:
+                return {"ids": []}
+            taken = set(json.loads(row.claimed or "[]"))
+            ids = claimable(row.xp, bool(row.premium), taken)
+            if not ids:
+                return {"ids": []}
+            got = total(ids)
+            await self._ensure(s, user_id, name)
+            await s.execute(
+                text("UPDATE stats SET coins = COALESCE(coins, 0) + :c, gems = COALESCE(gems, 0) + :g WHERE user_id = :u"),
+                {"c": got["coins"], "g": got["gems"], "u": user_id},
+            )
+            skin = ""
+            if got["skin"]:
+                cos = await s.get(Cosmetic, user_id)
+                owned = set(json.loads(cos.skins or "[]")) if cos else set()
+                skin = next((k for k in SKINS if k not in owned), "")
+                if skin:
+                    if cos is None:
+                        s.add(Cosmetic(user_id=user_id, skin="", skins=json.dumps([skin])))
+                    else:
+                        cos.skins = json.dumps(sorted({*owned, skin}))
+                else:
+                    got["gems"] += 10  # every skin owned already: its value in gems
+                    await s.execute(text("UPDATE stats SET gems = gems + 10 WHERE user_id = :u"), {"u": user_id})
+            if got["badge"]:
+                st = await s.get(UserStat, user_id)
+                badges = json.loads(st.badges or "[]")
+                if PASS_BADGE[0] not in badges:
+                    st.badges = json.dumps([*badges, PASS_BADGE[0]])
+            row.claimed = json.dumps(sorted(taken | set(ids)))
+            await s.commit()
+            return {"ids": ids, "coins": got["coins"], "gems": got["gems"], "skin": skin, "badge": bool(got["badge"])}
 
     # --- group premium -------------------------------------------------------------------------
 
@@ -1281,6 +1363,8 @@ class Store:
                 )
             if pay.product == "vip":
                 await s.execute(text("UPDATE stats SET vip_until = NULL WHERE user_id = :u"), {"u": pay.user_id})
+            if pay.product == "pass":
+                await s.execute(text("UPDATE pass_progress SET premium = 0 WHERE user_id = :u"), {"u": pay.user_id})
             if pay.product == "gp":
                 await s.execute(text("UPDATE chat_premium SET until = 0 WHERE payer = :u"), {"u": pay.user_id})
             await s.commit()
