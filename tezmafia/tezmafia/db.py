@@ -556,11 +556,14 @@ class Store:
         season: str,
         week: str,
         fair: tuple[int, int],
+        tier: str = "full",
     ) -> dict[int, dict[str, int]]:
         """Every per-player row a finished game writes, in one transaction (safe to retry as a whole).
 
         rows: (user_id, name, won, alive, afk). Same effects as bump_stat + bump_season + bump_week +
         adjust_fair_play + link_game; returns each player's totals after the game.
+        tier (games with bots, DECISION-17): "full" 5+ people; "half" 3-4 people = half XP and coins, no
+        gems, season or weekly points; "xp" 1-2 people = XP only.
         """
         from tezmafia.progress import xp_for
 
@@ -574,6 +577,11 @@ class Store:
                 vip_until = (await s.execute(select(UserStat.vip_until).where(UserStat.user_id == uid))).scalar()
                 if vip_until and vip_until > now:
                     coins += int(coins * VIP_COIN_BONUS)
+                xp = xp_for(won, alive)
+                if tier == "half":
+                    coins, xp = coins // 2, xp // 2
+                elif tier == "xp":
+                    coins = 0
                 w = 1 if won else 0
                 p = {"u": uid, "n": name[:128], "w": w}
                 await s.execute(
@@ -581,9 +589,9 @@ class Store:
                         "UPDATE stats SET name = :n, games = games + 1, wins = wins + :w, coins = COALESCE(coins, 0) + :c,"
                         " gems = COALESCE(gems, 0) + :g, xp = COALESCE(xp, 0) + :x WHERE user_id = :u"
                     ),
-                    {**p, "c": coins, "g": WIN_GEMS if won else 0, "x": xp_for(won, alive)},
+                    {**p, "c": coins, "g": WIN_GEMS if won and tier == "full" else 0, "x": xp},
                 )
-                for scope in {0, chat_id}:
+                for scope in ({0, chat_id} if tier == "full" else ()):
                     await s.execute(
                         text(
                             "INSERT INTO season_stats (season, chat_id, user_id, name, games, wins) VALUES (:s, :c, :u, :n, 1, :w)"
@@ -591,14 +599,15 @@ class Store:
                         ),
                         {**p, "s": season, "c": scope},
                     )
-                await s.execute(
-                    text(
-                        "INSERT INTO weekly_stats (week, user_id, name, games, wins, points) VALUES (:k, :u, :n, 1, :w, :pt)"
-                        " ON CONFLICT(week, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :w,"
-                        " points = points + :pt"
-                    ),
-                    {**p, "k": week, "pt": 1 + 3 * w},
-                )
+                if tier == "full":  # no weekly tournament points with bots at the table
+                    await s.execute(
+                        text(
+                            "INSERT INTO weekly_stats (week, user_id, name, games, wins, points)"
+                            " VALUES (:k, :u, :n, 1, :w, :pt) ON CONFLICT(week, user_id) DO UPDATE SET name = :n,"
+                            " games = games + 1, wins = wins + :w, points = points + :pt"
+                        ),
+                        {**p, "k": week, "pt": 1 + 3 * w},
+                    )
                 delta = -penalty if afk else bonus
                 await s.execute(
                     text(

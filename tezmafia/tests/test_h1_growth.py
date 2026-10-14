@@ -108,11 +108,14 @@ async def test_weekly_digest_posts_to_channel_and_reports_to_owner(app: App) -> 
     text = await app.weekly_digest(week_key())
     posts = [c for c in app.bot.calls if c[0] == "send_photo" and c[1][0] == "-1001"]
     assert len(posts) == 1 and t("uz", "news.title", week=week_key()) in posts[0][2]["caption"]
-    assert "P0" in posts[0][2]["caption"]  # this week's leaders are named
+    leaders = await app.store.week_top(week_key(), limit=3)
+    assert leaders and all(name in posts[0][2]["caption"] for _, name, _ in leaders)  # this week's leaders are named
     app.dm.assert_any_await(OWNER, text.split("\n\n")[-1])
     app.bot.calls.clear()
-    await app.weekly_digest(week_key(), post=False)  # preview: no channel post
+    app.dm.reset_mock()
+    await app.weekly_digest(week_key(), post=False)  # preview: no channel post, no duplicate owner DM
     assert not [c for c in app.bot.calls if c[0] == "send_photo" and c[1][0] == "-1001"]
+    app.dm.assert_not_awaited()
 
 
 @pytest.mark.asyncio

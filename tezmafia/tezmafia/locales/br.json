@@ -464,5 +464,9 @@
   "funnel.finished": "Jogos terminados",
   "funnel.repeat": "Grupos que jogaram de novo (2+)",
   "app.tab_admin": "Admin",
-  "cmd.weekly": "Resumo semanal (dono)"
+  "cmd.weekly": "Resumo semanal (dono)",
+  "btn.add_bot": "Adicionar bot",
+  "bot.name": "Robô",
+  "cmd.addbot": "Preencher vaga com bot (anfitrião)",
+  "bot.reward_note": "🤖 Jogo com bots: {humans} pessoas — recompensas reduzidas."
 }

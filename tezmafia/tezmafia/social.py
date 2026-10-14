@@ -30,5 +30,12 @@ def week_key(ts: float | None = None) -> str:
     return time.strftime("%G-W%V", time.localtime(ts if ts is not None else time.time()))
 
 
+def reward_tier(people: int, seats: int) -> str:
+    """DECISION-17: how much a game with bots pays its people (see Store.record_game)."""
+    if people == seats or people >= 5:
+        return "full"
+    return "half" if people >= 3 else "xp"
+
+
 def points(won: bool) -> int:
     return TOUR_GAME_POINTS + (TOUR_WIN_POINTS if won else 0)
