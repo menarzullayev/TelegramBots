@@ -103,6 +103,7 @@ from tezmafia.keyboards import (
     roles_kb,
     share_kb,
     shop_kb,
+    skins_kb,
     top_kb,
     vote_kb,
 )
@@ -512,9 +513,10 @@ class App:
         """Role card to every player; False when at least one DM is closed."""
         for p in game.players:
             effect = FX["fire"] if p.faction == "mafia" else FX["heart"]
+            skin = "" if is_bot(p.user_id) else (await self.store.skins_of(p.user_id))[0]
             ok = await self.dm_photo(
                 p.user_id,
-                role_card(p.role or ""),
+                role_card(p.role or "", skin),
                 texts.role_dm(game, p.user_id, await self.lang(p.user_id)),
                 protect_content=True,
                 message_effect_id=effect,
@@ -674,10 +676,11 @@ class App:
         if len(caption) > 1024:  # Telegram's caption limit; the news then goes as its own DM
             caption, extra = escape(line), ""
         try:
+            skin = (await self.store.skins_of(player.user_id))[0]
             async with self.card_slots:
                 data = await asyncio.to_thread(
                     result_card, player.first_name, player.role or "citizen", role_title(lang, player.role or "citizen"),
-                    won, line, f"{footer} · @{self.settings.bot_username}",
+                    won, line, f"{footer} · @{self.settings.bot_username}", skin,
                 )
             msg = await self.bot.send_photo(
                 player.user_id, BufferedInputFile(data, "tezmafia.jpg"), caption=caption, reply_markup=share_kb(lang),
@@ -1954,6 +1957,52 @@ async def cb_addbot(query: CallbackQuery) -> None:
     await query.answer(refusal or "🤖", show_alert=bool(refusal))
 
 
+def _skins_text(gems: int, lang: str) -> str:
+    from tezmafia.shop import SKIN_COST
+
+    return f"<b>{t(lang, 'skins.title')}</b>\n{t(lang, 'skins.body', cost=SKIN_COST, gems=gems)}"
+
+
+@router.message(Command("skins"))
+async def cmd_skins(message: Message) -> None:
+    if not message.from_user:
+        return
+    lang = await _lang(message.chat.id)
+    worn, owned = await app.store.skins_of(message.from_user.id)
+    gems = (await app.store.get_account(message.from_user.id))["gems"]
+    await _answer_with_photo(
+        message, "raven/skins/preview.jpg", _skins_text(gems, lang), reply_markup=skins_kb(owned, worn, lang)
+    )
+
+
+@router.callback_query(F.data.startswith("sk:"))
+async def cb_skin(query: CallbackQuery) -> None:
+    from tezmafia.shop import SKIN_COST, SKINS
+
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not query.message:
+        await query.answer()
+        return
+    user = query.from_user
+    lang = await _lang(user.id)
+    if parts[1] == "off":
+        await app.store.take_off_skin(user.id)
+        note = t(lang, "skins.removed")
+    elif parts[1] in SKINS:
+        result = await app.store.buy_skin(user.id, user.first_name, parts[1], SKIN_COST)
+        note = t(lang, {"bought": "skins.bought", "owned": "skins.worn", "no_gems": "gems.no_gems"}[result])
+    else:
+        await query.answer()
+        return
+    await query.answer(note, show_alert=True)
+    worn, owned = await app.store.skins_of(user.id)
+    gems = (await app.store.get_account(user.id))["gems"]
+    try:
+        await query.message.edit_caption(caption=_skins_text(gems, lang), reply_markup=skins_kb(owned, worn, lang))
+    except TelegramAPIError:
+        await query.message.answer(_skins_text(gems, lang), reply_markup=skins_kb(owned, worn, lang))
+
+
 @router.message(Command("weekly"))
 async def cmd_weekly(message: Message, command: CommandObject) -> None:
     """Owner only: /weekly shows the digest and the funnel; /weekly post also posts it to the channel."""
@@ -2705,6 +2754,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="start", description=cmd(lang, "start")),
         BotCommand(command="help", description=cmd(lang, "help")),
         BotCommand(command="profile", description=cmd(lang, "profile")),
+        BotCommand(command="skins", description=cmd(lang, "skins")),
         BotCommand(command="shop", description=cmd(lang, "shop")),
         BotCommand(command="buy", description=cmd(lang, "buy")),
         BotCommand(command="roles", description=cmd(lang, "roles")),
@@ -2728,7 +2778,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot",
+        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot", "skins",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

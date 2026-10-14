@@ -468,5 +468,18 @@
   "btn.add_bot": "Add a bot",
   "bot.name": "Robot",
   "cmd.addbot": "Fill a seat with a bot (host)",
-  "bot.reward_note": "🤖 Game with bots: {humans} people — reduced rewards."
+  "bot.reward_note": "🤖 Game with bots: {humans} people — reduced rewards.",
+  "skins.title": "🎨 Role card styles",
+  "skins.body": "Your role card and result card use this style. Each style costs {cost} gems. You have: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Gold",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — wear",
+  "btn.skin_off": "Back to the original",
+  "skins.bought": "Style bought and applied.",
+  "skins.worn": "Style applied.",
+  "skins.removed": "Back to the original style.",
+  "cmd.skins": "Role card styles",
+  "app.tab_skins": "Styles"
 }
