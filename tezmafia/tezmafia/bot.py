@@ -163,6 +163,9 @@ class App:
         # user_id -> (group chat, player label, expiry) for players invited to send last words
         self.pending_words: dict[int, tuple[int, str, float]] = {}
         self.alerts = Alerter(bot, settings.owner_id)
+        self._pending_edits: dict[tuple[str, str], asyncio.Task[Any]] = {}
+        # Result cards are rendered in threads; a burst of finished games must not take every core.
+        self.card_slots = asyncio.Semaphore(4)
 
     async def chat_cfg(self, chat_id: int) -> dict[str, Any]:
         """The group's /config view: stored choices over the bot-wide defaults."""
@@ -343,7 +346,44 @@ class App:
         except TelegramAPIError:
             return
 
+    def _defer_edit(self, kind: str, game_id: str, edit: Callable[[str], Awaitable[None]]) -> bool:
+        """Merge edits that arrive within edit_debounce into one; False means edit right now."""
+        delay = self.settings.edit_debounce
+        if delay <= 0:
+            return False
+        key = (kind, game_id)
+        if key in self._pending_edits:
+            return True
+
+        async def later() -> None:
+            await asyncio.sleep(delay)
+            self._pending_edits.pop(key, None)
+            try:
+                await edit(game_id)
+            except Exception:
+                log.warning("deferred %s edit failed game=%s", kind, game_id, exc_info=True)
+
+        self._pending_edits[key] = asyncio.create_task(later())
+        return True
+
+    async def _edit_vote_latest(self, game_id: str) -> None:
+        game = await self.store.load(game_id)
+        if game and game.phase == Phase.VOTING:
+            await self._edit_vote(game)
+
+    async def _edit_lobby_latest(self, game_id: str) -> None:
+        game = await self.store.load(game_id)
+        if game and game.phase == Phase.LOBBY and game.lobby_message_id:
+            await self.refresh_lobby(game, now=True)
+
     async def refresh_vote(self, game: Game) -> None:
+        if not game.vote_message_id:
+            return
+        if self._defer_edit("vote", game.id, self._edit_vote_latest):
+            return
+        await self._edit_vote(game)
+
+    async def _edit_vote(self, game: Game) -> None:
         if not game.vote_message_id:
             return
         try:
@@ -358,7 +398,9 @@ class App:
         except TelegramBadRequest:
             pass
 
-    async def refresh_lobby(self, game: Game) -> None:
+    async def refresh_lobby(self, game: Game, now: bool = False) -> None:
+        if game.lobby_message_id and not now and self._defer_edit("lobby", game.id, self._edit_lobby_latest):
+            return
         lang = await self.lang(game.chat_id)
         text = texts.lobby_text(game, self.settings.bot_username, lang)
         kb = lobby_kb(game, self.settings.bot_username, lang)
@@ -501,11 +543,9 @@ class App:
         self.schedule(game.id, self.timer(game, "night"), lambda: self._timed_resolve_night(game.id))
         await apply_phase_mutes(self.bot, game, night=True, enabled=self.mute_on(game))
         group_lang = await self.lang(game.chat_id)
-        night = await self.safe_photo(
+        await self.safe_photo(
             game.chat_id, media("night"), texts.night_group(game, group_lang), reply_markup=my_role_kb(game, group_lang)
         )
-        if night:
-            await self.react(game.chat_id, night.message_id, "🌙")
         for p in game.alive_players():
             kb = night_kb(game, p.user_id)
             has_action = bool(kb.inline_keyboard)
@@ -531,9 +571,7 @@ class App:
             else texts.day_group(game, False, day_lang)
         )
         banner_name = media("dawn_death") if game.last_death_seat else media("dawn")
-        day = await self.safe_photo(game.chat_id, banner_name, caption, reply_markup=my_role_kb(game, day_lang))
-        if day:
-            await self.react(game.chat_id, day.message_id, "☀️")
+        await self.safe_photo(game.chat_id, banner_name, caption, reply_markup=my_role_kb(game, day_lang))
 
     async def enter_vote(self, game: Game) -> None:
         begin_voting(game, time.time(), self.timer(game, "vote"))
@@ -547,77 +585,83 @@ class App:
             await self.persist(game)
 
     async def record_stats(self, game: Game) -> None:
+        from tezmafia.engine import player_won
         from tezmafia.progress import Outcome, earned, level_of, xp_for
         from tezmafia.retention import QUEST_COINS, QUEST_XP, quest_increments, todays_quests
-        from tezmafia.social import points as tour_points
-        from tezmafia.social import week_key
+        from tezmafia.social import FAIR_AFK_PENALTY, FAIR_GAME_BONUS, week_key
 
-        notes: list[tuple[int, list[str], int | None]] = []
+        notes: dict[int, str] = {}
         quest_notes: dict[int, list[str]] = {}
         card_jobs: list[tuple[Any, bool, dict[str, int]]] = []
-        from tezmafia.engine import player_won
-        from tezmafia.social import FAIR_AFK_PENALTY, FAIR_GAME_BONUS
-
-        await self.store.link_game(game.id, [p.user_id for p in game.players])
+        retry = self.store.retry
         afk_seats = {ev.get("seat") for ev in game.chronicle if ev.get("cause") == "afk"}
+        rows = [(p.user_id, p.first_name, player_won(game, p), p.alive, p.seat in afk_seats) for p in game.players]
+        all_totals = await retry(lambda: self.store.record_game(
+            game.id, game.chat_id, rows, time.strftime("%Y-%m"), week_key(), (FAIR_AFK_PENALTY, FAIR_GAME_BONUS)
+        ))
         for p in game.players:
             won = player_won(game, p)
-            await self.store.adjust_fair_play(p.user_id, p.seat in afk_seats, FAIR_AFK_PENALTY, FAIR_GAME_BONUS)
-            totals = await self.store.bump_stat(p.user_id, p.first_name, won, p.alive)
-            await self.store.bump_season(time.strftime("%Y-%m"), game.chat_id, p.user_id, p.first_name, won)
-            await self.store.bump_week(week_key(), p.user_id, p.first_name, won, tour_points(won))
+            totals = all_totals[p.user_id]
             card_jobs.append((p, won, totals))
             outcome = Outcome(
                 role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
             )
             day = time.strftime("%Y-%m-%d")
-            done_quests = await self.store.quest_advance(day, p.user_id, quest_increments(day, outcome))
+            uid, name, incs = p.user_id, p.first_name, quest_increments(day, outcome)
+            done_quests = await retry(lambda uid=uid, incs=incs, day=day: self.store.quest_advance(day, uid, incs))
             if done_quests:
-                await self.store.credit_wallet(p.user_id, p.first_name, coins=QUEST_COINS * len(done_quests))
-                await self.store.add_xp(p.user_id, QUEST_XP * len(done_quests))
-                state = await self.store.quest_state(day, p.user_id)
+                n = len(done_quests)
+                await retry(lambda uid=uid, name=name, n=n: self.store.credit_wallet(uid, name, coins=QUEST_COINS * n))
+                await retry(lambda uid=uid, n=n: self.store.add_xp(uid, QUEST_XP * n))
+                state = await self.store.quest_state(day, uid)
                 if all(state.get(k, (0, False))[1] for k in todays_quests(day)):
-                    await self.store.credit_wallet(p.user_id, p.first_name, gems=1)
-                quest_notes[p.user_id] = done_quests
+                    await retry(lambda uid=uid, name=name: self.store.credit_wallet(uid, name, gems=1))
+                quest_notes[uid] = done_quests
             if totals["games"] == 1:
-                await self.reward_referral(p.user_id, p.first_name)
-            fresh = await self.store.award(p.user_id, earned(outcome))
+                await retry(lambda uid=uid, name=name: self.reward_referral(uid, name))
+            keys = earned(outcome)
+            fresh = await retry(lambda uid=uid, keys=keys: self.store.award(uid, keys))
             before, after = level_of(totals["xp"] - xp_for(won, p.alive)), level_of(totals["xp"])
-            if fresh or after > before or p.user_id in quest_notes:
-                notes.append((p.user_id, fresh, after if after > before else None))
-        for user_id, fresh, level_up in notes:
-            lang = await self.lang(user_id)
-            lines = [texts.progress_dm(fresh, level_up, lang), *texts.quest_lines(quest_notes.get(user_id, []), lang)]
-            await self.dm(user_id, "\n".join(line for line in lines if line))
+            if fresh or after > before or uid in quest_notes:
+                lang = await self.lang(uid)
+                lines = [texts.progress_dm(fresh, after if after > before else None, lang),
+                         *texts.quest_lines(quest_notes.get(uid, []), lang)]
+                notes[uid] = "\n".join(line for line in lines if line)
         for p, won, totals in card_jobs:
-            await self.send_card(game, p, won, totals)
+            # progress news rides on the card's caption: one message per player instead of two
+            if not await self.send_card(game, p, won, totals, extra=notes.get(p.user_id, "")) and notes.get(p.user_id):
+                await self.dm(p.user_id, notes[p.user_id])
 
-    async def send_card(self, game: Game, player: Any, won: bool, totals: dict[str, int]) -> None:
+    async def send_card(self, game: Game, player: Any, won: bool, totals: dict[str, int], extra: str = "") -> bool:
         """Shareable result card in the player's DM; its file id is kept for inline sharing."""
         from tezmafia.cards import result_card
         from tezmafia.i18n import role_title
         from tezmafia.progress import level_of
 
         lang = await self.lang(player.user_id)
-        result = t(lang, "card.win" if won else "card.loss")
+        result = t(lang, "card.draw" if game.winner == "draw" else "card.win" if won else "card.loss")
         winner = t(lang, f"go.short.{game.winner}") if game.winner else ""
         line = f"{result} — {winner}".rstrip(" —.")
         footer = t(lang, "card.footer", level=level_of(totals["xp"]), games=totals["games"])
+        caption = escape(line) + (f"\n\n{extra}" if extra else "")
+        if len(caption) > 1024:  # Telegram's caption limit; the news then goes as its own DM
+            caption, extra = escape(line), ""
         try:
-            data = await asyncio.to_thread(
-                result_card, player.first_name, player.role or "citizen", role_title(lang, player.role or "citizen"),
-                won, line, f"{footer} · @{self.settings.bot_username}",
-            )
+            async with self.card_slots:
+                data = await asyncio.to_thread(
+                    result_card, player.first_name, player.role or "citizen", role_title(lang, player.role or "citizen"),
+                    won, line, f"{footer} · @{self.settings.bot_username}",
+                )
             msg = await self.bot.send_photo(
-                player.user_id, BufferedInputFile(data, "tezmafia.jpg"), caption=escape(line),
-                reply_markup=share_kb(lang),
+                player.user_id, BufferedInputFile(data, "tezmafia.jpg"), caption=caption, reply_markup=share_kb(lang),
             )
         except (TelegramAPIError, OSError):
             log.info("result card not sent user=%s", player.user_id, exc_info=True)
-            return
+            return False
         photos = getattr(msg, "photo", None)
         if photos:
             await self.store.save_card(player.user_id, photos[-1].file_id, line)
+        return bool(extra)
 
     async def tournament_loop(self) -> None:
         """Every Monday 10:00 local time: pay last week's top three."""
@@ -1211,10 +1255,12 @@ async def cmd_next(message: Message) -> None:
 async def _top_view(view: str, chat_id: int, lang: str) -> str:
     season = time.strftime("%Y-%m")
     if view == "all":
-        return texts.top_text(await app.store.top_stats(), lang, t(lang, "btn.top_all"))
+        return texts.top_text(await app.store.cached(("top_all",), app.store.top_stats), lang, t(lang, "btn.top_all"))
     if view == "group":
-        return texts.top_text(await app.store.season_top(season, chat_id), lang, t(lang, "top.group"))
-    return texts.top_text(await app.store.season_top(season), lang, t(lang, "top.season", season=season))
+        rows = await app.store.cached(("season", season, chat_id), lambda: app.store.season_top(season, chat_id))
+        return texts.top_text(rows, lang, t(lang, "top.group"))
+    rows = await app.store.cached(("season", season, 0), lambda: app.store.season_top(season))
+    return texts.top_text(rows, lang, t(lang, "top.season", season=season))
 
 
 @router.message(Command("top"))
@@ -1669,7 +1715,7 @@ async def cmd_clan(message: Message, command: CommandObject) -> None:
             return
         await message.answer(t(lang, "clan.left"))
     elif action == "top":
-        rows = await app.store.clan_top(season)
+        rows = await app.store.cached(("clan_top", season), lambda: app.store.clan_top(season))
         lines = [f"🛡 <b>{t(lang, 'clan.top', season=season)}</b>"]
         lines += [f"{i}. {escape(n)} — {w} · 👥{m}" for i, (n, m, w) in enumerate(rows, start=1)]
         await message.answer("\n".join(lines) if rows else t(lang, "top.empty"))
@@ -1688,7 +1734,7 @@ async def cmd_tournament(message: Message) -> None:
 
     lang = await _lang(message.chat.id)
     week = week_key()
-    rows = await app.store.week_top(week)
+    rows = await app.store.cached(("week", week), lambda: app.store.week_top(week))
     lines = [f"🏆 <b>{t(lang, 'tour.title', week=week)}</b>", t(lang, "tour.rules", g1=TOUR_GEMS[0], g2=TOUR_GEMS[1], g3=TOUR_GEMS[2]), ""]
     lines += [t(lang, "tour.row", i=i, name=escape(n), points=p) for i, (_, n, p) in enumerate(rows, start=1)]
     if not rows:
@@ -1784,7 +1830,8 @@ async def cmd_groupstats(message: Message) -> None:
         await message.answer(t(lang, "mafia.group_only"))
         return
     season = time.strftime("%Y-%m")
-    await message.answer(texts.group_stats_text(await app.store.group_stats(message.chat.id, season), season, lang))
+    stats = await app.store.cached(("group", message.chat.id, season), lambda: app.store.group_stats(message.chat.id, season))
+    await message.answer(texts.group_stats_text(stats, season, lang))
 
 
 @router.message(Command("privacy"))
@@ -2685,6 +2732,7 @@ async def run() -> None:
         raise SystemExit(ALREADY_RUNNING)
     store = Store(settings.database_url)
     await store.init()
+    store.cache_ttl = 60.0  # rankings may lag up to a minute; at 1M users they cost 50 ms - 1 s uncached
     bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     bot.session.middleware(RetryAfterMiddleware())
     app = App(settings, store, bot)

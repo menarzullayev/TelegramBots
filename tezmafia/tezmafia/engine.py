@@ -30,6 +30,7 @@ class Winner(StrEnum):
     SNITCH = "snitch"
     MAGE = "mage"
     CROOK = "crook"
+    DRAW = "draw"  # nobody alive: the game ends and nobody wins
 
 
 @dataclass
@@ -770,6 +771,14 @@ def win_check(game: Game) -> str | None:
         game.phase = Phase.FINISHED
         return Winner.ARSONIST
     alive = game.alive_players()
+    if not alive:
+        game.winner = Winner.DRAW
+        game.phase = Phase.FINISHED
+        return Winner.DRAW
+    if len(alive) == 1 and alive[0].role == Role.ARSONIST:
+        game.winner = Winner.ARSONIST
+        game.phase = Phase.FINISHED
+        return Winner.ARSONIST
     if len(alive) == 1 and alive[0].role == Role.MAGE:
         game.winner = Winner.MAGE
         game.phase = Phase.FINISHED
@@ -807,7 +816,7 @@ def player_won(game: Game, p: Player) -> bool:
     w = game.winner
     if w in ("mafia", "town"):
         return p.faction == w
-    return bool(w) and p.role == w  # solo winners: maniac, suicide, arsonist, snitch, mage, crook
+    return bool(w) and w != Winner.DRAW and p.role == w  # solo winners: maniac, suicide, arsonist, snitch, mage, crook
 
 
 def kick(game: Game, user_id: int) -> tuple[bool, str | None]:

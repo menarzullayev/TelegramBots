@@ -35,7 +35,7 @@ from tezmafia.engine import (
 from tezmafia.roles import SPECIALS
 
 MAX_NIGHTS = 60
-WINNERS = {"town", "mafia", "maniac", "suicide", "arsonist", "snitch", "mage", "crook"}
+WINNERS = {"town", "mafia", "maniac", "suicide", "arsonist", "snitch", "mage", "crook", "draw"}
 SHOP_FLAGS = ("shop_shield", "shop_vote_shield", "shop_mask", "shop_fake_id", "shop_gun", "shop_killer_shield")
 
 
@@ -63,7 +63,10 @@ def _check_end(game: Game, res: Result) -> None:
     if game.winner not in WINNERS:
         res.violations.append(f"end: unknown winner {game.winner}")
         return
-    if not any(player_won(game, p) for p in game.players):
+    if game.winner == "draw":
+        if game.alive_players() or any(player_won(game, p) for p in game.players):
+            res.violations.append("end: draw with survivors or winners")
+    elif not any(player_won(game, p) for p in game.players):
         res.violations.append(f"end: winner {game.winner} but nobody won")
     alive = game.alive_players()
     mafia = [p for p in alive if p.faction == "mafia"]

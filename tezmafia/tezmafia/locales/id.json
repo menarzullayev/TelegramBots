@@ -444,5 +444,8 @@
   "cmd.groupstats": "Statistik grup",
   "cmd.kick": "Keluarkan pemain (admin)",
   "cmd.ban": "Larang bermain (admin)",
-  "cmd.unban": "Cabut larangan (admin)"
+  "cmd.unban": "Cabut larangan (admin)",
+  "go.draw": "Tak ada yang tersisa di kota. Seri — tanpa pemenang.",
+  "go.short.draw": "seri — tak ada yang tersisa.",
+  "card.draw": "Seri"
 }
