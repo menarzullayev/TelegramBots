@@ -17,6 +17,7 @@ from tezmafia.engine import (
     begin_lynch,
     begin_night,
     begin_voting,
+    end_if_stalemate,
     from_dict,
     join,
     mark_dm_ok,
@@ -64,8 +65,10 @@ def _check_end(game: Game, res: Result) -> None:
         res.violations.append(f"end: unknown winner {game.winner}")
         return
     if game.winner == "draw":
-        if game.alive_players() or any(player_won(game, p) for p in game.players):
-            res.violations.append("end: draw with survivors or winners")
+        if any(player_won(game, p) for p in game.players):
+            res.violations.append("end: draw with winners")
+        if game.alive_players() and (game.quiet_rounds < 3 or len(game.alive_players()) > 4):
+            res.violations.append("end: stalemate draw outside the rule (3 quiet rounds, at most 4 alive)")
     elif not any(player_won(game, p) for p in game.players):
         res.violations.append(f"end: winner {game.winner} but nobody won")
     alive = game.alive_players()
@@ -97,7 +100,9 @@ def play(
     user_ids: list[int] | None = None,
     chat_id: int = -1,
     names: list[str] | None = None,
+    smart: bool = False,
 ) -> Result:
+    """smart=True plays like people: killers never aim at their own side, almost everyone acts and votes."""
     rng = random.Random(seed)
     n = n or (len(user_ids) if user_ids else rng.randint(5, 23))
     ids = user_ids or list(range(1000, 1000 + n))
@@ -121,19 +126,25 @@ def play(
 
     seats = [p.seat for p in game.players]
 
-    def target() -> int:
+    def target(actor=None) -> int:
         # mostly living targets (what real players pick), sometimes any seat to probe the refusals
-        alive = [p.seat for p in game.alive_players()]
-        return rng.choice(alive) if alive and rng.random() < 0.9 else rng.choice(seats)
+        alive = [p for p in game.alive_players() if actor is None or p.user_id != actor.user_id]
+        if smart and actor is not None and actor.role in ("mafia", "don", "killer"):
+            alive = [p for p in alive if p.faction != "mafia"] or alive
+        if smart and alive:
+            return rng.choice(alive).seat
+        return rng.choice([p.seat for p in alive]) if alive and rng.random() < 0.9 else rng.choice(seats)
     while game.phase != Phase.FINISHED:
         if res.nights >= MAX_NIGHTS:
             res.stalled = True
             break
+        if end_if_stalemate(game):
+            break
         begin_night(game, 0, 1)
         res.nights += 1
         for p in game.alive_players():
-            if rng.random() < 0.85:
-                set_night_action(game, p.user_id, target(), "shoot" if rng.random() < 0.3 else "")
+            if rng.random() < (0.97 if smart else 0.85):
+                set_night_action(game, p.user_id, target(p), "shoot" if rng.random() < 0.3 else "")
         _dead_cannot_act(game, res, rng)
         out = resolve_night(game)
         _check(game, res, f"night {res.nights}")
@@ -142,8 +153,8 @@ def play(
 
         begin_voting(game, 0, 1)
         for p in game.alive_players():
-            if rng.random() < 0.8:
-                set_vote(game, p.user_id, target())
+            if rng.random() < (0.95 if smart else 0.8):
+                set_vote(game, p.user_id, target(p))
         _dead_cannot_act(game, res, rng)
         seat, tie, _ = peek_votes(game)
         if seat and not tie:

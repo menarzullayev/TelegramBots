@@ -446,6 +446,8 @@
   "cmd.ban": "O‘yinlardan chetlatish (admin)",
   "cmd.unban": "Chetlatishni bekor qilish (admin)",
   "go.draw": "Shaharda hech kim qolmadi. Durang — g‘olib yo‘q.",
-  "go.short.draw": "durang — hech kim qolmadi.",
-  "card.draw": "Durang"
+  "go.short.draw": "durang bilan tugadi.",
+  "card.draw": "Durang",
+  "go.stalemate": "Uch kecha-kunduz hech kim o‘lmadi — shahar holdan toydi. Durang.",
+  "go.short.stalemate": "durang — uch aylanma hech kim o‘lmadi."
 }

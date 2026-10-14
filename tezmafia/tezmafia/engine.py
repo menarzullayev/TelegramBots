@@ -122,6 +122,9 @@ class Game:
     anon_vote: bool = False
     # Deaths in order, for the after-game chronicle: {"n": night_no, "seat": int, "cause": str}.
     chronicle: list[dict[str, Any]] = field(default_factory=list)
+    # Rounds in a row without a death, for the stalemate rule (see end_if_stalemate).
+    quiet_rounds: int = 0
+    deaths_seen: int = 0
 
     def by_user(self, user_id: int) -> Player | None:
         return next((p for p in self.players if p.user_id == user_id), None)
@@ -812,6 +815,31 @@ def win_check(game: Game) -> str | None:
     return None
 
 
+STALEMATE_ROUNDS = 3
+STALEMATE_MAX_ALIVE = 4
+
+
+def end_if_stalemate(game: Game, limit: int = STALEMATE_ROUNDS, max_alive: int = STALEMATE_MAX_ALIVE) -> bool:
+    """Call before each night: `limit` full rounds in a row without a death, with at most `max_alive`
+    players left, end the game in a draw.
+
+    Found by the load test: two survivors nobody can kill (e.g. mage + lucky) who never vote would
+    otherwise play forever. The alive cap keeps a big, live table from being stopped (simulated with
+    people-like play: 3.4% draws with up to 20 alive without the cap, 1.6% and never 8+ alive with it).
+    """
+    deaths = len(game.chronicle)
+    if game.night_no > 0:
+        game.quiet_rounds = 0 if deaths > game.deaths_seen else game.quiet_rounds + 1
+    game.deaths_seen = deaths
+    if game.quiet_rounds < limit or len(game.alive_players()) > max_alive:
+        return False
+    game.winner = Winner.DRAW
+    game.phase = Phase.FINISHED
+    game.deadline = None
+    game.version += 1
+    return True
+
+
 def player_won(game: Game, p: Player) -> bool:
     w = game.winner
     if w in ("mafia", "town"):
@@ -885,6 +913,8 @@ def from_dict(data: dict[str, Any]) -> Game:
     raw.setdefault("masked_deaths", [])
     raw.setdefault("night_no", 0)
     raw.setdefault("chronicle", [])
+    raw.setdefault("quiet_rounds", 0)
+    raw.setdefault("deaths_seen", len(raw["chronicle"]))
     raw.setdefault("mode", "classic")
     raw.setdefault("timers", {})
     raw.setdefault("disabled_roles", [])

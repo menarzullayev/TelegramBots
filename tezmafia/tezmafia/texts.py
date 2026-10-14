@@ -246,6 +246,13 @@ def action_reason(code: str, lang: str = "uz") -> str:
     return f"{ce(icons[code])} {t(lang, key)}"
 
 
+def outcome_key(game: Game) -> str:
+    """The winner, with a draw split into "everyone dead" (draw) and "nobody died" (stalemate)."""
+    if game.winner == "draw" and game.alive_players():
+        return "stalemate"
+    return game.winner or ""
+
+
 def game_over(game: Game, lang: str = "uz") -> str:
     win_key = {
         "mafia": "go.mafia",
@@ -256,7 +263,8 @@ def game_over(game: Game, lang: str = "uz") -> str:
         "mage": "go.mage",
         "crook": "go.crook",
         "draw": "go.draw",
-    }.get(game.winner or "", "go.town")
+        "stalemate": "go.stalemate",
+    }.get(outcome_key(game), "go.town")
     icon = {
         "go.mafia": "mafia",
         "go.maniac": "death",
@@ -266,6 +274,7 @@ def game_over(game: Game, lang: str = "uz") -> str:
         "go.mage": "bolt",
         "go.crook": "info",
         "go.draw": "info",
+        "go.stalemate": "info",
         "go.town": "town",
     }[win_key]
     title = f"{ce(icon)} <b>{t(lang, win_key)}</b>"
@@ -292,7 +301,8 @@ def game_over_short(game: Game, lang: str = "uz") -> str:
         "mage": "go.short.mage",
         "crook": "go.short.crook",
         "draw": "go.short.draw",
-    }.get(game.winner or "", "go.short.town")
+        "stalemate": "go.short.stalemate",
+    }.get(outcome_key(game), "go.short.town")
     icon = {
         "go.short.mafia": "mafia",
         "go.short.maniac": "death",
@@ -302,6 +312,7 @@ def game_over_short(game: Game, lang: str = "uz") -> str:
         "go.short.mage": "bolt",
         "go.short.crook": "info",
         "go.short.draw": "info",
+        "go.short.stalemate": "info",
         "go.short.town": "town",
     }[key]
     return f"{ce(icon)} <b>{t(lang, 'go.header')}</b> — {t(lang, key)}"
@@ -531,9 +542,10 @@ def game_over_rich(game: Game, lang: str = "uz") -> str:
     """Final roles as a rich-message table (Bot API 10.1); plain emoji only, no custom emoji tags."""
     from html import escape
 
-    plain = {"mafia": "🔪", "maniac": "🩸", "suicide": "🎭", "arsonist": "🔥", "snitch": "🔎", "mage": "✨", "crook": "🃏", "draw": "🤝"}
-    win_key = {k: f"go.{k}" for k in plain}.get(game.winner or "", "go.town")
-    head = f"<h3>🏆 {escape(t(lang, 'go.header'))}</h3><p><b>{plain.get(game.winner or '', '🏙')} {escape(t(lang, win_key))}</b></p>"
+    plain = {"mafia": "🔪", "maniac": "🩸", "suicide": "🎭", "arsonist": "🔥", "snitch": "🔎", "mage": "✨", "crook": "🃏", "draw": "🤝", "stalemate": "🤝"}
+    key = outcome_key(game)
+    win_key = {k: f"go.{k}" for k in plain}.get(key, "go.town")
+    head = f"<h3>🏆 {escape(t(lang, 'go.header'))}</h3><p><b>{plain.get(key, '🏙')} {escape(t(lang, win_key))}</b></p>"
     rows = "".join(
         f"<tr><td>{p.seat}</td><td>{escape(p.first_name)}</td>"
         f"<td>{escape(role_title(lang, p.role) if p.role else '?')}</td>"

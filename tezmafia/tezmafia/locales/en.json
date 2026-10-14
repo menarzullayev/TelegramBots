@@ -446,6 +446,8 @@
   "cmd.ban": "Ban from games (admin)",
   "cmd.unban": "Lift a ban (admin)",
   "go.draw": "Nobody is left in town. A draw — no winner.",
-  "go.short.draw": "a draw — nobody is left.",
-  "card.draw": "Draw"
+  "go.short.draw": "ended in a draw.",
+  "card.draw": "Draw",
+  "go.stalemate": "Three nights and days without a death — the town is exhausted. A draw.",
+  "go.short.stalemate": "a draw — nobody died for three rounds."
 }
