@@ -83,9 +83,15 @@ class FakeMsg:
         self.bot = bot
         self.message_id = 1
         self.answers: list[tuple] = []
+        self.photo = None
 
     async def answer(self, *a, **k):
         self.answers.append((a, k))
+        return SimpleNamespace(message_id=1)
+
+    async def answer_photo(self, photo, caption=None, **k):
+        # Record the caption like an answer's text so assertions read both the same way.
+        self.answers.append(((caption,), {**k, "photo": photo}))
         return SimpleNamespace(message_id=1)
 
     async def edit_text(self, *a, **k):
