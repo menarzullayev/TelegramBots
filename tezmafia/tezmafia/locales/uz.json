@@ -450,5 +450,19 @@
   "card.draw": "Durang",
   "go.stalemate": "Uch kecha-kunduz hech kim o‘lmadi — shahar holdan toydi. Durang.",
   "go.short.stalemate": "durang — uch aylanma hech kim o‘lmadi.",
-  "mod.admin_only": "Bu buyruq faqat guruh adminlari uchun."
+  "mod.admin_only": "Bu buyruq faqat guruh adminlari uchun.",
+  "founder.reward": "🎖 Rahmat! Siz qo‘shgan guruhda birinchi to‘liq o‘yin o‘tdi: +{coins} coin, +{gems} olmos va «Asoschi» belgisi.",
+  "news.title": "🗞 Qorashahar haftaligi — {week}",
+  "news.stats": "Bu hafta {games} ta o‘yin, {players} o‘yinchi.",
+  "news.tour": "🏆 Turnir g‘oliblari:",
+  "news.clans": "🛡 Klanlar reytingi:",
+  "news.cta": "Guruhingizda o‘ynang — hakam bepul.",
+  "funnel.title": "📈 Funnel, oxirgi 7 kun",
+  "funnel.added": "Botni qo‘shgan guruhlar",
+  "funnel.lobbies": "Ochilgan lobbilar",
+  "funnel.started": "Boshlangan o‘yinlar",
+  "funnel.finished": "Tugagan o‘yinlar",
+  "funnel.repeat": "Qayta o‘ynagan guruhlar (2+)",
+  "app.tab_admin": "Admin",
+  "cmd.weekly": "Haftalik dayjest (egasi)"
 }

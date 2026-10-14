@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
+from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, literal_column, select, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -90,6 +90,17 @@ class ChatBan(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     by: Mapped[int] = mapped_column(BigInteger, default=0)
     at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class GroupFounder(Base):
+    """Who first added the bot to a group, and whether the founder reward was paid."""
+
+    __tablename__ = "group_founders"
+
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    added_at: Mapped[float] = mapped_column(Float, default=time.time, index=True)
+    rewarded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class Clan(Base):
@@ -287,6 +298,7 @@ class Store:
                 "CREATE INDEX IF NOT EXISTS ix_weekly_user ON weekly_stats (user_id)",
                 "CREATE INDEX IF NOT EXISTS ix_activity_user ON activity (user_id)",
                 "CREATE INDEX IF NOT EXISTS ix_quest_user ON quest_progress (user_id)",
+                "CREATE INDEX IF NOT EXISTS ix_games_created_at ON games (created_at)",
                 # games saved before updated_at existed predate game_players: link them once (index lookup, cheap)
                 "INSERT OR IGNORE INTO game_players (game_id, user_id, at) SELECT g.id, json_extract(j.value, '$.user_id'), 0"
                 " FROM games g, json_each(g.payload, '$.players') j WHERE g.updated_at IS NULL AND g.status = 'finished'",
@@ -818,6 +830,79 @@ class Store:
             "players": int(players),
             "top": await self.season_top(season, chat_id=chat_id, limit=5),
         }
+
+    # --- growth: founders and the funnel ------------------------------------------------------
+
+    async def record_founder(self, chat_id: int, user_id: int) -> bool:
+        """Remember the first person who added the bot to a group (re-adds keep the first)."""
+        async with self.session() as s:
+            res = await s.execute(
+                text("INSERT OR IGNORE INTO group_founders (chat_id, user_id, added_at) VALUES (:c, :u, :t)"),
+                {"c": chat_id, "u": user_id, "t": time.time()},
+            )
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def claim_founder_reward(self, chat_id: int, max_groups: int) -> int | None:
+        """The founder to pay for this group's first full game, once, within the per-person cap."""
+        async with self.session() as s:
+            row = await s.get(GroupFounder, chat_id)
+            if row is None or row.rewarded_at is not None:
+                return None
+            paid = (
+                await s.execute(
+                    select(func.count()).select_from(GroupFounder).where(
+                        GroupFounder.user_id == row.user_id, GroupFounder.rewarded_at.is_not(None)
+                    )
+                )
+            ).scalar_one()
+            if paid >= max_groups:
+                return None
+            row.rewarded_at = time.time()
+            await s.commit()
+            return row.user_id
+
+    async def funnel(self, since: float, until: float | None = None) -> dict[str, int]:
+        """Bot added → lobby → started → finished → played again, for games created in the window."""
+        until = until or time.time()
+        window = (GameRow.created_at >= since, GameRow.created_at < until)
+        async with self.session() as s:
+            added = (
+                await s.execute(
+                    select(func.count()).select_from(GroupFounder).where(
+                        GroupFounder.added_at >= since, GroupFounder.added_at < until
+                    )
+                )
+            ).scalar_one()
+            lobbies, started, finished = (
+                await s.execute(
+                    select(
+                        func.count(),
+                        # started = reached a night or got a winner (a day-first game can end before night 1)
+                        # written as SQL: the same OR built with SQLAlchemy operators summed wrongly on aiosqlite
+                        literal_column(
+                            "COALESCE(SUM(json_extract(games.payload, '$.night_no') >= 1"
+                            " OR json_extract(games.payload, '$.winner') IS NOT NULL), 0)"
+                        ),
+                        func.count(func.json_extract(GameRow.payload, "$.winner")),
+                    ).where(*window)
+                )
+            ).one()
+            per_chat = (
+                select(GameRow.chat_id)
+                .where(*window, func.json_extract(GameRow.payload, "$.winner").is_not(None))
+                .group_by(GameRow.chat_id)
+                .having(func.count() >= 2)
+                .subquery()
+            )
+            repeat = (await s.execute(select(func.count()).select_from(per_chat))).scalar_one()
+        return {"added": added, "lobbies": lobbies, "started": int(started), "finished": finished, "repeat": repeat}
+
+    async def week_players(self, week: str) -> int:
+        async with self.session() as s:
+            return (
+                await s.execute(select(func.count()).select_from(WeeklyStat).where(WeeklyStat.week == week))
+            ).scalar_one()
 
     # --- social: cards, clans, weekly tournament -----------------------------------------------
 

@@ -146,7 +146,20 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         ],
         "gems_body": plain_t(lang, "gems.body", gems=acc["gems"]),
         "games": [chronicle_entry(g, uid, lang) for g in await app.store.user_games(uid, limit=10)],
+        "admin": await admin_state(app, uid, lang),
     }
+
+
+async def admin_state(app: Any, uid: int, lang: str) -> dict[str, Any] | None:
+    """Owner-only funnel for the Mini App; everyone else gets None (the tab is not shown)."""
+    from tezmafia.texts import funnel_lines
+
+    settings = getattr(app, "settings", None)
+    if not settings or not getattr(settings, "owner_id", None) or uid != settings.owner_id:
+        return None
+    f = await app.store.cached(("funnel7",), lambda: app.store.funnel(time.time() - 7 * 86400))
+    return {"title": plain(t(lang, "funnel.title")), "tab": plain(t(lang, "app.tab_admin")),
+            "lines": [plain(x) for x in funnel_lines(f, lang)]}
 
 
 def chronicle_entry(game: Any, uid: int, lang: str) -> dict[str, Any]:

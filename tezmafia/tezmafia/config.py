@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     max_players: int = 23
     # Lobby and vote-board edits within this many seconds are merged into one Telegram call (0 = edit at once).
     edit_debounce: float = 1.5
+    # Weekly digest target (channel id like -100... or @username); empty disables the post.
+    news_channel: str = ""
     discussion_seconds: int = 90
     night_action_seconds: int = 45
     voting_seconds: int = 45

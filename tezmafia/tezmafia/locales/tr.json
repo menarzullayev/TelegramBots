@@ -450,5 +450,19 @@
   "card.draw": "Berabere",
   "go.stalemate": "Üç gece ve gün boyunca kimse ölmedi — kasaba tükendi. Berabere.",
   "go.short.stalemate": "berabere — üç tur boyunca kimse ölmedi.",
-  "mod.admin_only": "Bu komut yalnızca grup yöneticileri içindir."
+  "mod.admin_only": "Bu komut yalnızca grup yöneticileri içindir.",
+  "founder.reward": "🎖 Teşekkürler! Eklediğin grupta ilk tam oyun oynandı: +{coins} coin, +{gems} elmas ve Kurucu rozeti.",
+  "news.title": "🗞 Qorashahar haftalığı — {week}",
+  "news.stats": "Bu hafta {games} oyun, {players} oyuncu.",
+  "news.tour": "🏆 Turnuva kazananları:",
+  "news.clans": "🛡 Klan sıralaması:",
+  "news.cta": "Grubunda oyna — anlatıcı ücretsiz.",
+  "funnel.title": "📈 Huni, son 7 gün",
+  "funnel.added": "Botu ekleyen gruplar",
+  "funnel.lobbies": "Açılan lobiler",
+  "funnel.started": "Başlayan oyunlar",
+  "funnel.finished": "Biten oyunlar",
+  "funnel.repeat": "Yeniden oynayan gruplar (2+)",
+  "app.tab_admin": "Yönetici",
+  "cmd.weekly": "Haftalık özet (sahip)"
 }

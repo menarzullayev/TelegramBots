@@ -450,5 +450,19 @@
   "card.draw": "Heç-heçə",
   "go.stalemate": "Üç gecə-gündüz heç kim ölmədi — şəhər yoruldu. Heç-heçə.",
   "go.short.stalemate": "heç-heçə — üç dövrə heç kim ölmədi.",
-  "mod.admin_only": "Bu əmr yalnız qrup adminləri üçündür."
+  "mod.admin_only": "Bu əmr yalnız qrup adminləri üçündür.",
+  "founder.reward": "🎖 Təşəkkürlər! Əlavə etdiyiniz qrupda ilk tam oyun keçdi: +{coins} coin, +{gems} almaz və «Qurucu» nişanı.",
+  "news.title": "🗞 Qorashahar həftəliyi — {week}",
+  "news.stats": "Bu həftə {games} oyun, {players} oyunçu.",
+  "news.tour": "🏆 Turnir qalibləri:",
+  "news.clans": "🛡 Klan reytinqi:",
+  "news.cta": "Qrupunuzda oynayın — aparıcı pulsuzdur.",
+  "funnel.title": "📈 Huni, son 7 gün",
+  "funnel.added": "Botu əlavə edən qruplar",
+  "funnel.lobbies": "Açılan lobbilər",
+  "funnel.started": "Başlanan oyunlar",
+  "funnel.finished": "Bitən oyunlar",
+  "funnel.repeat": "Yenidən oynayan qruplar (2+)",
+  "app.tab_admin": "Admin",
+  "cmd.weekly": "Həftəlik icmal (sahib)"
 }

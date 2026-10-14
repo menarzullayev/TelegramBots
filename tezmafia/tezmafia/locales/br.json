@@ -450,5 +450,19 @@
   "card.draw": "Empate",
   "go.stalemate": "Três noites e dias sem mortes — a cidade se cansou. Empate.",
   "go.short.stalemate": "empate — ninguém morreu por três rodadas.",
-  "mod.admin_only": "Este comando é só para admins do grupo."
+  "mod.admin_only": "Este comando é só para admins do grupo.",
+  "founder.reward": "🎖 Obrigado! O grupo que você adicionou jogou a primeira partida completa: +{coins} moedas, +{gems} gemas e o selo Fundador.",
+  "news.title": "🗞 Semana em Qorashahar — {week}",
+  "news.stats": "Nesta semana: {games} jogos, {players} jogadores.",
+  "news.tour": "🏆 Vencedores do torneio:",
+  "news.clans": "🛡 Ranking de clãs:",
+  "news.cta": "Jogue no seu grupo — o narrador é grátis.",
+  "funnel.title": "📈 Funil, últimos 7 dias",
+  "funnel.added": "Grupos que adicionaram o bot",
+  "funnel.lobbies": "Lobbies abertos",
+  "funnel.started": "Jogos iniciados",
+  "funnel.finished": "Jogos terminados",
+  "funnel.repeat": "Grupos que jogaram de novo (2+)",
+  "app.tab_admin": "Admin",
+  "cmd.weekly": "Resumo semanal (dono)"
 }
