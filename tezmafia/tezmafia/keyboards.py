@@ -364,6 +364,20 @@ def invite_kb(link: str, lang: str = "uz") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[_btn(t(lang, "btn.link"), copy_text=link, emoji="pin")]])
 
 
+def skins_kb(owned: list[str], worn: str, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+    from tezmafia.shop import SKIN_COST, SKINS
+
+    rows = []
+    for key, mark in SKINS.items():
+        name = f"{mark} {t(lang, f'skin.{key}')}"
+        label = t(lang, "btn.skin_wear", name=name) if key in owned else t(lang, "btn.skin_buy", name=name, cost=SKIN_COST)
+        rows.append([_btn(("✓ " if key == worn else "") + label, callback_data=f"sk:{key}")])
+    if worn:
+        rows.append([_btn(t(lang, "btn.skin_off"), callback_data="sk:off", emoji="cancel")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
 def share_kb(lang: str = "uz") -> InlineKeyboardMarkup:
     """Opens the chat picker with the bot's inline mode pre-filled with "card"."""
     from tezmafia.i18n import t

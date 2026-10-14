@@ -468,5 +468,18 @@
   "btn.add_bot": "Adicionar bot",
   "bot.name": "Robô",
   "cmd.addbot": "Preencher vaga com bot (anfitrião)",
-  "bot.reward_note": "🤖 Jogo com bots: {humans} pessoas — recompensas reduzidas."
+  "bot.reward_note": "🤖 Jogo com bots: {humans} pessoas — recompensas reduzidas.",
+  "skins.title": "🎨 Estilos de carta",
+  "skins.body": "Sua carta de papel e de resultado usam este estilo. Cada estilo custa {cost} gemas. Você tem: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Ouro",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — usar",
+  "btn.skin_off": "Voltar ao original",
+  "skins.bought": "Estilo comprado e aplicado.",
+  "skins.worn": "Estilo aplicado.",
+  "skins.removed": "Estilo original de volta.",
+  "cmd.skins": "Estilos de carta",
+  "app.tab_skins": "Estilos"
 }

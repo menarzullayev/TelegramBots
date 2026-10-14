@@ -468,5 +468,18 @@
   "btn.add_bot": "Bot əlavə et",
   "bot.name": "Robot",
   "cmd.addbot": "Boş yerə bot əlavə et (aparıcı)",
-  "bot.reward_note": "🤖 Botlu oyun: {humans} insan — mükafat azaldılıb."
+  "bot.reward_note": "🤖 Botlu oyun: {humans} insan — mükafat azaldılıb.",
+  "skins.title": "🎨 Rol kartı üslubları",
+  "skins.body": "Rol və nəticə kartınız bu üslubda olacaq. Hər üslub {cost} almaz. Sizdə: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Qızıl",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — tax",
+  "btn.skin_off": "Orijinala qayıt",
+  "skins.bought": "Üslub alındı və tətbiq edildi.",
+  "skins.worn": "Üslub tətbiq edildi.",
+  "skins.removed": "Orijinal üsluba qayıdıldı.",
+  "cmd.skins": "Rol kartı üslubları",
+  "app.tab_skins": "Üslublar"
 }

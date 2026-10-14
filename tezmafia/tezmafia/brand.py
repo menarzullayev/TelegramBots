@@ -73,10 +73,12 @@ def win_media(winner: str | None) -> str:
     return MEDIA.get(f"win_{winner}", MEDIA["win_solo"])
 
 
-def role_card(role: str) -> str | None:
-    """Portrait card for a role id, or None for an unknown id."""
+def role_card(role: str, skin: str = "") -> str | None:
+    """Portrait card for a role id (in the player's skin when that file exists), or None for an unknown id."""
     if role not in {r.value for r in Role}:
         return None
+    if skin and (ASSETS / "raven" / "skins" / skin / f"{role}.jpg").is_file():
+        return f"raven/skins/{skin}/{role}.jpg"
     return f"raven/roles/{role}.jpg"
 
 

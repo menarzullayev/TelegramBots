@@ -100,7 +100,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
             for key in (
                 "btn.profile", "app.tab_ach", "app.tab_top", "btn.shop", "btn.gems_shop", "btn.top_season", "btn.top_all",
                 "stars.vip_desc", "stars.note", "app.paid", "app.error", "gems.no_gems", "gems.bought", "btn.badge_off",
-                "top.empty", "cmd.privacy", "cmd.terms", "app.tab_games", "chr.empty",
+                "top.empty", "cmd.privacy", "cmd.terms", "app.tab_games", "chr.empty", "skins.title", "btn.skin_off",
             )
         },
         "profile": {
@@ -147,7 +147,21 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         "gems_body": plain_t(lang, "gems.body", gems=acc["gems"]),
         "games": [chronicle_entry(g, uid, lang) for g in await app.store.user_games(uid, limit=10)],
         "admin": await admin_state(app, uid, lang),
+        "skins": await skins_state(app, uid, lang, acc["gems"]),
     }
+
+
+async def skins_state(app: Any, uid: int, lang: str, gems: int) -> dict[str, Any]:
+    from tezmafia.shop import SKIN_COST, SKINS
+
+    worn, owned = await app.store.skins_of(uid)
+    items = []
+    for key, icon in SKINS.items():
+        name = f"{icon} {plain(t(lang, f'skin.{key}'))}"
+        label = plain(t(lang, "btn.skin_wear", name=name)) if key in owned else plain(
+            t(lang, "btn.skin_buy", name=name, cost=SKIN_COST))
+        items.append({"key": key, "owned": key in owned, "worn": key == worn, "label": label})
+    return {"body": plain(t(lang, "skins.body", cost=SKIN_COST, gems=gems)), "items": items, "worn": worn}
 
 
 async def admin_state(app: Any, uid: int, lang: str) -> dict[str, Any] | None:
@@ -240,6 +254,24 @@ async def badge(request: web.Request) -> web.Response:
     return web.json_response({"result": result, "state": await build_state(app, user)})
 
 
+async def skin(request: web.Request) -> web.Response:
+    from tezmafia.shop import SKIN_COST, SKINS
+
+    user = _user(request)
+    app: App = request.app[APP_KEY]  # type: ignore[assignment]
+    if not request.app["limits"].allow(user["id"]):
+        raise web.HTTPTooManyRequests()
+    key = str((await request.json()).get("key", ""))
+    if key == "off":
+        await app.store.take_off_skin(user["id"])
+        result = "removed"
+    elif key in SKINS:
+        result = await app.store.buy_skin(user["id"], user["first_name"], key, SKIN_COST)
+    else:
+        raise web.HTTPBadRequest(text="unknown skin")
+    return web.json_response({"result": result, "state": await build_state(app, user)})
+
+
 @web.middleware
 async def security_headers(request: web.Request, handler: Any) -> web.StreamResponse:
     resp = await handler(request)
@@ -258,6 +290,7 @@ def build_app(app: App) -> web.Application:
             web.get("/api/state", state),
             web.post("/api/invoice", invoice),
             web.post("/api/badge", badge),
+            web.post("/api/skin", skin),
         ]
     )
     return web_app

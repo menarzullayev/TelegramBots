@@ -103,6 +103,16 @@ class GroupFounder(Base):
     rewarded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class Cosmetic(Base):
+    """Owned role-card skins and the one in use."""
+
+    __tablename__ = "cosmetics"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    skin: Mapped[str] = mapped_column(String(16), default="", server_default="")
+    skins: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+
+
 class Clan(Base):
     __tablename__ = "clans"
 
@@ -337,7 +347,7 @@ class Store:
             if game.phase == "finished" and game.players:
                 await s.execute(
                     text("INSERT OR IGNORE INTO game_players (game_id, user_id, at) VALUES (:g, :u, :t)"),
-                    [{"g": game.id, "u": p.user_id, "t": time.time()} for p in game.players],
+                    [{"g": game.id, "u": p.user_id, "t": time.time()} for p in game.players if p.user_id > 0],
                 )
             await s.commit()
 
@@ -409,6 +419,7 @@ class Store:
             game_ids = (await s.execute(select(GamePlayer.game_id).where(GamePlayer.user_id == user_id))).scalars().all()
             await s.execute(delete(GamePlayer).where(GamePlayer.user_id == user_id))
             await s.execute(delete(FairPlay).where(FairPlay.user_id == user_id))
+            await s.execute(delete(Cosmetic).where(Cosmetic.user_id == user_id))
             # chat_bans stay: a moderation record must not be erasable by the banned user.
             await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
@@ -839,6 +850,58 @@ class Store:
             "players": int(players),
             "top": await self.season_top(season, chat_id=chat_id, limit=5),
         }
+
+    # --- cosmetics: role-card skins -----------------------------------------------------------
+
+    async def skins_of(self, user_id: int) -> tuple[str, list[str]]:
+        """(skin in use, owned skins)."""
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            return (row.skin or "", json.loads(row.skins or "[]")) if row else ("", [])
+
+    async def buy_skin(self, user_id: int, name: str, key: str, cost: int) -> str:
+        """'bought' | 'owned' (worn now) | 'no_gems' | 'no_item'. The gem charge and the grant are one transaction."""
+        from tezmafia.shop import SKINS
+
+        if key not in SKINS:
+            return "no_item"
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            owned = json.loads(row.skins or "[]") if row else []
+            if key not in owned:
+                await self._ensure(s, user_id, name)
+                paid = await s.execute(
+                    text("UPDATE stats SET gems = gems - :g WHERE user_id = :u AND COALESCE(gems, 0) >= :g"),
+                    {"g": cost, "u": user_id},
+                )
+                if not paid.rowcount:
+                    await s.rollback()
+                    return "no_gems"
+            if row is None:
+                row = Cosmetic(user_id=user_id, skin="", skins="[]")
+                s.add(row)
+            result = "owned" if key in owned else "bought"
+            row.skins = json.dumps(sorted({*owned, key}))
+            row.skin = key
+            await s.commit()
+            return result
+
+    async def grant_skin(self, user_id: int, key: str) -> None:
+        """Give a skin for free (season pass reward) without wearing it."""
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            if row is None:
+                s.add(Cosmetic(user_id=user_id, skin="", skins=json.dumps([key])))
+            else:
+                row.skins = json.dumps(sorted({*json.loads(row.skins or "[]"), key}))
+            await s.commit()
+
+    async def take_off_skin(self, user_id: int) -> None:
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            if row:
+                row.skin = ""
+                await s.commit()
 
     # --- growth: founders and the funnel ------------------------------------------------------
 

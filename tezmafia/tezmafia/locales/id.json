@@ -468,5 +468,18 @@
   "btn.add_bot": "Tambah bot",
   "bot.name": "Robot",
   "cmd.addbot": "Isi kursi dengan bot (host)",
-  "bot.reward_note": "🤖 Permainan dengan bot: {humans} orang — hadiah dikurangi."
+  "bot.reward_note": "🤖 Permainan dengan bot: {humans} orang — hadiah dikurangi.",
+  "skins.title": "🎨 Gaya kartu peran",
+  "skins.body": "Kartu peran dan hasilmu memakai gaya ini. Tiap gaya {cost} permata. Kamu punya: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Emas",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — pakai",
+  "btn.skin_off": "Kembali ke asli",
+  "skins.bought": "Gaya dibeli dan dipakai.",
+  "skins.worn": "Gaya dipakai.",
+  "skins.removed": "Kembali ke gaya asli.",
+  "cmd.skins": "Gaya kartu peran",
+  "app.tab_skins": "Gaya"
 }
