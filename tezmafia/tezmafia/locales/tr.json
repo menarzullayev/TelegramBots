@@ -481,5 +481,17 @@
   "skins.worn": "Stil uygulandı.",
   "skins.removed": "Orijinal stile dönüldü.",
   "cmd.skins": "Rol kartı stilleri",
-  "app.tab_skins": "Stiller"
+  "app.tab_skins": "Stiller",
+  "premium.title": "⭐ Grup premium",
+  "premium.active": "{date} tarihine kadar aktif.",
+  "premium.pitch": "Ayda {stars} ⭐ — herhangi bir üye ödeyebilir:\n• uzun süreler: gündüz 180 sn, gece 120 sn'ye kadar\n• sonuç kartında grup adı\n• /groupstats — son 3 ay",
+  "btn.premium_buy": "⭐ {stars} — 30 gün",
+  "premium.inv_desc": "{title}: 30 günlük grup premium (otomatik yenilenir).",
+  "premium.link_sent": "Ödeme bağlantısı özel mesajında.",
+  "premium.link_dm": "{title} için premium — bu düğmeyle öde:",
+  "premium.paid": "⭐ {name} grup premiumunu {date} tarihine kadar açtı. Teşekkürler!",
+  "premium.only": "Bu seçenek grup premium ile açılır: /premium",
+  "gs.months": "📅 Aylara göre:",
+  "gs.month_row": "{month}: {players} oyuncu · 1. {name} ({wins})",
+  "cmd.premium": "Grup premium"
 }

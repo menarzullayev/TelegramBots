@@ -481,5 +481,17 @@
   "skins.worn": "Стиль қолданылды.",
   "skins.removed": "Түпнұсқа стильге қайтты.",
   "cmd.skins": "Рөл карталарының стильдері",
-  "app.tab_skins": "Стильдер"
+  "app.tab_skins": "Стильдер",
+  "premium.title": "⭐ Топ премиумы",
+  "premium.active": "{date} дейін белсенді.",
+  "premium.pitch": "Айына {stars} ⭐ — кез келген мүше төлей алады:\n• ұзын таймерлер: күндіз 180 с, түн 120 с дейін\n• нәтиже картасында топ атауы\n• /groupstats — соңғы 3 ай",
+  "btn.premium_buy": "⭐ {stars} — 30 күн",
+  "premium.inv_desc": "{title}: 30 күндік топ премиумы (автоматты жаңартылады).",
+  "premium.link_sent": "Төлем сілтемесі жеке хабарыңызға жіберілді.",
+  "premium.link_dm": "{title} үшін премиум — осы батырмамен төлеңіз:",
+  "premium.paid": "⭐ {name} топ премиумын {date} дейін қосты. Рақмет!",
+  "premium.only": "Бұл баптау топ премиумымен ашылады: /premium",
+  "gs.months": "📅 Айлар бойынша:",
+  "gs.month_row": "{month}: {players} ойыншы · 1-орын {name} ({wins})",
+  "cmd.premium": "Топ премиумы"
 }

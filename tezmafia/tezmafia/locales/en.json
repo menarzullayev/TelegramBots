@@ -481,5 +481,17 @@
   "skins.worn": "Style applied.",
   "skins.removed": "Back to the original style.",
   "cmd.skins": "Role card styles",
-  "app.tab_skins": "Styles"
+  "app.tab_skins": "Styles",
+  "premium.title": "⭐ Group premium",
+  "premium.active": "Active until {date}.",
+  "premium.pitch": "{stars} ⭐ a month — any member can pay:\n• longer timers: day up to 180 s, night up to 120 s\n• the group name on result cards\n• /groupstats for the last 3 months",
+  "btn.premium_buy": "⭐ {stars} — 30 days",
+  "premium.inv_desc": "{title}: 30 days of group premium (renews automatically).",
+  "premium.link_sent": "The payment link is in your private chat.",
+  "premium.link_dm": "Premium for {title} — pay with this button:",
+  "premium.paid": "⭐ {name} turned on group premium until {date}. Thank you!",
+  "premium.only": "This option comes with group premium: /premium",
+  "gs.months": "📅 By month:",
+  "gs.month_row": "{month}: {players} players · 1st {name} ({wins})",
+  "cmd.premium": "Group premium"
 }

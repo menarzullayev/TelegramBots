@@ -481,5 +481,17 @@
   "skins.worn": "Estilo aplicado.",
   "skins.removed": "Estilo original de volta.",
   "cmd.skins": "Estilos de carta",
-  "app.tab_skins": "Estilos"
+  "app.tab_skins": "Estilos",
+  "premium.title": "⭐ Premium do grupo",
+  "premium.active": "Ativo até {date}.",
+  "premium.pitch": "{stars} ⭐ por mês — qualquer membro pode pagar:\n• timers longos: dia até 180 s, noite até 120 s\n• o nome do grupo nas cartas de resultado\n• /groupstats dos últimos 3 meses",
+  "btn.premium_buy": "⭐ {stars} — 30 dias",
+  "premium.inv_desc": "{title}: 30 dias de premium do grupo (renova automaticamente).",
+  "premium.link_sent": "O link de pagamento está no seu privado.",
+  "premium.link_dm": "Premium para {title} — pague com este botão:",
+  "premium.paid": "⭐ {name} ativou o premium do grupo até {date}. Obrigado!",
+  "premium.only": "Esta opção vem com o premium do grupo: /premium",
+  "gs.months": "📅 Por mês:",
+  "gs.month_row": "{month}: {players} jogadores · 1º {name} ({wins})",
+  "cmd.premium": "Premium do grupo"
 }
