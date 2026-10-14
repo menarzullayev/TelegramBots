@@ -52,6 +52,7 @@ async def main() -> None:
     from tezmafia.webapp.server import build_app
 
     store = Store(f"sqlite+aiosqlite:///{args.db}")
+    store.cache_ttl = 60.0  # as the running bot does
     fake_app = SimpleNamespace(store=store, settings=SimpleNamespace(bot_token=TOKEN))
     runner = web.AppRunner(build_app(fake_app), access_log=None)  # type: ignore[arg-type]
     await runner.setup()

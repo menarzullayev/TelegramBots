@@ -84,6 +84,51 @@ Auth refusals and rate limit held under load.
 - **Telegram budget:** lobby / vote-board edits merged within 1.5 s, no decorative phase
   reactions, progress news in the result card's caption instead of a second DM.
 
-## After the fixes
+## After the fixes (same 1M/1M database, commits aecd97c + follow-ups)
 
-To be measured on the same database after deploy.
+### Database — p50
+
+| Call | Before | After |
+|---|---|---|
+| `by_user_lobby_or_live` / `unfinished` | 1,560 ms | **3 ms** |
+| `season_top` (global) / `top_stats` / `week_top` | 46 / 75 / 23 ms | **0.7 / 0.6 / 0.6 ms** |
+| `streaks_at_risk` | 75 ms | **0.6 ms** |
+| `delete_user` | MemoryError | **34 ms** |
+| `report_since` (daily) | 1,272 ms | 534 ms |
+| `active_users(30d)` (daily) | 735 ms | 691 ms (33 s before the index pin, see below) |
+| Mini App `build_state` | 130 ms | **10 ms** |
+| `clan_top` | 1,147 ms | 1,026 ms uncached → served from the 60 s cache |
+| `save(game)` (finished) | 2.3 ms | 8.8 ms (now also links players) |
+
+Two regressions showed up only on re-measuring and are fixed: `active_users` picked the new
+`ix_activity_user` and scanned 8M rows (33 s) → pinned to the primary key; `clan_stats` took 634 ms
+until the planner had statistics → `PRAGMA optimize` at startup and daily (1 ms).
+
+### Concurrency
+
+| Groups at once | Finished | DB errors | Lost stat updates | `resolve_night` p50 / p95 |
+|---|---|---|---|---|
+| 10 | 10/10 | 0 | 0 | 0.5 s / 2.6 s |
+| 100 | 99/100 | **0** (was 37) | **0** (was 101) | 1.9 s / 15 s (was 25 s) |
+| 1000 | 999/1000 | **0** (was 502) | **0** (was 1,170) | 17 s / 123 s (was 233 s) |
+
+Telegram calls per game: ~104 → ~94 in this harness (it does not model "message is not modified"
+or the merged news DM, which save more in production). The remaining unfinished game per step was a
+harness artefact: both runs used the same seed, so chat ids collided with games left by the first run.
+
+Latency above 100 groups is the single process and Telegram itself, not SQLite: the next step is
+F7 (server, PostgreSQL, several workers) once the real audience needs it.
+
+### Mini App (60 s cache as in production)
+
+| Concurrent | Before req/s · p50 | After req/s · p50 |
+|---|---|---|
+| 10 | 32 · 0.31 s | **161 · 0.06 s** |
+| 100 | 28 · 3.5 s | **179 · 0.53 s** |
+| 500 | 28 · 17 s | **171 · 2.6 s** |
+
+### Found while re-measuring
+
+A deferred lobby edit ran outside the game lock; if Telegram refused the edit it posted a new lobby
+and could write back a stale game. It now takes the lock, and "message is not modified" counts as
+success (both covered by tests; the race test fails without the lock).
