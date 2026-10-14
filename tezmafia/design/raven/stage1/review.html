@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>stage1 review</title>
+<style>
+  body { margin: 0; font: 13px Arial; display: grid; grid-template-columns: 1fr 1fr; }
+  .pane { padding: 16px; display: grid; gap: 14px; }
+  .light { background: #FFFFFF; color: #111; } .dark { background: #17212B; color: #EEE; }
+  .row { display: flex; align-items: center; gap: 14px; }
+  .row b { width: 110px; }
+  .c { border-radius: 50%; display: block; }
+  .chat { display: flex; align-items: center; gap: 10px; }
+  .chat small { opacity: .6; display: block; }
+</style>
+<div class="pane light" id="L"></div>
+<div class="pane dark" id="D"></div>
+<script>
+  const items = [["1A-avatar-cinematic.png", "1A kinematografik", true], ["1B-avatar-flat.png", "1B tekis", true], ["1C-mark.png", "1C belgi", false]];
+  for (const id of ["L", "D"]) {
+    document.getElementById(id).innerHTML = items.map(([f, label, circle]) => `
+      <div class="row"><b>${label}</b>
+        <img class="${circle ? "c" : ""}" src="${f}" width="160" height="160">
+        <div class="chat"><img class="c" src="${f}" width="40" height="40"><div><b style="width:auto">TezMafia</b><small>bot</small></div></div>
+        <img class="c" src="${f}" width="28" height="28">
+        <img class="${circle ? "c" : ""}" src="${f}" width="20" height="20">
+      </div>`).join("");
+  }
+</script>

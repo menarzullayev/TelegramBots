@@ -1,0 +1,5 @@
+# Raw generator output and exports stay local (100+ MB); the committed assets live in ../assets/raven.
+*.png
+!raven/concept-sheet-15.png
+final/
+identity-2026-10/
