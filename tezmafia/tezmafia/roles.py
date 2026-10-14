@@ -196,6 +196,33 @@ class RoleBag:
         return [(n, c) for n, c in rows if c]
 
 
+SPECIALS = (
+    "sergeant", "hooker", "maniac", "lawyer", "mayor", "suicide", "lucky", "kamikaze",
+    "hobo", "journalist", "killer", "werewolf", "arsonist", "mage", "crook", "snitch",
+)
+
+
+def chaos_bag(n: int, rng=None) -> RoleBag:
+    """Chaos mode: the classic mafia/detective/doctor core, but the special roles are drawn at random.
+
+    At least one special from six players up, never more than the citizens can give.
+    """
+    import dataclasses
+    import random
+
+    base = bag_for(n)
+    taken = sum(getattr(base, k) for k in SPECIALS)
+    citizens = base.citizen + taken
+    count = min(citizens, max(taken, 1 if n >= 6 else 0))
+    # Small tables stay winnable for the town: no extra mafia-side specials below ten players.
+    pool = [k for k in SPECIALS if n >= 10 or k not in {"lawyer", "journalist", "killer"}]
+    picks = (rng or random).sample(pool, min(count, len(pool)))
+    count = len(picks)
+    cleared = {k: 0 for k in SPECIALS}
+    cleared.update({k: 1 for k in picks})
+    return dataclasses.replace(base, citizen=citizens - count, **cleared)
+
+
 def bag_for(n: int) -> RoleBag:
     """Party-classic counts + city extras peeled from citizens."""
     if n < 5:

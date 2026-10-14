@@ -20,8 +20,10 @@ def lobby_text(game: Game, bot_username: str, lang: str = "uz") -> str:
     lines = [
         f"{ce('pin')} <b>{t(lang, 'lobby.title')}</b>",
         f"{ce('group')} {t(lang, 'lobby.slots', n=len(game.players), max=game.max_players, min=game.min_players)}",
-        "",
     ]
+    if game.mode != "classic":
+        lines.append(f"🎲 {t(lang, 'mode.' + game.mode)} — {t(lang, 'mode.' + game.mode + '.d')}")
+    lines.append("")
     for p in game.players:
         mark = ce("check") if p.dm_ok else ce("hourglass")
         dm = t(lang, "lobby.dm_ok") if p.dm_ok else t(lang, "lobby.dm_wait")
@@ -40,8 +42,15 @@ def lobby_text(game: Game, bot_username: str, lang: str = "uz") -> str:
 
 
 def roles_public(game: Game, lang: str = "uz") -> str:
-    bag = bag_for(len(game.players))
-    bits = " · ".join(f"{n}: {c}" for n, c in bag.public_counts(lang))
+    if game.mode == "chaos":
+        # Chaos deals a random set: count what was actually dealt, not the classic table.
+        from collections import Counter
+
+        dealt = Counter(p.role for p in game.players if p.role)
+        bits = " · ".join(f"{role_title(lang, r)}: {c}" for r, c in dealt.most_common())
+    else:
+        bag = bag_for(len(game.players))
+        bits = " · ".join(f"{n}: {c}" for n, c in bag.public_counts(lang))
     return f"{ce('lock')} <b>{t(lang, 'roles.public')}</b>\n{bits}"
 
 
@@ -330,6 +339,8 @@ def profile_text(
     lang: str = "uz",
     vip_until: float | None = None,
     badge: str = "",
+    xp: int = 0,
+    achievements: int = 0,
 ) -> str:
     from html import escape
 
@@ -344,6 +355,11 @@ def profile_text(
     ]
     if vip_until:
         lines.append(f"💎 {t(lang, 'profile.vip', date=date_tag(vip_until))}")
+    if xp or achievements:
+        from tezmafia.progress import ACHIEVEMENTS, level_of
+
+        lines.append(f"⭐ {t(lang, 'profile.level', level=level_of(xp), xp=xp)}")
+        lines.append(f"🏅 {t(lang, 'profile.ach', n=achievements, total=len(ACHIEVEMENTS))}")
     bag = []
     for key, n in (inventory or {}).items():
         title = item_title(lang, key) if key in ITEMS else key
@@ -384,12 +400,24 @@ def gems_text(gems: int, lang: str = "uz") -> str:
     return f"{ce('party')} <b>{t(lang, 'gems.title')}</b>\n{t(lang, 'gems.body', gems=gems)}"
 
 
-def top_text(rows: list[tuple[str, int, int]], lang: str = "uz") -> str:
+def top_text(rows: list[tuple[str, int, int]], lang: str = "uz", title: str | None = None) -> str:
+    from html import escape
+
     if not rows:
         return f"{ce('info')} {t(lang, 'top.empty')}"
-    lines = [f"{ce('star')} <b>{t(lang, 'top.title')}</b>"]
+    lines = [f"{ce('star')} <b>{escape(title) if title else t(lang, 'top.title')}</b>"]
     for i, (name, games, wins) in enumerate(rows, start=1):
-        lines.append(t(lang, "top.row", i=i, name=name, wins=wins, games=games))
+        lines.append(t(lang, "top.row", i=i, name=escape(name), wins=wins, games=games))
+    return "\n".join(lines)
+
+
+def history_text(games: list[Game], lang: str = "uz") -> str:
+    if not games:
+        return f"{ce('info')} {t(lang, 'history.empty')}"
+    lines = [f"{ce('book')} <b>{t(lang, 'history.title')}</b>"]
+    for g in games:
+        result = t(lang, f"go.short.{g.winner}") if g.winner else t(lang, "history.cancelled")
+        lines.append("• " + t(lang, "history.row", date=date_tag(g.created_at), result=result, n=len(g.players)))
     return "\n".join(lines)
 
 
@@ -470,3 +498,28 @@ def game_over_rich(game: Game, lang: str = "uz") -> str:
         for p in game.players
     )
     return f"{head}<table bordered striped><tr><th>#</th><th></th><th>{escape(t(lang, 'go.roles'))}</th><th></th></tr>{rows}</table>"
+
+
+def config_text(cfg: dict, lang: str = "uz") -> str:
+    def flag(on: bool) -> str:
+        return "✅" if on else "❌"
+
+    mode = cfg["mode"]
+    body = t(
+        lang,
+        "config.body",
+        mode=t(lang, f"mode.{mode}"),
+        desc=t(lang, f"mode.{mode}.d"),
+        reveal=flag(cfg["reveal"] and mode != "secret"),
+        mute=flag(cfg["mute"]),
+        day=cfg["day"],
+        night=cfg["night"],
+    )
+    return f"⚙️ <b>{t(lang, 'config.title')}</b>\n{body}"
+
+
+def progress_dm(new_keys: list[str], level_up: int | None, lang: str = "uz") -> str:
+    lines = [f"🏅 <b>{t(lang, 'ach.unlocked')}</b>: {t(lang, f'ach.{k}')}" for k in new_keys]
+    if level_up:
+        lines.append(f"⭐ <b>{t(lang, 'lvl.up', level=level_up)}</b>")
+    return "\n".join(lines)
