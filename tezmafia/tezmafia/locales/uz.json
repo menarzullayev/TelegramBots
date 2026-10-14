@@ -332,5 +332,18 @@
   "profile.level": "Daraja {level} · XP {xp}",
   "profile.ach": "Yutuqlar: {n}/{total}",
   "ach.unlocked": "Yangi yutuq",
-  "lvl.up": "Daraja oshdi: {level}"
+  "lvl.up": "Daraja oshdi: {level}",
+  "top.season": "{season} mavsumi",
+  "top.group": "Guruh reytingi",
+  "btn.top_season": "Mavsum",
+  "btn.top_group": "Guruh",
+  "btn.top_all": "Hamma vaqt",
+  "cmd.history": "O‘yinlar tarixi",
+  "history.title": "So‘nggi o‘yinlar",
+  "history.row": "{date} — {result} ({n} o‘yinchi)",
+  "history.empty": "Bu guruhda hali tugagan o‘yin yo‘q.",
+  "history.cancelled": "bekor qilingan",
+  "words.prompt": "Siz o‘yindan chiqdingiz. So‘nggi so‘zingizni {sec} soniya ichida shu yerga yozing — u guruhga yuboriladi.",
+  "words.post": "{name}ning so‘nggi so‘zi: «{text}»",
+  "words.sent": "Guruhga yuborildi."
 }

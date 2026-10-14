@@ -332,5 +332,18 @@
   "profile.level": "Səviyyə {level} · XP {xp}",
   "profile.ach": "Nailiyyətlər: {n}/{total}",
   "ach.unlocked": "Yeni nailiyyət",
-  "lvl.up": "Səviyyə artdı: {level}"
+  "lvl.up": "Səviyyə artdı: {level}",
+  "top.season": "{season} mövsümü",
+  "top.group": "Qrup reytinqi",
+  "btn.top_season": "Mövsüm",
+  "btn.top_group": "Qrup",
+  "btn.top_all": "Bütün dövr",
+  "cmd.history": "Oyun tarixçəsi",
+  "history.title": "Son oyunlar",
+  "history.row": "{date} — {result} ({n} oyunçu)",
+  "history.empty": "Bu qrupda hələ bitmiş oyun yoxdur.",
+  "history.cancelled": "ləğv edilib",
+  "words.prompt": "Oyundan çıxdınız. Son sözünüzü {sec} saniyə ərzində bura yazın — qrupa göndəriləcək.",
+  "words.post": "{name} son sözü: «{text}»",
+  "words.sent": "Qrupa göndərildi."
 }

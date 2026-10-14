@@ -332,5 +332,18 @@
   "profile.level": "Рівень {level} · XP {xp}",
   "profile.ach": "Досягнення: {n}/{total}",
   "ach.unlocked": "Нове досягнення",
-  "lvl.up": "Новий рівень: {level}"
+  "lvl.up": "Новий рівень: {level}",
+  "top.season": "Сезон {season}",
+  "top.group": "Рейтинг групи",
+  "btn.top_season": "Сезон",
+  "btn.top_group": "Група",
+  "btn.top_all": "За весь час",
+  "cmd.history": "Історія ігор",
+  "history.title": "Останні ігри",
+  "history.row": "{date} — {result} ({n} гравців)",
+  "history.empty": "У цій групі ще немає завершених ігор.",
+  "history.cancelled": "скасовано",
+  "words.prompt": "Ви вибули. Напишіть тут останні слова протягом {sec} секунд — вони підуть у групу.",
+  "words.post": "Останні слова {name}: «{text}»",
+  "words.sent": "Надіслано в групу."
 }

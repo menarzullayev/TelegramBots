@@ -78,6 +78,7 @@ from tezmafia.keyboards import (
     night_kb,
     roles_kb,
     shop_kb,
+    top_kb,
     vote_kb,
 )
 from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
@@ -99,6 +100,7 @@ MODES: dict[str, dict[str, int]] = {
     "fast": {"night": 25, "day": 45, "vote": 25, "lynch": 15},
 }
 DAY_CHOICES = (60, 90, 120)
+WORDS_SECONDS = 90  # how long an eliminated player may send last words
 NIGHT_CHOICES = (30, 45, 60)
 ALREADY_RUNNING = 75
 
@@ -132,6 +134,8 @@ class App:
         self.locks = ChatLocks()
         self.timers: dict[str, asyncio.Task[Any]] = {}
         self._chat_of: dict[str, int] = {}
+        # user_id -> (group chat, player label, expiry) for players invited to send last words
+        self.pending_words: dict[int, tuple[int, str, float]] = {}
         self.alerts = Alerter(bot, settings.owner_id)
 
     async def chat_cfg(self, chat_id: int) -> dict[str, Any]:
@@ -393,6 +397,15 @@ class App:
             if action == "refund" and taken:
                 await self.store.credit_wallet(user_id, first_name, coins=ROLE_TICKET_COST)
 
+    async def invite_last_words(self, game: Game, seats: list[int]) -> None:
+        for seat in seats:
+            player = game.by_seat(seat)
+            if not player:
+                continue
+            self.pending_words[player.user_id] = (game.chat_id, player.html_label(), time.time() + WORDS_SECONDS)
+            lang = await self.lang(player.user_id)
+            await self.dm(player.user_id, t(lang, "words.prompt", sec=WORDS_SECONDS))
+
     async def send_role_dms(self, game: Game) -> bool:
         """Role card to every player; False when at least one DM is closed."""
         for p in game.players:
@@ -505,6 +518,7 @@ class App:
                 or (game.winner == "crook" and p.role == "crook")
             )
             totals = await self.store.bump_stat(p.user_id, p.first_name, won, p.alive)
+            await self.store.bump_season(time.strftime("%Y-%m"), game.chat_id, p.user_id, p.first_name, won)
             outcome = Outcome(
                 role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
             )
@@ -557,6 +571,7 @@ class App:
                 return
             result = resolve_night(game)
             await self.persist(game)
+            await self.invite_last_words(game, list(game.night_deaths))
             det = result.get("detective_result")
             if det:
                 checked = game.by_seat(det["seat"])
@@ -634,6 +649,8 @@ class App:
                 return
             result = resolve_lynch(game)
             await self.persist(game)
+            if result["confirmed"] and game.last_death_seat:
+                await self.invite_last_words(game, [game.last_death_seat])
             verdict = texts.elim_group(
                 game, not result["confirmed"], game.reveal_on_death, await self.lang(game.chat_id)
             )
@@ -1018,10 +1035,50 @@ async def cmd_next(message: Message) -> None:
         )
 
 
+async def _top_view(view: str, chat_id: int, lang: str) -> str:
+    season = time.strftime("%Y-%m")
+    if view == "all":
+        return texts.top_text(await app.store.top_stats(), lang, t(lang, "btn.top_all"))
+    if view == "group":
+        return texts.top_text(await app.store.season_top(season, chat_id), lang, t(lang, "top.group"))
+    return texts.top_text(await app.store.season_top(season), lang, t(lang, "top.season", season=season))
+
+
 @router.message(Command("top"))
 async def cmd_top(message: Message) -> None:
-    rows = await app.store.top_stats()
-    await _answer_with_photo(message, media("menu_top"), texts.top_text(rows, await _lang(message.chat.id)))
+    lang = await _lang(message.chat.id)
+    text = await _top_view("season", message.chat.id, lang)
+    await _answer_with_photo(message, media("menu_top"), text, reply_markup=top_kb("season", _is_group(message), lang))
+
+
+@router.callback_query(F.data.startswith("top:"))
+async def cb_top(query: CallbackQuery) -> None:
+    parts = _cb_parts(query.data, 2)
+    if not parts or parts[1] not in {"season", "group", "all"} or not query.message:
+        await query.answer()
+        return
+    chat = query.message.chat
+    in_group = chat.type in {ChatType.GROUP, ChatType.SUPERGROUP}
+    view = parts[1] if in_group or parts[1] != "group" else "season"
+    lang = await _lang(chat.id)
+    text = await _top_view(view, chat.id, lang)
+    await query.answer()
+    try:
+        if query.message.photo:
+            await query.message.edit_caption(caption=text, reply_markup=top_kb(view, in_group, lang))
+        else:
+            await query.message.edit_text(text, reply_markup=top_kb(view, in_group, lang))
+    except TelegramAPIError:
+        pass
+
+
+@router.message(Command("history"))
+async def cmd_history(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    if not _is_group(message):
+        await message.answer(t(lang, "mafia.group_only"))
+        return
+    await message.answer(texts.history_text(await app.store.recent_games(message.chat.id), lang))
 
 
 @router.message(Command("profile"))
@@ -1831,6 +1888,29 @@ async def cb_badge(query: CallbackQuery) -> None:
         pass
 
 
+@router.message(F.chat.type == ChatType.PRIVATE, F.text, ~F.text.startswith("/"))
+async def on_last_words(message: Message) -> None:
+    """The first plain message an eliminated player sends within the window goes to the group."""
+    if not message.from_user or not message.text:
+        return
+    pending = app.pending_words.pop(message.from_user.id, None)
+    if not pending:
+        return
+    chat_id, label, expires = pending
+    if time.time() > expires:
+        return
+    from html import escape
+
+    group_lang = await _lang(chat_id)
+    text = escape(message.text.strip()[:300])
+    try:
+        await app.bot.send_message(chat_id, "📜 " + t(group_lang, "words.post", name=label, text=text))
+    except TelegramAPIError:
+        log.info("last words not delivered chat=%s", chat_id, exc_info=True)
+        return
+    await message.answer(t(await _lang(message.from_user.id), "words.sent"))
+
+
 @router.message(F.chat.type.in_({ChatType.GROUP, ChatType.SUPERGROUP}))
 async def night_delete(message: Message) -> None:
     if not message.from_user or message.from_user.is_bot:
@@ -1873,6 +1953,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="status", description=cmd(lang, "status")),
         BotCommand(command="stop", description=cmd(lang, "stop")),
         BotCommand(command="config", description=cmd(lang, "config")),
+        BotCommand(command="history", description=cmd(lang, "history")),
         BotCommand(command="help", description=cmd(lang, "help")),
     ]
     private = [
@@ -1895,7 +1976,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
     keys = (
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
-        "privacy", "terms", "paysupport", "deletemydata", "config",
+        "privacy", "terms", "paysupport", "deletemydata", "config", "history",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

@@ -332,5 +332,18 @@
   "profile.level": "Level {level} · XP {xp}",
   "profile.ach": "Pencapaian: {n}/{total}",
   "ach.unlocked": "Pencapaian baru",
-  "lvl.up": "Naik level: {level}"
+  "lvl.up": "Naik level: {level}",
+  "top.season": "Musim {season}",
+  "top.group": "Peringkat grup",
+  "btn.top_season": "Musim",
+  "btn.top_group": "Grup",
+  "btn.top_all": "Sepanjang masa",
+  "cmd.history": "Riwayat game",
+  "history.title": "Game terbaru",
+  "history.row": "{date} — {result} ({n} pemain)",
+  "history.empty": "Belum ada game yang selesai di grup ini.",
+  "history.cancelled": "dibatalkan",
+  "words.prompt": "Kamu keluar dari game. Tulis kata-kata terakhirmu di sini dalam {sec} detik, akan dikirim ke grup.",
+  "words.post": "Kata terakhir {name}: “{text}”",
+  "words.sent": "Terkirim ke grup."
 }

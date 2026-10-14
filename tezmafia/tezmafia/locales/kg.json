@@ -332,5 +332,18 @@
   "profile.level": "Деңгээл {level} · XP {xp}",
   "profile.ach": "Жетишкендиктер: {n}/{total}",
   "ach.unlocked": "Жаңы жетишкендик",
-  "lvl.up": "Деңгээл көтөрүлдү: {level}"
+  "lvl.up": "Деңгээл көтөрүлдү: {level}",
+  "top.season": "{season} мезгили",
+  "top.group": "Топтун рейтинги",
+  "btn.top_season": "Мезгил",
+  "btn.top_group": "Топ",
+  "btn.top_all": "Бардык убакыт",
+  "cmd.history": "Оюндардын тарыхы",
+  "history.title": "Акыркы оюндар",
+  "history.row": "{date} — {result} ({n} оюнчу)",
+  "history.empty": "Бул топто азырынча бүткөн оюн жок.",
+  "history.cancelled": "жокко чыгарылган",
+  "words.prompt": "Сиз оюндан чыктыңыз. Акыркы сөзүңүздү {sec} секунданын ичинде ушул жерге жазыңыз — ал топко жөнөтүлөт.",
+  "words.post": "{name} акыркы сөзү: «{text}»",
+  "words.sent": "Топко жөнөтүлдү."
 }

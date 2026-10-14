@@ -400,12 +400,24 @@ def gems_text(gems: int, lang: str = "uz") -> str:
     return f"{ce('party')} <b>{t(lang, 'gems.title')}</b>\n{t(lang, 'gems.body', gems=gems)}"
 
 
-def top_text(rows: list[tuple[str, int, int]], lang: str = "uz") -> str:
+def top_text(rows: list[tuple[str, int, int]], lang: str = "uz", title: str | None = None) -> str:
+    from html import escape
+
     if not rows:
         return f"{ce('info')} {t(lang, 'top.empty')}"
-    lines = [f"{ce('star')} <b>{t(lang, 'top.title')}</b>"]
+    lines = [f"{ce('star')} <b>{escape(title) if title else t(lang, 'top.title')}</b>"]
     for i, (name, games, wins) in enumerate(rows, start=1):
-        lines.append(t(lang, "top.row", i=i, name=name, wins=wins, games=games))
+        lines.append(t(lang, "top.row", i=i, name=escape(name), wins=wins, games=games))
+    return "\n".join(lines)
+
+
+def history_text(games: list[Game], lang: str = "uz") -> str:
+    if not games:
+        return f"{ce('info')} {t(lang, 'history.empty')}"
+    lines = [f"{ce('book')} <b>{t(lang, 'history.title')}</b>"]
+    for g in games:
+        result = t(lang, f"go.short.{g.winner}") if g.winner else t(lang, "history.cancelled")
+        lines.append("• " + t(lang, "history.row", date=date_tag(g.created_at), result=result, n=len(g.players)))
     return "\n".join(lines)
 
 

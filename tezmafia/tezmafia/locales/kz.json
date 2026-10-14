@@ -332,5 +332,18 @@
   "profile.level": "Деңгей {level} · XP {xp}",
   "profile.ach": "Жетістіктер: {n}/{total}",
   "ach.unlocked": "Жаңа жетістік",
-  "lvl.up": "Деңгей көтерілді: {level}"
+  "lvl.up": "Деңгей көтерілді: {level}",
+  "top.season": "{season} маусымы",
+  "top.group": "Топ рейтингі",
+  "btn.top_season": "Маусым",
+  "btn.top_group": "Топ",
+  "btn.top_all": "Барлық уақыт",
+  "cmd.history": "Ойындар тарихы",
+  "history.title": "Соңғы ойындар",
+  "history.row": "{date} — {result} ({n} ойыншы)",
+  "history.empty": "Бұл топта әлі аяқталған ойын жоқ.",
+  "history.cancelled": "болдырылмаған",
+  "words.prompt": "Сіз ойыннан шықтыңыз. Соңғы сөзіңізді {sec} секунд ішінде осында жазыңыз — ол топқа жіберіледі.",
+  "words.post": "{name} соңғы сөзі: «{text}»",
+  "words.sent": "Топқа жіберілді."
 }

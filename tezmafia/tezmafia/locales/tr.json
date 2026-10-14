@@ -332,5 +332,18 @@
   "profile.level": "Seviye {level} · XP {xp}",
   "profile.ach": "Başarımlar: {n}/{total}",
   "ach.unlocked": "Yeni başarım",
-  "lvl.up": "Seviye atladın: {level}"
+  "lvl.up": "Seviye atladın: {level}",
+  "top.season": "{season} sezonu",
+  "top.group": "Grup sıralaması",
+  "btn.top_season": "Sezon",
+  "btn.top_group": "Grup",
+  "btn.top_all": "Tüm zamanlar",
+  "cmd.history": "Oyun geçmişi",
+  "history.title": "Son oyunlar",
+  "history.row": "{date} — {result} ({n} oyuncu)",
+  "history.empty": "Bu grupta henüz biten oyun yok.",
+  "history.cancelled": "iptal edildi",
+  "words.prompt": "Oyundan çıktınız. Son sözlerinizi {sec} saniye içinde buraya yazın, gruba gönderilecek.",
+  "words.post": "{name} son sözleri: “{text}”",
+  "words.sent": "Gruba gönderildi."
 }

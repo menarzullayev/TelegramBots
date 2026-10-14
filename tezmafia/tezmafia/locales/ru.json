@@ -332,5 +332,18 @@
   "profile.level": "Уровень {level} · XP {xp}",
   "profile.ach": "Достижения: {n}/{total}",
   "ach.unlocked": "Новое достижение",
-  "lvl.up": "Новый уровень: {level}"
+  "lvl.up": "Новый уровень: {level}",
+  "top.season": "Сезон {season}",
+  "top.group": "Рейтинг группы",
+  "btn.top_season": "Сезон",
+  "btn.top_group": "Группа",
+  "btn.top_all": "За всё время",
+  "cmd.history": "История игр",
+  "history.title": "Последние игры",
+  "history.row": "{date} — {result} ({n} игроков)",
+  "history.empty": "В этой группе ещё нет завершённых игр.",
+  "history.cancelled": "отменена",
+  "words.prompt": "Вы выбыли. Напишите здесь последние слова в течение {sec} секунд — они уйдут в группу.",
+  "words.post": "Последние слова {name}: «{text}»",
+  "words.sent": "Отправлено в группу."
 }

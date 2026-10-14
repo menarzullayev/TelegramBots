@@ -332,5 +332,18 @@
   "profile.level": "Nível {level} · XP {xp}",
   "profile.ach": "Conquistas: {n}/{total}",
   "ach.unlocked": "Nova conquista",
-  "lvl.up": "Subiu de nível: {level}"
+  "lvl.up": "Subiu de nível: {level}",
+  "top.season": "Temporada {season}",
+  "top.group": "Ranking do grupo",
+  "btn.top_season": "Temporada",
+  "btn.top_group": "Grupo",
+  "btn.top_all": "Todos os tempos",
+  "cmd.history": "Histórico de jogos",
+  "history.title": "Jogos recentes",
+  "history.row": "{date} — {result} ({n} jogadores)",
+  "history.empty": "Ainda não há jogos terminados neste grupo.",
+  "history.cancelled": "cancelado",
+  "words.prompt": "Você saiu do jogo. Escreva suas últimas palavras aqui em até {sec} segundos e elas irão para o grupo.",
+  "words.post": "Últimas palavras de {name}: “{text}”",
+  "words.sent": "Enviado ao grupo."
 }

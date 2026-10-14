@@ -332,5 +332,18 @@
   "profile.level": "Level {level} · XP {xp}",
   "profile.ach": "Achievements: {n}/{total}",
   "ach.unlocked": "New achievement",
-  "lvl.up": "Level up: {level}"
+  "lvl.up": "Level up: {level}",
+  "top.season": "Season {season}",
+  "top.group": "Group ranking",
+  "btn.top_season": "Season",
+  "btn.top_group": "Group",
+  "btn.top_all": "All time",
+  "cmd.history": "Game history",
+  "history.title": "Recent games",
+  "history.row": "{date} — {result} ({n} players)",
+  "history.empty": "No finished games in this group yet.",
+  "history.cancelled": "cancelled",
+  "words.prompt": "You are out of the game. Write your last words here within {sec} seconds and they will be posted to the group.",
+  "words.post": "Last words of {name}: “{text}”",
+  "words.sent": "Posted to the group."
 }

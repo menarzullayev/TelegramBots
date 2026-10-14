@@ -332,5 +332,18 @@
   "profile.level": "Сатҳ {level} · XP {xp}",
   "profile.ach": "Дастовардҳо: {n}/{total}",
   "ach.unlocked": "Дастоварди нав",
-  "lvl.up": "Сатҳ баланд шуд: {level}"
+  "lvl.up": "Сатҳ баланд шуд: {level}",
+  "top.season": "Мавсими {season}",
+  "top.group": "Рейтинги гурӯҳ",
+  "btn.top_season": "Мавсим",
+  "btn.top_group": "Гурӯҳ",
+  "btn.top_all": "Ҳама вақт",
+  "cmd.history": "Таърихи бозиҳо",
+  "history.title": "Бозиҳои охирин",
+  "history.row": "{date} — {result} ({n} бозингар)",
+  "history.empty": "Дар ин гурӯҳ ҳоло бозии анҷомёфта нест.",
+  "history.cancelled": "бекор шуд",
+  "words.prompt": "Шумо аз бозӣ баромадед. Сухани охирини худро дар давоми {sec} сония ин ҷо нависед — ба гурӯҳ фиристода мешавад.",
+  "words.post": "Сухани охирини {name}: «{text}»",
+  "words.sent": "Ба гурӯҳ фиристода шуд."
 }

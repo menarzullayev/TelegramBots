@@ -308,3 +308,17 @@ def config_kb(cfg: dict, lang: str = "uz") -> InlineKeyboardMarkup:
             ],
         ]
     )
+
+
+def top_kb(view: str, in_group: bool, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    views = ["season", "group", "all"] if in_group else ["season", "all"]
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                _btn(t(lang, f"btn.top_{v}"), callback_data=f"top:{v}", style="primary" if v == view else None)
+                for v in views
+            ]
+        ]
+    )

@@ -56,6 +56,19 @@ class UserStat(Base):
     xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
 
 
+class SeasonStat(Base):
+    """Monthly ranking rows; chat_id 0 is the global ladder, other ids are per-group ladders."""
+
+    __tablename__ = "season_stats"
+
+    season: Mapped[str] = mapped_column(String(7), primary_key=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), default="")
+    games: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    wins: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
 class Achievement(Base):
     __tablename__ = "achievements"
 
@@ -193,6 +206,7 @@ class Store:
             prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
             await s.execute(delete(Activity).where(Activity.user_id == user_id))
             await s.execute(delete(Achievement).where(Achievement.user_id == user_id))
+            await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
             for row in rows:
                 data = json.loads(row.payload)
@@ -585,6 +599,38 @@ class Store:
             row.next_role = ""
             await s.commit()
             return role
+
+    async def bump_season(self, season: str, chat_id: int, user_id: int, name: str, won: bool) -> None:
+        async with self.session() as s:
+            for scope in {0, chat_id}:
+                await s.execute(
+                    text(
+                        "INSERT INTO season_stats (season, chat_id, user_id, name, games, wins) VALUES (:s, :c, :u, :n, 1, :w)"
+                        " ON CONFLICT(season, chat_id, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :w"
+                    ),
+                    {"s": season, "c": scope, "u": user_id, "n": name[:128], "w": 1 if won else 0},
+                )
+            await s.commit()
+
+    async def season_top(self, season: str, chat_id: int = 0, limit: int = 10) -> list[tuple[str, int, int]]:
+        async with self.session() as s:
+            q = await s.execute(
+                select(SeasonStat)
+                .where(SeasonStat.season == season, SeasonStat.chat_id == chat_id)
+                .order_by(SeasonStat.wins.desc(), SeasonStat.games.desc())
+                .limit(limit)
+            )
+            return [(r.name or str(r.user_id), r.games, r.wins) for r in q.scalars()]
+
+    async def recent_games(self, chat_id: int, limit: int = 5) -> list[Game]:
+        async with self.session() as s:
+            q = await s.execute(
+                select(GameRow.payload)
+                .where(GameRow.chat_id == chat_id, GameRow.status == "finished")
+                .order_by(GameRow.updated_at.desc())
+                .limit(limit)
+            )
+            return [from_dict(json.loads(p)) for p in q.scalars()]
 
     async def top_stats(self, limit: int = 10) -> list[tuple[str, int, int]]:
         async with self.session() as s:
