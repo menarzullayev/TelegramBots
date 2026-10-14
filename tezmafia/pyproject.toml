@@ -5,7 +5,7 @@ description = "Production Telegram Mafia bot (group + DM engine)"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "aiogram>=3.22.0",
+  "aiogram>=3.31,<4",
   "aiosqlite>=0.21.0",
   "sqlalchemy[asyncio]>=2.0.36",
   "pydantic-settings>=2.6.0",
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "pillow>=10.4"]
+dev = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "pillow>=10.4", "ruff>=0.15"]
 
 [project.scripts]
 tezmafia = "tezmafia.__main__:main"
@@ -34,3 +34,12 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = ["qa: JIRA QA board ticket"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# Pyflakes, pycodestyle, import order, bugbear, pyupgrade; the rest of ruff's rules are opt-in later.
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]

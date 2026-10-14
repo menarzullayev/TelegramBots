@@ -26,6 +26,8 @@ from tezmafia.engine import (
     mark_dm_ok,
     new_game,
     set_night_action,
+)
+from tezmafia.engine import (
     start as eng_start,
 )
 
@@ -61,6 +63,12 @@ class FakeBot:
 
     async def pin_chat_message(self, *a, **k):
         self.calls.append(("pin", a, k))
+
+    async def unpin_chat_message(self, *a, **k):
+        self.calls.append(("unpin", a, k))
+
+    async def get_chat(self, *a, **k):
+        raise TelegramBadRequest(method=MagicMock(), message="no")
 
     async def set_message_reaction(self, *a, **k):
         self.calls.append(("react", a, k))
@@ -535,7 +543,7 @@ async def test_run_recovers_and_polls(tmp_path, monkeypatch) -> None:
 
     class DummyBot:
         def __init__(self, *a, **k):
-            pass
+            self.session = SimpleNamespace(middleware=lambda _m: None)
 
         async def get_webhook_info(self):
             return SimpleNamespace(url="")
@@ -576,18 +584,18 @@ async def test_assert_polling_contract_ok_and_rejects_webhook() -> None:
 @pytest.mark.asyncio
 async def test_parity_commands_and_lynch(app: App) -> None:
     from tezmafia.bot import (
+        cb_buy,
         cb_lang,
         cb_lynch,
+        cb_menu,
+        cmd_buy,
+        cmd_chats,
         cmd_extend,
         cmd_next,
         cmd_profile,
-        cmd_chats,
         cmd_settings,
         cmd_shop,
-        cmd_buy,
         cmd_top,
-        cb_buy,
-        cb_menu,
         night_delete,
     )
     from tezmafia.engine import Phase, begin_night, begin_voting, set_vote
@@ -668,7 +676,14 @@ async def test_parity_commands_and_lynch(app: App) -> None:
     )
     await cmd_chats(FakeMsg(host, chat, "/chats", app.bot))
     await cmd_settings(FakeMsg(host, chat, "/settings", app.bot))
-    await cb_lang(SimpleNamespace(data="lang:ru", message=FakeMsg(host, chat, "x", app.bot), answer=AsyncMock()))
+    lang_query = SimpleNamespace(data="lang:ru", from_user=host, message=FakeMsg(host, chat, "x", app.bot), answer=AsyncMock())
+    await cb_lang(lang_query)
+    assert await app.store.get_lang(chat.id) == "uz"  # the host is not a group admin
+    assert lang_query.answer.await_args.kwargs.get("show_alert") is True
+    app.bot.get_chat_member = AsyncMock(return_value=SimpleNamespace(status="administrator"))
+    await cb_lang(lang_query)
+    assert await app.store.get_lang(chat.id) == "ru"
+    app.bot.get_chat_member = FakeBot.get_chat_member.__get__(app.bot, FakeBot)
     await cmd_next(FakeMsg(host, chat, "/next", app.bot))
     await cmd_next(FakeMsg(User(id=9, is_bot=False, first_name="X"), chat, "/next", app.bot))
 

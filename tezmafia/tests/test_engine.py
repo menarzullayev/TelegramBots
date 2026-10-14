@@ -112,7 +112,7 @@ def test_vote_change_and_elim() -> None:
 
 
 def test_cancel_and_win_parity() -> None:
-    from tezmafia.engine import cancel, Phase, Winner
+    from tezmafia.engine import Phase, Winner, cancel
 
     g = _ready(5)
     start(g, rng=__import__("random").Random(5))

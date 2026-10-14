@@ -9,12 +9,11 @@ from aiogram.enums import ChatType
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.types import Chat, User
 
-from tezmafia.bot import App
-from tezmafia.bot import router
+from tezmafia import bot as botmod
+from tezmafia.bot import App, router
 from tezmafia.config import Settings
 from tezmafia.db import Store
 from tezmafia.engine import Phase, Winner, begin_night, join, mark_dm_ok, new_game
-from tezmafia import bot as botmod
 
 
 def _settings() -> Settings:
@@ -48,6 +47,12 @@ class FakeBot:
 
     async def pin_chat_message(self, *a, **k):
         self.calls.append(("pin", a, k))
+
+    async def unpin_chat_message(self, *a, **k):
+        self.calls.append(("unpin", a, k))
+
+    async def get_chat(self, *a, **k):
+        raise TelegramBadRequest(method=MagicMock(), message="no")
 
     async def set_message_reaction(self, *a, **k):
         self.calls.append(("react", a, k))
@@ -273,8 +278,10 @@ async def test_handlers(app: App) -> None:
 
 @pytest.mark.asyncio
 async def test_app_edges(app: App) -> None:
-    from tezmafia.engine import begin_voting, start as eng_start
     import random
+
+    from tezmafia.engine import begin_voting
+    from tezmafia.engine import start as eng_start
 
     g = _ready_game()
     await app.persist(g)
@@ -339,6 +346,8 @@ def test_main(monkeypatch) -> None:
 
 @pytest.mark.asyncio
 async def test_setup_and_live_handlers(app: App) -> None:
+    from aiogram.filters import CommandObject
+
     from tezmafia.bot import (
         cb_leave,
         cb_night,
@@ -353,7 +362,6 @@ async def test_setup_and_live_handlers(app: App) -> None:
         cmd_vote,
         setup_bot_profile,
     )
-    from aiogram.filters import CommandObject
 
     bot = app.bot
     bot.set_my_name = AsyncMock()

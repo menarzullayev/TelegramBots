@@ -250,5 +250,8 @@
   "cmd.help": "Yordam va qoidalar",
   "cmd.start": "Botni ishga tushirish",
   "profile.short": "Qorashahar — guruhingiz uchun klassik Mafiya. Hakam — bot.",
-  "profile.desc": "TezMafia — guruhingizni Qorashaharga aylantiradi. Bot — hakam: rollarni shaxsiy xabarda tarqatadi, tun va kunni boshqaradi, ovozlarni sanaydi. 5 kishidan boshlab. Botni guruhga qo‘shing va /mafia yozing."
+  "profile.desc": "TezMafia — guruhingizni Qorashaharga aylantiradi. Bot — hakam: rollarni shaxsiy xabarda tarqatadi, tun va kunni boshqaradi, ovozlarni sanaydi. 5 kishidan boshlab. Botni guruhga qo‘shing va /mafia yozing.",
+  "lang.admin_only": "Guruh tilini faqat adminlar o‘zgartiradi.",
+  "start.not_member": "Bu stol guruh a’zolari uchun. Avval guruhga qo‘shiling.",
+  "error.generic": "Nimadir xato ketdi. Birozdan keyin qayta urinib ko‘ring."
 }

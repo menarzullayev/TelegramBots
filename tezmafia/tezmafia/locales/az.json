@@ -250,5 +250,8 @@
   "cmd.help": "Kömək və qaydalar",
   "cmd.start": "Botu işə salmaq",
   "profile.short": "Qorashahar — qrupunuz üçün klassik Mafiya. Hakim — bot.",
-  "profile.desc": "TezMafia qrupunuzu Qorashahara çevirir. Bot — hakimdir: rolları şəxsi mesajda paylayır, gecə və gündüzü idarə edir, səsləri sayır. 5 nəfərdən başlayaraq. Botu qrupa əlavə edin və /mafia yazın."
+  "profile.desc": "TezMafia qrupunuzu Qorashahara çevirir. Bot — hakimdir: rolları şəxsi mesajda paylayır, gecə və gündüzü idarə edir, səsləri sayır. 5 nəfərdən başlayaraq. Botu qrupa əlavə edin və /mafia yazın.",
+  "lang.admin_only": "Qrupun dilini yalnız adminlər dəyişə bilər.",
+  "start.not_member": "Bu masa qrup üzvləri üçündür. Əvvəlcə qrupa qoşulun.",
+  "error.generic": "Nəsə səhv getdi. Bir azdan yenidən cəhd edin."
 }
