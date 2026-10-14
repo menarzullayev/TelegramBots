@@ -444,5 +444,8 @@
   "cmd.groupstats": "Guruh statistikasi",
   "cmd.kick": "O‘yinchini chiqarish (admin)",
   "cmd.ban": "O‘yinlardan chetlatish (admin)",
-  "cmd.unban": "Chetlatishni bekor qilish (admin)"
+  "cmd.unban": "Chetlatishni bekor qilish (admin)",
+  "go.draw": "Shaharda hech kim qolmadi. Durang — g‘olib yo‘q.",
+  "go.short.draw": "durang — hech kim qolmadi.",
+  "card.draw": "Durang"
 }

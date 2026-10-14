@@ -126,8 +126,8 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         },
         "achievements": [{"key": k, "title": plain_t(lang, f"ach.{k}"), "unlocked": k in unlocked} for k in ACHIEVEMENTS],
         "top": {
-            "season": {"title": plain_t(lang, "top.season", season=season), "rows": rows(await app.store.season_top(season))},
-            "all": {"title": plain_t(lang, "btn.top_all"), "rows": rows(await app.store.top_stats())},
+            "season": {"title": plain_t(lang, "top.season", season=season), "rows": rows(await app.store.cached(("season", season, 0), lambda: app.store.season_top(season)))},
+            "all": {"title": plain_t(lang, "btn.top_all"), "rows": rows(await app.store.cached(("top_all",), app.store.top_stats))},
         },
         "shop": {
             "packs": [
@@ -159,7 +159,7 @@ def chronicle_entry(game: Any, uid: int, lang: str) -> dict[str, Any]:
     you = ""
     if me:
         role = role_title(lang, me.role) if me.role else "?"
-        you = plain(t(lang, "chr.you", role=role, result=t(lang, "card.win" if won else "card.loss")))
+        you = plain(t(lang, "chr.you", role=role, result=t(lang, "card.draw" if game.winner == "draw" else "card.win" if won else "card.loss")))
     return {
         "id": game.id,
         "at": game.created_at,

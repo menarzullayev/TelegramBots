@@ -444,5 +444,8 @@
   "cmd.groupstats": "Group statistics",
   "cmd.kick": "Remove a player (admin)",
   "cmd.ban": "Ban from games (admin)",
-  "cmd.unban": "Lift a ban (admin)"
+  "cmd.unban": "Lift a ban (admin)",
+  "go.draw": "Nobody is left in town. A draw — no winner.",
+  "go.short.draw": "a draw — nobody is left.",
+  "card.draw": "Draw"
 }

@@ -444,5 +444,8 @@
   "cmd.groupstats": "Qrup statistikası",
   "cmd.kick": "Oyunçunu çıxarmaq (admin)",
   "cmd.ban": "Oyunlardan kənarlaşdırmaq (admin)",
-  "cmd.unban": "Kənarlaşdırmanı ləğv etmək (admin)"
+  "cmd.unban": "Kənarlaşdırmanı ləğv etmək (admin)",
+  "go.draw": "Şəhərdə heç kim qalmadı. Heç-heçə — qalib yoxdur.",
+  "go.short.draw": "heç-heçə — heç kim qalmadı.",
+  "card.draw": "Heç-heçə"
 }
