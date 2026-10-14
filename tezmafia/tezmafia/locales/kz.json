@@ -493,5 +493,19 @@
   "premium.only": "Бұл баптау топ премиумымен ашылады: /premium",
   "gs.months": "📅 Айлар бойынша:",
   "gs.month_row": "{month}: {players} ойыншы · 1-орын {name} ({wins})",
-  "cmd.premium": "Топ премиумы"
+  "cmd.premium": "Топ премиумы",
+  "pass.title": "🎟 Қорашаһар пассы — {season}",
+  "pass.soon": "Маусымдық пасс {season} басталады.",
+  "pass.progress": "Деңгей {tier}/{tiers} · {xp} XP (келесіге {left} XP)",
+  "pass.tracks": "Тегін жол: әр деңгейде coin, әр 5-інде алмаз.\nАқылы: алмаз, coin, 10-да скин, 20-да 🎟 белгісі.",
+  "pass.premium_on": "⭐ Ақылы жол ашық.",
+  "btn.pass_claim": "🎁 Алу ({n})",
+  "btn.pass_buy": "⭐ {stars} — ақылы жол",
+  "pass.claimed": "Алынды: +{coins} coin, +{gems} алмаз{extra}",
+  "pass.extra_skin": ", жаңа скин: {name}",
+  "pass.extra_badge": ", 🎟 белгісі",
+  "pass.nothing": "Әзірге алатын сыйлық жоқ — ойнай беріңіз.",
+  "pass.inv_desc": "{season} маусымының ақылы жолы: алмаз, coin, скин және 🎟 белгісі.",
+  "pass.paid": "⭐ Ақылы жол ашылды ({season}). /pass — сыйлықтарды алыңыз.",
+  "cmd.pass": "Маусымдық пасс"
 }

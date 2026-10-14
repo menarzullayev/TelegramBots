@@ -364,6 +364,18 @@ def invite_kb(link: str, lang: str = "uz") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[_btn(t(lang, "btn.link"), copy_text=link, emoji="pin")]])
 
 
+def pass_kb(claimable: int, premium: bool, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+    from tezmafia.season_pass import PASS_STARS
+
+    rows = []
+    if claimable:
+        rows.append([_btn(t(lang, "btn.pass_claim", n=claimable), callback_data="ps:claim", style="success")])
+    if not premium:
+        rows.append([_btn(t(lang, "btn.pass_buy", stars=PASS_STARS), callback_data="ps:buy")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
 def premium_kb(chat_id: int, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
     from tezmafia.shop import GROUP_PREMIUM_STARS

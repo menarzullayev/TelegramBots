@@ -493,5 +493,19 @@
   "premium.only": "Бул жөндөө топтун премиуму менен ачылат: /premium",
   "gs.months": "📅 Айлар боюнча:",
   "gs.month_row": "{month}: {players} оюнчу · 1-орун {name} ({wins})",
-  "cmd.premium": "Топтун премиуму"
+  "cmd.premium": "Топтун премиуму",
+  "pass.title": "🎟 Корашахар пассы — {season}",
+  "pass.soon": "Сезондук пасс {season} башталат.",
+  "pass.progress": "Баскыч {tier}/{tiers} · {xp} XP (кийинкиге {left} XP)",
+  "pass.tracks": "Акысыз жол: ар баскычта coin, ар 5-де алмаз.\nАкылуу: алмаз, coin, 10-до скин, 20-да 🎟 белгиси.",
+  "pass.premium_on": "⭐ Акылуу жол ачык.",
+  "btn.pass_claim": "🎁 Алуу ({n})",
+  "btn.pass_buy": "⭐ {stars} — акылуу жол",
+  "pass.claimed": "Алынды: +{coins} coin, +{gems} алмаз{extra}",
+  "pass.extra_skin": ", жаңы скин: {name}",
+  "pass.extra_badge": ", 🎟 белгиси",
+  "pass.nothing": "Азырынча алчу сыйлык жок — ойной бериңиз.",
+  "pass.inv_desc": "{season} сезонунун акылуу жолу: алмаз, coin, скин жана 🎟 белгиси.",
+  "pass.paid": "⭐ Акылуу жол ачылды ({season}). /pass — сыйлыктарды алыңыз.",
+  "cmd.pass": "Сезондук пасс"
 }

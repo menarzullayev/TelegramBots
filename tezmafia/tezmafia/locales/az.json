@@ -493,5 +493,19 @@
   "premium.only": "Bu seçim qrup premiumu ilə açılır: /premium",
   "gs.months": "📅 Aylar üzrə:",
   "gs.month_row": "{month}: {players} oyunçu · 1-ci {name} ({wins})",
-  "cmd.premium": "Qrup premium"
+  "cmd.premium": "Qrup premium",
+  "pass.title": "🎟 Qorashahar pass — {season}",
+  "pass.soon": "Mövsüm pass {season} başlayır.",
+  "pass.progress": "Mərhələ {tier}/{tiers} · {xp} XP (növbətiyə {left} XP)",
+  "pass.tracks": "Pulsuz yol: hər mərhələdə coin, hər 5-də almaz.\nÖdənişli: almaz, coin, 10-da skin, 20-də 🎟 nişanı.",
+  "pass.premium_on": "⭐ Ödənişli yol açıqdır.",
+  "btn.pass_claim": "🎁 Götür ({n})",
+  "btn.pass_buy": "⭐ {stars} — ödənişli yol",
+  "pass.claimed": "Alındı: +{coins} coin, +{gems} almaz{extra}",
+  "pass.extra_skin": ", yeni skin: {name}",
+  "pass.extra_badge": ", 🎟 nişanı",
+  "pass.nothing": "Hələ götürüləcək mükafat yoxdur — oynamağa davam edin.",
+  "pass.inv_desc": "{season} mövsümünün ödənişli yolu: almaz, coin, skin və 🎟 nişanı.",
+  "pass.paid": "⭐ Ödənişli yol açıldı ({season}). /pass — mükafatlar.",
+  "cmd.pass": "Mövsüm pass"
 }

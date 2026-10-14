@@ -493,5 +493,19 @@
   "premium.only": "This option comes with group premium: /premium",
   "gs.months": "📅 By month:",
   "gs.month_row": "{month}: {players} players · 1st {name} ({wins})",
-  "cmd.premium": "Group premium"
+  "cmd.premium": "Group premium",
+  "pass.title": "🎟 Qorashahar pass — {season}",
+  "pass.soon": "The season pass starts in {season}.",
+  "pass.progress": "Tier {tier}/{tiers} · {xp} XP ({left} XP to the next)",
+  "pass.tracks": "Free track: coins every tier, a gem every 5th.\nPaid track: gems, coins, a skin at tier 10, the 🎟 badge at tier 20.",
+  "pass.premium_on": "⭐ Paid track unlocked.",
+  "btn.pass_claim": "🎁 Claim ({n})",
+  "btn.pass_buy": "⭐ {stars} — paid track",
+  "pass.claimed": "Claimed: +{coins} coins, +{gems} gems{extra}",
+  "pass.extra_skin": ", new skin: {name}",
+  "pass.extra_badge": ", the 🎟 badge",
+  "pass.nothing": "Nothing to claim yet — keep playing.",
+  "pass.inv_desc": "Paid track of season {season}: gems, coins, a skin and the 🎟 badge.",
+  "pass.paid": "⭐ Paid track unlocked ({season}). /pass to claim.",
+  "cmd.pass": "Season pass"
 }
