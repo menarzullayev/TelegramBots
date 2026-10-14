@@ -21,7 +21,7 @@ from aiohttp import web
 
 from tezmafia.i18n import normalize_lang, t
 from tezmafia.progress import ACHIEVEMENTS, XP_PER_LEVEL_STEP, level_of
-from tezmafia.shop import BADGES, STAR_PACKS, VIP_PERIOD, VIP_STARS
+from tezmafia.shop import BADGES, SPECIAL_BADGES, STAR_PACKS, VIP_PERIOD, VIP_STARS
 
 if TYPE_CHECKING:
     from tezmafia.bot import App
@@ -141,7 +141,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "label": plain_t(lang, "btn.badge_wear", icon=e) if k in owned_badges
                 else plain_t(lang, "btn.badge_buy", icon=e, cost=c),
             }
-            for k, (e, c) in BADGES.items()
+            for k, (e, c) in {**BADGES, **{k: v for k, v in SPECIAL_BADGES.items() if k in owned_badges}}.items()
         ],
         "gems_body": plain_t(lang, "gems.body", gems=acc["gems"]),
     }
@@ -196,7 +196,7 @@ async def badge(request: web.Request) -> web.Response:
     if key == "off":
         await app.store.take_off_badge(user["id"])
         result = "removed"
-    elif key in BADGES:
+    elif key in BADGES or key in SPECIAL_BADGES:
         result = await app.store.buy_badge(user["id"], user["first_name"], key)
     else:
         raise web.HTTPBadRequest(text="unknown badge")

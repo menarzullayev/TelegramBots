@@ -14,6 +14,7 @@ from tezmafia.shop import (
     ITEMS,
     PLAY_COINS,
     ROLE_TICKET_COST,
+    SPECIAL_BADGES,
     VIP_BADGE,
     VIP_COIN_BONUS,
     WIN_COINS,
@@ -56,6 +57,52 @@ class UserStat(Base):
     xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     daily_last: Mapped[str] = mapped_column(String(10), default="", server_default="")
     daily_streak: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class Clan(Base):
+    __tablename__ = "clans"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(32))
+    name_key: Mapped[str] = mapped_column(String(32), unique=True)
+    owner_id: Mapped[int] = mapped_column(BigInteger)
+    created_at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class ClanMember(Base):
+    __tablename__ = "clan_members"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    clan_id: Mapped[int] = mapped_column(Integer, index=True)
+    joined_at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class WeeklyStat(Base):
+    __tablename__ = "weekly_stats"
+
+    week: Mapped[str] = mapped_column(String(8), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), default="")
+    games: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    wins: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    points: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class TournamentAward(Base):
+    __tablename__ = "tournament_awards"
+
+    week: Mapped[str] = mapped_column(String(8), primary_key=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class LastCard(Base):
+    """The player's latest result card (Telegram file id) for inline sharing."""
+
+    __tablename__ = "last_cards"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    file_id: Mapped[str] = mapped_column(String(256))
+    caption: Mapped[str] = mapped_column(Text, default="")
 
 
 class QuestProgress(Base):
@@ -248,6 +295,8 @@ class Store:
             await s.execute(delete(Activity).where(Activity.user_id == user_id))
             await s.execute(delete(Achievement).where(Achievement.user_id == user_id))
             await s.execute(delete(QuestProgress).where(QuestProgress.user_id == user_id))
+            await s.execute(delete(WeeklyStat).where(WeeklyStat.user_id == user_id))
+            await s.execute(delete(LastCard).where(LastCard.user_id == user_id))
             await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
@@ -517,6 +566,163 @@ class Store:
             q = await s.execute(select(ScheduleSub.user_id).where(ScheduleSub.schedule_id == schedule_id))
             return list(q.scalars())
 
+    # --- social: cards, clans, weekly tournament -----------------------------------------------
+
+    async def save_card(self, user_id: int, file_id: str, caption: str) -> None:
+        async with self.session() as s:
+            await s.merge(LastCard(user_id=user_id, file_id=file_id, caption=caption[:1000]))
+            await s.commit()
+
+    async def last_card(self, user_id: int) -> LastCard | None:
+        async with self.session() as s:
+            return await s.get(LastCard, user_id)
+
+    async def clan_of(self, user_id: int) -> Clan | None:
+        async with self.session() as s:
+            m = await s.get(ClanMember, user_id)
+            return await s.get(Clan, m.clan_id) if m else None
+
+    async def create_clan(self, user_id: int, user_name: str, name: str, cost: int) -> str:
+        """'ok' | 'member' | 'taken' | 'money'."""
+        async with self.session() as s:
+            if await s.get(ClanMember, user_id):
+                return "member"
+            key = name.casefold()
+            if (await s.execute(select(Clan.id).where(Clan.name_key == key))).first():
+                return "taken"
+            await self._ensure(s, user_id, user_name)
+            paid = await s.execute(
+                text("UPDATE stats SET coins = coins - :c WHERE user_id = :u AND COALESCE(coins, 0) >= :c"),
+                {"c": cost, "u": user_id},
+            )
+            if not paid.rowcount:
+                await s.rollback()
+                return "money"
+            clan = Clan(name=name, name_key=key, owner_id=user_id, created_at=time.time())
+            s.add(clan)
+            await s.flush()
+            s.add(ClanMember(user_id=user_id, clan_id=clan.id, joined_at=time.time()))
+            await s.commit()
+        return "ok"
+
+    async def join_clan(self, user_id: int, name: str, limit: int) -> tuple[str, Clan | None]:
+        """('ok' | 'member' | 'none' | 'full', clan)."""
+        async with self.session() as s:
+            if await s.get(ClanMember, user_id):
+                return "member", None
+            clan = (await s.execute(select(Clan).where(Clan.name_key == name.casefold()))).scalar_one_or_none()
+            if not clan:
+                return "none", None
+            count = (
+                await s.execute(select(func.count()).select_from(ClanMember).where(ClanMember.clan_id == clan.id))
+            ).scalar_one()
+            if count >= limit:
+                return "full", clan
+            s.add(ClanMember(user_id=user_id, clan_id=clan.id, joined_at=time.time()))
+            await s.commit()
+            return "ok", clan
+
+    async def leave_clan(self, user_id: int) -> bool:
+        """Leave; an owner hands the clan to the longest member, the last one out deletes it."""
+        async with self.session() as s:
+            m = await s.get(ClanMember, user_id)
+            if not m:
+                return False
+            clan = await s.get(Clan, m.clan_id)
+            await s.delete(m)
+            await s.flush()
+            if clan and clan.owner_id == user_id:
+                heir = (
+                    await s.execute(
+                        select(ClanMember).where(ClanMember.clan_id == clan.id).order_by(ClanMember.joined_at).limit(1)
+                    )
+                ).scalar_one_or_none()
+                if heir:
+                    clan.owner_id = heir.user_id
+                else:
+                    await s.delete(clan)
+            await s.commit()
+        return True
+
+    async def clan_stats(self, clan_id: int, season: str) -> tuple[int, int]:
+        """(members, season wins of all members on the global ladder)."""
+        async with self.session() as s:
+            members = (
+                await s.execute(select(func.count()).select_from(ClanMember).where(ClanMember.clan_id == clan_id))
+            ).scalar_one()
+            wins = (
+                await s.execute(
+                    select(func.coalesce(func.sum(SeasonStat.wins), 0))
+                    .join(ClanMember, ClanMember.user_id == SeasonStat.user_id)
+                    .where(ClanMember.clan_id == clan_id, SeasonStat.season == season, SeasonStat.chat_id == 0)
+                )
+            ).scalar_one()
+        return members, int(wins)
+
+    async def clan_top(self, season: str, limit: int = 10) -> list[tuple[str, int, int]]:
+        """(name, members, season wins) best first."""
+        async with self.session() as s:
+            q = await s.execute(
+                select(
+                    Clan.name,
+                    func.count(func.distinct(ClanMember.user_id)),
+                    func.coalesce(func.sum(SeasonStat.wins), 0),
+                )
+                .join(ClanMember, ClanMember.clan_id == Clan.id)
+                .outerjoin(
+                    SeasonStat,
+                    (SeasonStat.user_id == ClanMember.user_id) & (SeasonStat.season == season) & (SeasonStat.chat_id == 0),
+                )
+                .group_by(Clan.id)
+                .order_by(func.coalesce(func.sum(SeasonStat.wins), 0).desc(), Clan.created_at)
+                .limit(limit)
+            )
+            return [(r[0], int(r[1]), int(r[2])) for r in q.all()]
+
+    async def bump_week(self, week: str, user_id: int, name: str, won: bool, pts: int) -> None:
+        async with self.session() as s:
+            await s.execute(
+                text(
+                    "INSERT INTO weekly_stats (week, user_id, name, games, wins, points) VALUES (:w, :u, :n, 1, :x, :p)"
+                    " ON CONFLICT(week, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :x,"
+                    " points = points + :p"
+                ),
+                {"w": week, "u": user_id, "n": name[:128], "x": 1 if won else 0, "p": pts},
+            )
+            await s.commit()
+
+    async def week_top(self, week: str, limit: int = 10) -> list[tuple[int, str, int]]:
+        """(user_id, name, points) best first; ties go to more wins, then fewer games."""
+        async with self.session() as s:
+            q = await s.execute(
+                select(WeeklyStat.user_id, WeeklyStat.name, WeeklyStat.points)
+                .where(WeeklyStat.week == week)
+                .order_by(WeeklyStat.points.desc(), WeeklyStat.wins.desc(), WeeklyStat.games)
+                .limit(limit)
+            )
+            return [(r[0], r[1], r[2]) for r in q.all()]
+
+    async def claim_tournament(self, week: str) -> bool:
+        """True only the first time a week's prizes are handed out."""
+        async with self.session() as s:
+            res = await s.execute(
+                text("INSERT OR IGNORE INTO tournament_awards (week, at) VALUES (:w, :t)"), {"w": week, "t": time.time()}
+            )
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def grant_badge(self, user_id: int, key: str, emoji: str) -> None:
+        """Give a non-purchasable badge (e.g. the tournament trophy) and wear it."""
+        async with self.session() as s:
+            row = await s.get(UserStat, user_id)
+            if not row:
+                return
+            owned = json.loads(row.badges or "[]")
+            if key not in owned:
+                row.badges = json.dumps([*owned, key])
+            row.badge = emoji
+            await s.commit()
+
     async def award(self, user_id: int, keys: set[str]) -> list[str]:
         """Grant achievements; returns only the ones the user did not have yet."""
         fresh: list[str] = []
@@ -657,6 +863,14 @@ class Store:
 
     async def buy_badge(self, user_id: int, name: str, key: str) -> str:
         """'bought', 'owned' (already had it), 'no_gems' or 'no_item'. Buying or owning also wears it."""
+        if key in SPECIAL_BADGES:
+            async with self.session() as s:
+                row = await s.get(UserStat, user_id)
+                if not row or key not in json.loads(row.badges or "[]"):
+                    return "no_item"
+                row.badge = SPECIAL_BADGES[key][0]
+                await s.commit()
+            return "owned"
         if key not in BADGES:
             return "no_item"
         emoji, cost = BADGES[key]
