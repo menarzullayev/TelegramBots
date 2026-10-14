@@ -245,3 +245,17 @@ async def test_init_links_legacy_games(app: App) -> None:
     await app.store.init()  # startup migration
     assert {x.id for x in await app.store.user_games(102)} == {g.id}
     assert (await app.store.delete_user(102))["games"] == 1
+
+
+@pytest.mark.asyncio
+async def test_active_users_stays_on_the_date_range(app: App) -> None:
+    for day, uid, ch in (("2026-10-01", 1, "dm"), ("2026-10-02", 1, "group"), ("2026-10-02", 2, "group"), ("2026-09-01", 3, "dm")):
+        await app.store.touch_activity(day, uid, ch)
+    assert await app.store.active_users("2026-10-01") == 2
+    assert await app.store.active_users("2026-10-01", "dm") == 1
+    async with app.store.engine.connect() as conn:
+        plan = " ".join(r[3] for r in await conn.execute(text(
+            "EXPLAIN QUERY PLAN SELECT COUNT(DISTINCT user_id) FROM activity INDEXED BY sqlite_autoindex_activity_1"
+            " WHERE day >= '2026-10-01'")))
+    assert "ix_activity_user" not in plan and "day>" in plan
+    await app.store.optimize()  # must not fail on a fresh database

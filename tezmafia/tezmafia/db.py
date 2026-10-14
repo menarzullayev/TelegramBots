@@ -295,6 +295,12 @@ class Store:
                     await conn.execute(text(ddl))
                 except Exception:
                     pass
+            await conn.execute(text("PRAGMA optimize"))
+
+    async def optimize(self) -> None:
+        """Refresh the query planner's statistics when SQLite thinks they are stale (cheap when they are not)."""
+        async with self.engine.begin() as conn:
+            await conn.execute(text("PRAGMA optimize"))
 
     async def save(self, game: Game) -> None:
         async with self.session() as s:
@@ -423,11 +429,13 @@ class Store:
 
     async def active_users(self, since_day: str, channel: str | None = None) -> int:
         """Distinct users active on or after since_day (YYYY-MM-DD), optionally in one channel."""
-        q = select(func.count(func.distinct(Activity.user_id))).where(Activity.day >= since_day)
+        # Pinned to the (day, user_id, channel) primary key: with ix_activity_user the planner scanned all
+        # 8M rows of the load-test database (33 s) instead of the date range (0.7 s).
+        sql = "SELECT COUNT(DISTINCT user_id) FROM activity INDEXED BY sqlite_autoindex_activity_1 WHERE day >= :d"
         if channel:
-            q = q.where(Activity.channel == channel)
+            sql += " AND channel = :c"
         async with self.session() as s:
-            return (await s.execute(q)).scalar_one()
+            return (await s.execute(text(sql), {"d": since_day, "c": channel})).scalar_one()
 
     async def report_since(self, since: float) -> dict[str, int]:
         """Counters for the owner's daily report."""
