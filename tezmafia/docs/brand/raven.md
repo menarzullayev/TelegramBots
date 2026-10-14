@@ -15,14 +15,14 @@ Bot o‘z interfeysi ranglarini boshqara olmaydi, shuning uchun brend o‘yinchi
 | Faza va hukm rasmlari | 16 ta sahna, `assets/raven/scenes/` | `App.safe_photo` → `brand.MEDIA` |
 | Rol kartalari | 21 ta, `assets/raven/roles/` | rol DM'i (`App.dm_photo`), `/roles` kartasi → `brand.role_card` |
 | Menyu sarlavhalari | 5 ta, `assets/raven/menu/` | `/start`, `/help`, `/shop`, `/profile`, `/top` → `_answer_with_photo` |
-| Bot tavsifi rasmi (1280×720) | `assets/raven/banner.jpg` tayyor | Bot API'da yo‘q — faqat @BotFather orqali qo‘lda |
-| Stiker paket | `TezMafia_by_menarzullayev`, 5 ta oddiy TGS | `scripts/make_tgs.py` (yuklash qo‘lda) |
+| Bot tavsifi rasmi | `assets/raven/banner.jpg`, 640×360 ga kichraytirib o‘rnatilgan (2026-10-14) | Bot API'da yo‘q — @BotFather → Edit Description Picture |
+| Stiker paket | [`raven_by_qorashahar_mafia_bot`](https://t.me/addstickers/raven_by_qorashahar_mafia_bot), 8 ta Qarg‘a; eski `TezMafia_by_menarzullayev` (5 TGS) o‘zgarmagan | `python -m scripts.make_sticker_set` |
 | Custom emoji | uchinchi tomon VectorGuard to‘plami | `tezmafia/emoji.py` |
 | Tugmalar | Telegram `style` (primary/success/danger) + emoji ikonka | `tezmafia/keyboards.py` |
 | Matn | 11 til katalogi | `tezmafia/locales/*.json` |
 | Profil matnlari | 11 til | `profile.short`, `profile.desc` |
 
-Ishlatilmaydigan fayllar: `assets/phase.gif`, `assets/avatar.png`, `assets/stickers/icon.png`, hamda Qarg‘a almashtirgan eski rasmlar (`assets/avatar.jpg`, `day.png`, `night.png`, `death.png`, `mafia-win.png`, `town-win.png`) — kod ularga murojaat qilmaydi; o‘chirish alohida tasdiq bilan.
+Eski rasmlar (`avatar.jpg`, `avatar.png`, `day.png`, `night.png`, `death.png`, `mafia-win.png`, `town-win.png`, `phase.gif`, `stickers/icon.png`) va ularni nusxalovchi `scripts/copy_assets.py` egasi roziligi bilan o‘chirildi (2026-10-14); git tarixida qoladi.
 
 ## 2. Brend nomuvofiqliklari (hozirgi holat)
 
@@ -89,7 +89,7 @@ Manba rasmlar ChatGPT'da chizilgan; kesish va eksport skriptlari `design/raven/s
 | `scenes/lobby.jpg` | 1280×720 | JPG | hozircha ishlatilmaydi (pastga qarang) |
 | `roles/<role>.jpg` | 640×640 | JPG | 21 rol, `Role` enum qiymati bo‘yicha |
 | `menu/h01-start … h05-top.jpg` | 1280×720 | JPG | `menu_start`, `menu_help`, `menu_shop`, `menu_profile`, `menu_top` |
-| `stickers/s01-hello … s08-farewell.webp` | 512×512 | WEBP, shaffof | Telegram stiker paketi uchun tayyor |
+| `stickers/s01-hello … s08-farewell.webp` | 512×512 | WEBP, shaffof | `raven_by_qorashahar_mafia_bot` paketi; emoji `scripts/make_sticker_set.py` da |
 
 Qoidalar: rasmda matn yo‘q; matn caption'da. Caption 1024 belgidan oshsa (`brand.caption_fits`), rasm alohida,
 matn alohida xabar bo‘lib ketadi. Rasm yuborilmasa — xabar matn bilan baribir chiqadi; rol DM'ida faqat
@@ -115,7 +115,7 @@ Qarg‘ani hikoyachi qilib matnlarga kiritish — alohida qaror; egasining rozil
 - [x] 4-bosqich: 21 ta rol kartasi
 - [x] 5-bosqich: 5 ta menyu sarlavhasi + 8 ta stiker
 - [x] `MEDIA` almashtirish, rol kartalari, menyu sarlavhalari, testlar (`tests/test_brand.py`, `tests/test_raven_media.py`)
-- [ ] Bot tavsifi rasmi — @BotFather orqali qo‘lda (`assets/raven/banner.jpg`)
-- [ ] Stiker paketini Telegram'da yaratish (8 ta WEBP tayyor)
+- [x] Bot tavsifi rasmi — @BotFather orqali o‘rnatildi
+- [x] Stiker paketi `raven_by_qorashahar_mafia_bot` (8 ta)
 - [ ] Custom emoji: brendga mos to‘plam tanlash (yangi ID'lar o‘ylab topilmaydi)
-- [ ] Eski rasmlarni o‘chirish (1-bo‘lim) — tasdiq bilan
+- [x] Eski rasmlarni o‘chirish (1-bo‘lim)

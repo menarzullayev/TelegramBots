@@ -325,7 +325,7 @@ async def test_app_edges(app: App) -> None:
     await app.react(1, 1, "👍")
     await app.safe_photo(1, "missing.png", "c")
     app.bot.send_photo = AsyncMock(side_effect=TelegramBadRequest(method=MagicMock(), message="ph"))  # type: ignore[method-assign]
-    await app.safe_photo(1, "town-win.png", "c")
+    await app.safe_photo(1, botmod.media("win_town"), "c")
     app.bot.send_message = AsyncMock(side_effect=TelegramBadRequest(method=MagicMock(), message="g"))  # type: ignore[method-assign]
     await app.safe_group(g, "x")
 
