@@ -458,6 +458,35 @@ def chronicle_lines(game: Game, lang: str = "uz") -> list[str]:
     return lines
 
 
+def funnel_lines(f: dict, lang: str = "uz") -> list[str]:
+    """Funnel rows with the share of the previous step (lobby → started → finished)."""
+
+    def pct(a: int, b: int) -> str:
+        return f" ({round(100 * a / b)}%)" if b else ""
+
+    return [
+        f"{t(lang, 'funnel.added')}: {f['added']}",
+        f"{t(lang, 'funnel.lobbies')}: {f['lobbies']}",
+        f"{t(lang, 'funnel.started')}: {f['started']}{pct(f['started'], f['lobbies'])}",
+        f"{t(lang, 'funnel.finished')}: {f['finished']}{pct(f['finished'], f['started'])}",
+        f"{t(lang, 'funnel.repeat')}: {f['repeat']}",
+    ]
+
+
+def weekly_digest(week: str, games: int, players: int, winners: list, clans: list, lang: str = "uz") -> str:
+    from html import escape
+
+    lines = [f"<b>{t(lang, 'news.title', week=week)}</b>", t(lang, "news.stats", games=games, players=players)]
+    if winners:
+        lines += ["", t(lang, "news.tour")]
+        lines += [f"{medal} {escape(name)} — {pts}" for medal, (_, name, pts) in zip(("🥇", "🥈", "🥉"), winners, strict=False)]
+    if clans:
+        lines += ["", t(lang, "news.clans")]
+        lines += [f"{i}. {escape(n)} — {w} · 👥{m}" for i, (n, m, w) in enumerate(clans[:5], start=1)]
+    lines += ["", t(lang, "news.cta")]
+    return "\n".join(lines)
+
+
 def group_stats_text(stats: dict, season: str, lang: str = "uz") -> str:
     from html import escape
 

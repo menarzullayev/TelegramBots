@@ -635,6 +635,7 @@ class App:
                 lines = [texts.progress_dm(fresh, after if after > before else None, lang),
                          *texts.quest_lines(quest_notes.get(uid, []), lang)]
                 notes[uid] = "\n".join(line for line in lines if line)
+        await self.reward_founder(game)
         for p, won, totals in card_jobs:
             # progress news rides on the card's caption: one message per player instead of two
             if not await self.send_card(game, p, won, totals, extra=notes.get(p.user_id, "")) and notes.get(p.user_id):
@@ -684,6 +685,12 @@ class App:
                 await self.award_tournament()
             except Exception:
                 log.exception("tournament awards failed")
+            try:
+                from tezmafia.social import week_key as wk
+
+                await self.weekly_digest(wk(time.time() - 3 * 86400))
+            except Exception:
+                log.exception("weekly digest failed")
 
     async def award_tournament(self, week: str | None = None) -> list[int]:
         from tezmafia.social import TOUR_GEMS
@@ -701,6 +708,43 @@ class App:
         if winners:
             await self.alerts.send(f"tour:{week}", f"🏆 Turnir {week}: " + ", ".join(n for _, n, _ in winners))
         return [uid for uid, _, _ in winners]
+
+    async def reward_founder(self, game: Game) -> None:
+        """The admin who added the bot is paid once when the group plays its first full game."""
+        from tezmafia.social import FOUNDER_COINS, FOUNDER_GEMS, FOUNDER_MAX_GROUPS, FOUNDER_MIN_PLAYERS
+
+        if not game.winner or len(game.players) < FOUNDER_MIN_PLAYERS:
+            return
+        uid = await self.store.claim_founder_reward(game.chat_id, FOUNDER_MAX_GROUPS)
+        if uid is None:
+            return
+        await self.store.credit_wallet(uid, "", coins=FOUNDER_COINS, gems=FOUNDER_GEMS)
+        await self.store.grant_badge(uid, "founder", SPECIAL_BADGES["founder"][0])
+        await self.dm(uid, t(await self.lang(uid), "founder.reward", coins=FOUNDER_COINS, gems=FOUNDER_GEMS))
+
+    async def weekly_digest(self, week: str, post: bool = True) -> str:
+        """Monday digest: channel post (when configured) and the owner's funnel report."""
+        from tezmafia.keyboards import add_group_url
+        from tezmafia.social import TOUR_GEMS
+
+        season = time.strftime("%Y-%m")
+        start = time.time() - 7 * 86400
+        f = await self.store.funnel(start)
+        winners = await self.store.week_top(week, limit=len(TOUR_GEMS))
+        clans = await self.store.clan_top(season, limit=5)
+        text = texts.weekly_digest(week, f["finished"], await self.store.week_players(week), winners, clans, "uz")
+        if post and self.settings.news_channel:
+            try:
+                await self.bot.send_photo(
+                    self.settings.news_channel, FSInputFile(ASSETS / media("menu_top")), caption=text,
+                    reply_markup=link_kb(t("uz", "btn.add_group"), add_group_url(self.settings.bot_username)),
+                )
+            except TelegramAPIError:
+                log.warning("weekly channel post failed", exc_info=True)
+        report = "\n".join([f"<b>{t('uz', 'funnel.title')}</b>", *texts.funnel_lines(f, "uz")])
+        if self.settings.owner_id:
+            await self.dm(self.settings.owner_id, report)
+        return text + "\n\n" + report
 
     async def reward_referral(self, user_id: int, name: str) -> None:
         """A referred player's first finished game pays both sides once."""
@@ -1844,6 +1888,17 @@ async def cmd_groupstats(message: Message) -> None:
     await message.answer(texts.group_stats_text(stats, season, lang))
 
 
+@router.message(Command("weekly"))
+async def cmd_weekly(message: Message, command: CommandObject) -> None:
+    """Owner only: /weekly shows the digest and the funnel; /weekly post also posts it to the channel."""
+    from tezmafia.social import week_key
+
+    if not message.from_user or message.from_user.id != app.settings.owner_id:
+        return
+    text = await app.weekly_digest(week_key(), post=(command.args or "").strip() == "post")
+    await message.answer(text)
+
+
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message) -> None:
     lang = await _lang(message.chat.id)
@@ -2209,6 +2264,9 @@ async def on_my_member(update: ChatMemberUpdated) -> None:
         log.info("bot removed from chat=%s", update.chat.id)
         return
     if old in gone:
+        adder = getattr(update, "from_user", None)
+        if adder and not adder.is_bot:
+            await app.store.record_founder(update.chat.id, adder.id)
         text = t(lang, "group.welcome")
         if new != ChatMemberStatus.ADMINISTRATOR:
             text += "\n\n" + t(lang, "group.need_admin")
