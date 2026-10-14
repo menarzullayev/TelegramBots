@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TezMafia</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #101116);
+    --card: var(--tg-theme-secondary-bg-color, #1A1C23);
+    --text: var(--tg-theme-text-color, #F1E9DB);
+    --hint: var(--tg-theme-hint-color, #9A958C);
+    --accent: var(--tg-theme-button-color, #C83D46);
+    --accent-text: var(--tg-theme-button-text-color, #F1E9DB);
+    --gold: #C5A15A;
+    --red: #D9545C;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+         padding: 12px 16px calc(24px + env(safe-area-inset-bottom)); }
+  nav { display: flex; gap: 6px; position: sticky; top: 0; background: var(--bg); padding: 4px 0 10px; z-index: 2; overflow-x: auto; }
+  nav button { flex: 1 0 auto; border: 0; border-radius: 10px; padding: 9px 12px; background: var(--card); color: var(--hint); font: inherit; font-weight: 600; }
+  nav button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
+  section { display: none; } section.on { display: block; }
+  .card { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .name { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+  .muted { color: var(--hint); font-size: 13px; }
+  .bar { height: 8px; border-radius: 4px; background: rgba(127,127,127,.25); overflow: hidden; margin-top: 8px; }
+  .bar > i { display: block; height: 100%; background: var(--gold); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .ach { background: var(--card); border-radius: 12px; padding: 10px; font-weight: 600; }
+  .ach.off { opacity: .4; }
+  .ach::before { content: "🏅 "; } .ach.off::before { content: "🔒 "; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 7px 4px; border-bottom: 1px solid rgba(127,127,127,.18); }
+  td:first-child { width: 2em; color: var(--hint); } td:last-child { text-align: right; color: var(--gold); white-space: nowrap; }
+  .seg { display: flex; gap: 6px; margin-bottom: 8px; }
+  .seg button, .buy { border: 0; border-radius: 10px; padding: 10px 12px; font: inherit; font-weight: 600; background: var(--card); color: var(--text); }
+  .seg button.on { outline: 2px solid var(--accent); }
+  .buy { width: 100%; text-align: left; margin-bottom: 8px; background: var(--accent); color: var(--accent-text); }
+  .buy.alt { background: var(--card); color: var(--text); }
+  .buy.worn { outline: 2px solid var(--gold); }
+  .err { color: var(--red); text-align: center; margin-top: 40px; }
+</style>
+</head>
+<body>
+<nav role="tablist" id="tabs"></nav>
+<main id="root"><p class="muted" style="text-align:center;margin-top:40px">…</p></main>
+<script>
+"use strict";
+const tg = window.Telegram && window.Telegram.WebApp;
+const auth = { headers: { "Authorization": "tma " + (tg ? tg.initData : "") } };
+let S = null, topView = "season";
+
+const el = (tag, attrs = {}, ...kids) => {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
+  }
+  for (const k of kids) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  return n;
+};
+
+async function api(path, body) {
+  const opts = body ? { method: "POST", headers: { ...auth.headers, "Content-Type": "application/json" }, body: JSON.stringify(body) } : auth;
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+function tabs() {
+  const names = [["profile", S.strings["btn.profile"]], ["ach", S.strings["app.tab_ach"]], ["top", S.strings["app.tab_top"]], ["shop", S.strings["btn.shop"]]];
+  const nav = document.getElementById("tabs"); nav.replaceChildren();
+  for (const [id, label] of names) nav.append(el("button", { role: "tab", "data-id": id, onclick: () => show(id) }, label));
+}
+
+function show(id) {
+  for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", b.dataset.id === id);
+  for (const s of document.querySelectorAll("section")) s.classList.toggle("on", s.id === id);
+  if (tg) tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
+}
+
+function render(active = "profile") {
+  const p = S.profile, L = p.lines;
+  const span = Math.max(1, p.level_to - p.level_from), pct = Math.min(100, Math.round(100 * (p.xp - p.level_from) / span));
+  const profile = el("section", { id: "profile" },
+    el("div", { class: "card" },
+      el("p", { class: "name" }, (p.badge ? p.badge + " " : "") + p.name),
+      el("div", {}, L.level), el("div", { class: "bar" }, el("i", { style: `width:${pct}%` })),
+      el("p", { class: "muted" }, `${p.xp} / ${p.level_to} XP`)),
+    el("div", { class: "card" }, el("div", {}, L.games), el("div", {}, L.wins), el("div", {}, L.wallet), el("div", {}, L.ach)));
+
+  const ach = el("section", { id: "ach" }, el("div", { class: "grid" },
+    ...S.achievements.map(a => el("div", { class: "ach" + (a.unlocked ? "" : " off") }, a.title))));
+
+  const topBox = el("div", { class: "card" });
+  const drawTop = () => {
+    const v = S.top[topView]; topBox.replaceChildren(el("p", { class: "name" }, v.title));
+    if (!v.rows.length) { topBox.append(el("p", { class: "muted" }, S.strings["top.empty"])); return; }
+    topBox.append(el("table", {}, ...v.rows.map((r, i) => el("tr", {}, el("td", {}, i + 1), el("td", {}, r.name), el("td", {}, `${r.wins} / ${r.games}`)))));
+  };
+  const seg = el("div", { class: "seg" },
+    ...[["season", S.strings["btn.top_season"]], ["all", S.strings["btn.top_all"]]].map(([k, label]) =>
+      el("button", { class: topView === k ? "on" : "", onclick: e => { topView = k; for (const b of seg.children) b.classList.remove("on"); e.target.classList.add("on"); drawTop(); } }, label)));
+  drawTop();
+  const top = el("section", { id: "top" }, seg, topBox);
+
+  const shop = el("section", { id: "shop" },
+    el("div", { class: "card" },
+      ...S.shop.packs.map(x => el("button", { class: "buy", onclick: () => buy(x.key) }, x.label)),
+      el("button", { class: "buy", onclick: () => buy("vip") }, "💎 " + S.shop.vip.label),
+      el("p", { class: "muted" }, S.strings["stars.vip_desc"]),
+      el("p", { class: "muted" }, S.strings["stars.note"])),
+    el("div", { class: "card" },
+      el("p", { class: "name" }, S.strings["btn.gems_shop"]), el("p", { class: "muted" }, S.gems_body),
+      ...S.badges.map(b => el("button", { class: "buy alt" + (b.worn ? " worn" : ""), onclick: () => badge(b.key) },
+        (b.worn ? "✓ " : "") + b.label)),
+      p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""));
+
+  document.getElementById("root").replaceChildren(profile, ach, top, shop);
+  tabs(); show(active);
+}
+
+async function buy(product) {
+  try {
+    const { link } = await api("/api/invoice", { product });
+    tg.openInvoice(link, async status => {
+      if (status === "paid") { tg.showAlert(S.strings["app.paid"]); await load("shop"); }
+    });
+  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
+}
+
+async function badge(key) {
+  try {
+    const r = await api("/api/badge", { key });
+    S = r.state; render("shop");
+    if (r.result === "no_gems") tg.showAlert(S.strings["gems.no_gems"]);
+    else tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success");
+  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
+}
+
+async function load(active) {
+  try { S = await api("/api/state"); document.documentElement.lang = S.lang; render(active); }
+  catch (e) { document.getElementById("root").replaceChildren(el("p", { class: "err" }, "⚠️")); }
+}
+
+if (tg) { tg.ready(); tg.expand(); }
+load("profile");
+</script>
+</body>
+</html>

@@ -345,5 +345,12 @@
   "history.cancelled": "dibatalkan",
   "words.prompt": "Kamu keluar dari game. Tulis kata-kata terakhirmu di sini dalam {sec} detik, akan dikirim ke grup.",
   "words.post": "Kata terakhir {name}: “{text}”",
-  "words.sent": "Terkirim ke grup."
+  "words.sent": "Terkirim ke grup.",
+  "cmd.app": "Aplikasi TezMafia",
+  "app.open": "Buka aplikasi",
+  "app.hint": "Profil, pencapaian, peringkat, dan toko dalam satu aplikasi.",
+  "app.tab_ach": "Pencapaian",
+  "app.tab_top": "Peringkat",
+  "app.paid": "Pembayaran diterima",
+  "app.error": "Aplikasi gagal dibuka. Buka lagi dari bot."
 }
