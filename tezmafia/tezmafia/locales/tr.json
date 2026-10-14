@@ -345,5 +345,12 @@
   "history.cancelled": "iptal edildi",
   "words.prompt": "Oyundan çıktınız. Son sözlerinizi {sec} saniye içinde buraya yazın, gruba gönderilecek.",
   "words.post": "{name} son sözleri: “{text}”",
-  "words.sent": "Gruba gönderildi."
+  "words.sent": "Gruba gönderildi.",
+  "cmd.app": "TezMafia uygulaması",
+  "app.open": "Uygulamayı aç",
+  "app.hint": "Profil, başarımlar, sıralama ve mağaza tek uygulamada.",
+  "app.tab_ach": "Başarımlar",
+  "app.tab_top": "Sıralama",
+  "app.paid": "Ödeme alındı",
+  "app.error": "Uygulama açılamadı. Bottan tekrar açın."
 }

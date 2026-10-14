@@ -346,6 +346,10 @@ class Store:
             await s.commit()
         return fresh
 
+    async def achievement_keys(self, user_id: int) -> set[str]:
+        async with self.session() as s:
+            return set((await s.execute(select(Achievement.key).where(Achievement.user_id == user_id))).scalars())
+
     async def achievement_count(self, user_id: int) -> int:
         async with self.session() as s:
             return (
