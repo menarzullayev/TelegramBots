@@ -56,6 +56,8 @@ class Player:
     shop_fake_id: bool = False
     shop_gun: bool = False
     shop_killer_shield: bool = False
+    # Cosmetic emoji bought with gems (or the VIP mark); shown before the name everywhere.
+    badge: str = ""
 
     def label(self) -> str:
         if self.username:
@@ -64,6 +66,8 @@ class Player:
 
     def html_label(self) -> str:
         name = html.escape(self.first_name)
+        if self.badge:
+            name = f"{html.escape(self.badge)} {name}"
         if self.username:
             return f"{name} (@{html.escape(self.username)})"
         return name
@@ -809,6 +813,7 @@ def from_dict(data: dict[str, Any]) -> Game:
         row.setdefault("shop_fake_id", False)
         row.setdefault("shop_gun", False)
         row.setdefault("shop_killer_shield", False)
+        row.setdefault("badge", "")
         players.append(Player(**row))
     raw = dict(data)
     raw["players"] = players

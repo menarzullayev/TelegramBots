@@ -5,11 +5,21 @@ import time
 from pathlib import Path
 
 from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from tezmafia.engine import Game, from_dict, to_dict
-from tezmafia.shop import ITEMS, PLAY_COINS, ROLE_TICKET_COST, WIN_COINS, WIN_GEMS, empty_flags
+from tezmafia.shop import (
+    BADGES,
+    ITEMS,
+    PLAY_COINS,
+    ROLE_TICKET_COST,
+    VIP_BADGE,
+    VIP_COIN_BONUS,
+    WIN_COINS,
+    WIN_GEMS,
+    empty_flags,
+)
 
 
 class Base(DeclarativeBase):
@@ -40,6 +50,23 @@ class UserStat(Base):
     inventory: Mapped[str] = mapped_column(Text, default="{}")
     next_role: Mapped[str] = mapped_column(String(32), default="")
     first_seen: Mapped[float | None] = mapped_column(Float, default=time.time, nullable=True)
+    vip_until: Mapped[float | None] = mapped_column(Float, nullable=True)
+    badge: Mapped[str] = mapped_column(String(16), default="")
+    badges: Mapped[str] = mapped_column(Text, default="[]")
+
+
+class Payment(Base):
+    """Telegram Stars ledger. charge_id is Telegram's id, so a replayed update is never credited twice."""
+
+    __tablename__ = "payments"
+
+    charge_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    product: Mapped[str] = mapped_column(String(16))
+    stars: Mapped[int] = mapped_column(Integer)
+    coins: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[float] = mapped_column(Float, default=time.time, index=True)
+    refunded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
 class Activity(Base):
@@ -86,6 +113,9 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN inventory TEXT DEFAULT '{}'",
                 "ALTER TABLE stats ADD COLUMN next_role VARCHAR(32) DEFAULT ''",
                 "ALTER TABLE stats ADD COLUMN first_seen FLOAT",
+                "ALTER TABLE stats ADD COLUMN vip_until FLOAT",
+                "ALTER TABLE stats ADD COLUMN badge VARCHAR(16) DEFAULT ''",
+                "ALTER TABLE stats ADD COLUMN badges TEXT DEFAULT '[]'",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
@@ -235,30 +265,30 @@ class Store:
             q = await s.execute(select(GameRow).where(GameRow.status != "finished"))
             return [from_dict(json.loads(r.payload)) for r in q.scalars()]
 
+    async def _ensure(self, s: AsyncSession, user_id: int, name: str) -> None:
+        await s.execute(
+            text(
+                "INSERT OR IGNORE INTO stats (user_id, name, games, wins, coins, gems, inventory, next_role, first_seen,"
+                " badge, badges) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]')"
+            ),
+            {"u": user_id, "n": name[:128], "t": time.time()},
+        )
+
     async def bump_stat(self, user_id: int, name: str, won: bool) -> None:
         coins = PLAY_COINS + (WIN_COINS if won else 0)
         gems = WIN_GEMS if won else 0
         async with self.session() as s:
-            row = await s.get(UserStat, user_id)
-            if row is None:
-                s.add(
-                    UserStat(
-                        user_id=user_id,
-                        name=name[:128],
-                        games=1,
-                        wins=1 if won else 0,
-                        coins=coins,
-                        gems=gems,
-                        inventory="{}",
-                    )
-                )
-            else:
-                row.name = name[:128]
-                row.games += 1
-                if won:
-                    row.wins += 1
-                row.coins = (row.coins or 0) + coins
-                row.gems = (row.gems or 0) + gems
+            await self._ensure(s, user_id, name)
+            vip_until = (await s.execute(select(UserStat.vip_until).where(UserStat.user_id == user_id))).scalar()
+            if vip_until and vip_until > time.time():
+                coins += int(coins * VIP_COIN_BONUS)
+            await s.execute(
+                text(
+                    "UPDATE stats SET name = :n, games = games + 1, wins = wins + :w, coins = COALESCE(coins, 0) + :c,"
+                    " gems = COALESCE(gems, 0) + :g WHERE user_id = :u"
+                ),
+                {"n": name[:128], "w": 1 if won else 0, "c": coins, "g": gems, "u": user_id},
+            )
             await s.commit()
 
     async def get_stat(self, user_id: int) -> tuple[str, int, int]:
@@ -277,6 +307,8 @@ class Store:
                     "gems": 0,
                     "inventory": {},
                     "next_role": "",
+                    "vip_until": None,
+                    "badge": "",
                 }
             try:
                 inv = json.loads(row.inventory or "{}")
@@ -292,26 +324,129 @@ class Store:
                 "gems": row.gems or 0,
                 "inventory": {str(k): int(v) for k, v in inv.items() if int(v) > 0},
                 "next_role": row.next_role or "",
+                "vip_until": row.vip_until if row.vip_until and row.vip_until > time.time() else None,
+                "badge": row.badge or "",
             }
 
     async def credit_wallet(self, user_id: int, name: str, coins: int = 0, gems: int = 0) -> None:
         async with self.session() as s:
-            row = await s.get(UserStat, user_id)
-            if row is None:
-                s.add(
-                    UserStat(
-                        user_id=user_id,
-                        name=name[:128],
-                        coins=max(0, coins),
-                        gems=max(0, gems),
-                        inventory="{}",
+            await self._ensure(s, user_id, name)
+            await s.execute(
+                text(
+                    "UPDATE stats SET name = :n, coins = MAX(0, COALESCE(coins, 0) + :c),"
+                    " gems = MAX(0, COALESCE(gems, 0) + :g) WHERE user_id = :u"
+                ),
+                {"n": name[:128], "c": coins, "g": gems, "u": user_id},
+            )
+            await s.commit()
+
+    # --- Telegram Stars -------------------------------------------------------------------------
+
+    async def record_payment(self, charge_id: str, user_id: int, name: str, product: str, stars: int, coins: int) -> bool:
+        """Store a successful payment once; False if this charge was already recorded (update replay)."""
+        async with self.session() as s:
+            res = await s.execute(
+                text(
+                    "INSERT OR IGNORE INTO payments (charge_id, user_id, product, stars, coins, created_at)"
+                    " VALUES (:ch, :u, :p, :s, :c, :t)"
+                ),
+                {"ch": charge_id, "u": user_id, "p": product, "s": stars, "c": coins, "t": time.time()},
+            )
+            if not res.rowcount:
+                return False
+            await self._ensure(s, user_id, name)
+            if coins:
+                await s.execute(
+                    text("UPDATE stats SET coins = COALESCE(coins, 0) + :c WHERE user_id = :u"), {"c": coins, "u": user_id}
+                )
+            await s.commit()
+        return True
+
+    async def set_vip(self, user_id: int, name: str, until: float) -> None:
+        async with self.session() as s:
+            await self._ensure(s, user_id, name)
+            await s.execute(text("UPDATE stats SET vip_until = :t WHERE user_id = :u"), {"t": until, "u": user_id})
+            await s.commit()
+
+    async def vip_until(self, user_id: int) -> float | None:
+        async with self.session() as s:
+            return (await s.execute(select(UserStat.vip_until).where(UserStat.user_id == user_id))).scalar()
+
+    async def refund(self, charge_id: str) -> Payment | None:
+        """Mark a payment refunded and take back what it gave; None if unknown or already refunded."""
+        async with self.session() as s:
+            pay = await s.get(Payment, charge_id)
+            if pay is None or pay.refunded_at:
+                return None
+            pay.refunded_at = time.time()
+            if pay.coins:
+                await s.execute(
+                    text("UPDATE stats SET coins = MAX(0, COALESCE(coins, 0) - :c) WHERE user_id = :u"),
+                    {"c": pay.coins, "u": pay.user_id},
+                )
+            if pay.product == "vip":
+                await s.execute(text("UPDATE stats SET vip_until = NULL WHERE user_id = :u"), {"u": pay.user_id})
+            await s.commit()
+            return pay
+
+    async def stars_since(self, since: float) -> tuple[int, int]:
+        """(payments, stars) received since a moment, refunds excluded."""
+        async with self.session() as s:
+            row = (
+                await s.execute(
+                    select(func.count(), func.coalesce(func.sum(Payment.stars), 0)).where(
+                        Payment.created_at >= since, Payment.refunded_at.is_(None)
                     )
                 )
-            else:
-                row.name = name[:128]
-                row.coins = (row.coins or 0) + coins
-                row.gems = (row.gems or 0) + gems
+            ).one()
+            return int(row[0]), int(row[1])
+
+    # --- Gem cosmetics --------------------------------------------------------------------------
+
+    async def buy_badge(self, user_id: int, name: str, key: str) -> str:
+        """'bought', 'owned' (already had it), 'no_gems' or 'no_item'. Buying or owning also wears it."""
+        if key not in BADGES:
+            return "no_item"
+        emoji, cost = BADGES[key]
+        async with self.session() as s:
+            await self._ensure(s, user_id, name)
+            row = await s.get(UserStat, user_id)
+            owned = json.loads(row.badges or "[]")
+            if key in owned:
+                row.badge = emoji
+                await s.commit()
+                return "owned"
+            res = await s.execute(
+                text("UPDATE stats SET gems = gems - :g WHERE user_id = :u AND COALESCE(gems, 0) >= :g"),
+                {"g": cost, "u": user_id},
+            )
+            if not res.rowcount:
+                return "no_gems"
+            await s.refresh(row)
+            row.badges = json.dumps([*owned, key])
+            row.badge = emoji
             await s.commit()
+        return "bought"
+
+    async def take_off_badge(self, user_id: int) -> None:
+        async with self.session() as s:
+            await s.execute(text("UPDATE stats SET badge = '' WHERE user_id = :u"), {"u": user_id})
+            await s.commit()
+
+    async def shown_badge(self, user_id: int) -> str:
+        """The emoji to show before a name: the worn badge, else the VIP mark while VIP is active."""
+        async with self.session() as s:
+            row = await s.get(UserStat, user_id)
+        if not row:
+            return ""
+        if row.badge:
+            return row.badge
+        return VIP_BADGE if row.vip_until and row.vip_until > time.time() else ""
+
+    async def owned_badges(self, user_id: int) -> list[str]:
+        async with self.session() as s:
+            row = await s.get(UserStat, user_id)
+        return json.loads(row.badges or "[]") if row else []
 
     async def buy_item(self, user_id: int, name: str, item_key: str) -> tuple[bool, str]:
         if item_key not in ITEMS:
@@ -323,15 +458,19 @@ class Store:
                 s.add(UserStat(user_id=user_id, name=name[:128], inventory="{}"))
                 await s.commit()
                 return False, "no_money"
-            if (row.coins or 0) < cost:
+            spent = await s.execute(
+                text("UPDATE stats SET coins = coins - :c WHERE user_id = :u AND COALESCE(coins, 0) >= :c"),
+                {"c": cost, "u": user_id},
+            )
+            if not spent.rowcount:
                 return False, "no_money"
+            await s.refresh(row)
             try:
                 inv = json.loads(row.inventory or "{}")
             except json.JSONDecodeError:
                 inv = {}
             if not isinstance(inv, dict):
                 inv = {}
-            row.coins = (row.coins or 0) - cost
             inv[item_key] = int(inv.get(item_key, 0)) + 1
             row.inventory = json.dumps(inv, ensure_ascii=False)
             row.name = name[:128]
@@ -376,9 +515,13 @@ class Store:
                 return False, "no_money"
             if (row.next_role or "").strip():
                 return False, "already_queued"
-            if (row.coins or 0) < ROLE_TICKET_COST:
+            spent = await s.execute(
+                text("UPDATE stats SET coins = coins - :c WHERE user_id = :u AND COALESCE(coins, 0) >= :c"),
+                {"c": ROLE_TICKET_COST, "u": user_id},
+            )
+            if not spent.rowcount:
                 return False, "no_money"
-            row.coins = (row.coins or 0) - ROLE_TICKET_COST
+            await s.refresh(row)
             row.next_role = role
             row.name = name[:128]
             await s.commit()

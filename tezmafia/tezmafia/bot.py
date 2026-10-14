@@ -28,8 +28,10 @@ from aiogram.types import (
     FSInputFile,
     InputProfilePhotoStatic,
     InputRichMessage,
+    LabeledPrice,
     LinkPreviewOptions,
     Message,
+    PreCheckoutQuery,
     ReactionTypeEmoji,
 )
 
@@ -64,8 +66,10 @@ from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import (
     chats_kb,
     delete_kb,
+    gems_kb,
     host_kb,
     lang_kb,
+    link_kb,
     lobby_kb,
     lynch_kb,
     menu_kb,
@@ -79,7 +83,7 @@ from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
 from tezmafia.services.analytics import ActivityMiddleware
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
 from tezmafia.services.runtime import Alerter, ChatLocks, InstanceLock, RetryAfterMiddleware
-from tezmafia.shop import ROLE_TICKET_COST, resolve_item, resolve_role
+from tezmafia.shop import BADGES, ROLE_TICKET_COST, STAR_PACKS, VIP_PERIOD, VIP_STARS, resolve_item, resolve_role
 
 log = logging.getLogger("tezmafia")
 router = Router(name="tezmafia")
@@ -665,11 +669,13 @@ class App:
         dau = await self.store.active_users(yesterday)
         mau = await self.store.active_users(month)
         mau_dm = await self.store.active_users(month, "dm")
+        paid, stars = await self.store.stars_since(time.time() - 86400)
         return (
             "📊 TezMafia, oxirgi 24 soat\n"
             f"O'yinlar: {r['games']} (bekor: {r['cancelled']}), guruhlar: {r['chats']}\n"
             f"O'yinchilar: {r['players']}, yangi: {r['new_users']}, jami: {r['users']}\n"
             f"Faol: kun {dau} · 30 kun {mau} (DM orqali {mau_dm})\n"
+            f"Stars: {stars}⭐ ({paid} ta to'lov)\n"
             f"Hozir ochiq stollar: {r['live']}\n"
             f"Tozalangan eski o'yinlar: {pruned}"
         )
@@ -760,6 +766,12 @@ async def _is_admin(chat_id: int, user_id: int) -> bool:
     return member.status in {ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR}
 
 
+async def _wear_badge(game: Game, user_id: int) -> None:
+    player = game.by_user(user_id)
+    if player:
+        player.badge = await app.store.shown_badge(user_id)
+
+
 async def _in_chat(chat_id: int, user_id: int) -> bool:
     """Whether the user is currently a member of the group; unknown counts as yes."""
     try:
@@ -785,6 +797,7 @@ async def cmd_mafia(message: Message) -> None:
             return
         game = new_game(message.chat.id, message.from_user.id, **app.cfg())
         join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
+        await _wear_badge(game, message.from_user.id)
         game.deadline = time.time() + app.settings.lobby_seconds
         await app.persist(game)
         await app.refresh_lobby(game)
@@ -805,6 +818,7 @@ async def cmd_join(message: Message) -> None:
             await message.answer(t(await _lang(message.chat.id), "extend.no_lobby"))
             return
         ok, reason = join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
+        await _wear_badge(game, message.from_user.id)
         await app.persist(game)
         if not ok and reason == "full":
             await message.answer(texts.action_reason("full", await _lang(message.chat.id)))
@@ -970,6 +984,8 @@ async def cmd_profile(message: Message) -> None:
             acc["gems"],
             acc["inventory"],
             acc.get("next_role", ""),
+            vip_until=acc.get("vip_until"),
+            badge=acc.get("badge", ""),
             lang=await _lang(message.chat.id),
         )
     )
@@ -1019,6 +1035,8 @@ async def cmd_buy(message: Message, command: CommandObject) -> None:
                     acc["gems"],
                     acc["inventory"],
                     acc.get("next_role", ""),
+                    vip_until=acc.get("vip_until"),
+                    badge=acc.get("badge", ""),
                     lang=lang,
                 )
             )
@@ -1247,6 +1265,7 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
                 await message.answer(t(lang, "start.not_member"))
                 return
             join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
+            await _wear_badge(game, message.from_user.id)
         player = game.by_user(message.from_user.id)
         if not player:
             await message.answer(t(lang, "start.not_in"))
@@ -1502,6 +1521,8 @@ async def cb_menu(query: CallbackQuery) -> None:
                 acc["gems"],
                 acc["inventory"],
                 acc.get("next_role", ""),
+                vip_until=acc.get("vip_until"),
+                badge=acc.get("badge", ""),
                 lang=lang,
             )
         )
@@ -1517,6 +1538,11 @@ async def cb_menu(query: CallbackQuery) -> None:
         return
     if action == "roles":
         await query.message.answer(texts.roles_catalog(lang), reply_markup=roles_kb(lang))
+        return
+    if action == "gems":
+        acc = await app.store.get_account(query.from_user.id)
+        owned = await app.store.owned_badges(query.from_user.id)
+        await query.message.answer(texts.gems_text(acc["gems"], lang), reply_markup=gems_kb(owned, acc["badge"], lang))
         return
     if action == "lang":
         await query.message.answer(texts.settings_text(lang), reply_markup=lang_kb(lang))
@@ -1566,6 +1592,139 @@ async def on_error(event: ErrorEvent) -> bool:
         log.debug("error reply failed", exc_info=True)
     await app.alerts.send(f"handler:{type(exc).__name__}", f"⚠️ Handler xatosi: {exc!r}")
     return True
+
+
+def _product(key: str, lang: str) -> tuple[str, str, int, int] | None:
+    """(title, description, stars, coins) for a Stars product key, or None."""
+    if key == "vip":
+        return "TezMafia VIP", t(lang, "stars.inv_desc_vip"), VIP_STARS, 0
+    if key in STAR_PACKS:
+        stars, coins = STAR_PACKS[key]
+        return t(lang, "stars.inv_title_pack", coins=coins), t(lang, "stars.inv_desc_pack", coins=coins), stars, coins
+    return None
+
+
+@router.callback_query(F.data.startswith("st:"))
+async def cb_stars(query: CallbackQuery) -> None:
+    """Send a Stars invoice (or the VIP subscription link) to the buyer's private chat."""
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user:
+        await query.answer()
+        return
+    user_id = query.from_user.id
+    lang = await _lang(user_id)
+    product = _product(parts[1], lang)
+    if not product:
+        await query.answer()
+        return
+    title, desc, stars, _coins = product
+    payload = f"{parts[1]}:{user_id}"
+    try:
+        if parts[1] == "vip":
+            link = await app.bot.create_invoice_link(
+                title=title, description=desc, payload=payload, currency="XTR",
+                prices=[LabeledPrice(label=title, amount=stars)], subscription_period=VIP_PERIOD,
+            )
+            await app.bot.send_message(user_id, t(lang, "stars.vip_link"), reply_markup=link_kb(title, link))
+        else:
+            await app.bot.send_invoice(
+                user_id, title=title, description=desc, payload=payload, currency="XTR",
+                prices=[LabeledPrice(label=title, amount=stars)],
+            )
+    except TelegramForbiddenError:
+        await query.answer(t(lang, "stars.open_dm"), show_alert=True)
+        return
+    private = query.message is not None and query.message.chat.type == ChatType.PRIVATE
+    await query.answer(None if private else t(lang, "stars.sent_dm"), show_alert=not private)
+
+
+@router.pre_checkout_query()
+async def on_pre_checkout(query: PreCheckoutQuery) -> None:
+    """Telegram waits up to 10 s for this answer; reject anything that does not match our catalogue."""
+    lang = await _lang(query.from_user.id)
+    key, _, owner = query.invoice_payload.partition(":")
+    product = _product(key, lang)
+    ok = (
+        product is not None
+        and owner == str(query.from_user.id)
+        and query.currency == "XTR"
+        and query.total_amount == product[2]
+    )
+    await query.answer(ok=ok, error_message=None if ok else t(lang, "stars.bad_payload"))
+
+
+@router.message(F.successful_payment)
+async def on_paid(message: Message) -> None:
+    pay = message.successful_payment
+    if not pay or not message.from_user:
+        return
+    user = message.from_user
+    lang = await _lang(user.id)
+    key = pay.invoice_payload.partition(":")[0]
+    product = _product(key, lang)
+    coins = product[3] if product else 0
+    fresh = await app.store.record_payment(
+        pay.telegram_payment_charge_id, user.id, user.first_name, key, pay.total_amount, coins
+    )
+    if not fresh:
+        return  # replayed update: already credited
+    who = f"@{user.username}" if user.username else user.first_name
+    await app.alerts.send(
+        f"paid:{pay.telegram_payment_charge_id}", f"💰 +{pay.total_amount}⭐ {key} — {who} (id {user.id})"
+    )
+    if key == "vip":
+        until = float(pay.subscription_expiration_date or (time.time() + VIP_PERIOD))
+        await app.store.set_vip(user.id, user.first_name, until)
+        await message.answer(t(lang, "stars.paid_vip", date=texts.date_tag(until)))
+        return
+    acc = await app.store.get_account(user.id)
+    await message.answer(t(lang, "stars.paid_coins", coins=coins, balance=acc["coins"]))
+
+
+@router.message(Command("refund"))
+async def cmd_refund(message: Message, command: CommandObject) -> None:
+    """Owner only: /refund <telegram_payment_charge_id> returns the Stars and takes the goods back."""
+    if not message.from_user or message.from_user.id != app.settings.owner_id:
+        return
+    charge = (command.args or "").strip()
+    pay = await app.store.refund(charge) if charge else None
+    if not pay:
+        await message.answer("Topilmadi yoki allaqachon qaytarilgan.", parse_mode=None)
+        return
+    try:
+        await app.bot.refund_star_payment(pay.user_id, charge)
+        if pay.product == "vip":
+            await app.bot.edit_user_star_subscription(pay.user_id, charge, is_canceled=True)
+    except TelegramAPIError as exc:
+        await message.answer(f"Bazada belgilandi, lekin Telegram rad etdi: {exc}", parse_mode=None)
+        return
+    await message.answer(f"Qaytarildi: {pay.stars}⭐ → {pay.user_id} ({pay.product})", parse_mode=None)
+
+
+@router.callback_query(F.data.startswith("gb:"))
+async def cb_badge(query: CallbackQuery) -> None:
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not query.message:
+        await query.answer()
+        return
+    user = query.from_user
+    lang = await _lang(user.id)
+    if parts[1] == "off":
+        await app.store.take_off_badge(user.id)
+        note = t(lang, "gems.removed")
+    elif parts[1] in BADGES:
+        result = await app.store.buy_badge(user.id, user.first_name, parts[1])
+        note = t(lang, {"bought": "gems.bought", "owned": "gems.equipped", "no_gems": "gems.no_gems"}[result])
+    else:
+        await query.answer()
+        return
+    await query.answer(note, show_alert=True)
+    acc = await app.store.get_account(user.id)
+    owned = await app.store.owned_badges(user.id)
+    try:
+        await query.message.edit_text(texts.gems_text(acc["gems"], lang), reply_markup=gems_kb(owned, acc["badge"], lang))
+    except TelegramAPIError:
+        pass
 
 
 @router.message(F.chat.type.in_({ChatType.GROUP, ChatType.SUPERGROUP}))
