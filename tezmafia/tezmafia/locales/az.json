@@ -253,5 +253,20 @@
   "profile.desc": "TezMafia qrupunuzu Qorashahara çevirir. Bot — hakimdir: rolları şəxsi mesajda paylayır, gecə və gündüzü idarə edir, səsləri sayır. 5 nəfərdən başlayaraq. Botu qrupa əlavə edin və /mafia yazın.",
   "lang.admin_only": "Qrupun dilini yalnız adminlər dəyişə bilər.",
   "start.not_member": "Bu masa qrup üzvləri üçündür. Əvvəlcə qrupa qoşulun.",
-  "error.generic": "Nəsə səhv getdi. Bir azdan yenidən cəhd edin."
+  "error.generic": "Nəsə səhv getdi. Bir azdan yenidən cəhd edin.",
+  "cmd.privacy": "Məxfilik siyasəti",
+  "cmd.terms": "İstifadə şərtləri",
+  "cmd.paysupport": "Ödəniş dəstəyi",
+  "cmd.deletemydata": "Məlumatlarımı sil",
+  "legal.privacy": "<b>Məxfilik</b>\nBot yalnız oyun üçün lazım olanı saxlayır: Telegram ID, ad və username, oyun statistikası, cüzdan və dil. Məlumat satılmır və başqasına verilmir. Bitmiş oyunlar {days} gündən sonra silinir.\nHamısını sil: /deletemydata\nTam mətn: {url}",
+  "legal.terms": "<b>İstifadə şərtləri</b>\nOyun pulsuzdur. Coin və VIP yalnız bot daxilində rəqəmsal imkanlardır, Telegram Stars ilə satılır və pul dəyəri yoxdur. Alış gəlməyibsə və ya xəta olubsa: /paysupport. Bir neçə hesabla oynamaq, coin üçün saxta oyunlar və təhqir qadağandır.\nTam mətn: {url}",
+  "paysupport.help": "<b>Ödəniş dəstəyi</b>\nProblemi bir mesajda yazın: /paysupport və mətn. Məsələn: <code>/paysupport 100⭐ ödədim, coin gəlmədi</code>. Cavab bu çata gələcək.",
+  "paysupport.sent": "Müraciətiniz qəbul olundu. Adətən 24 saat ərzində cavab veririk.",
+  "delete.ask": "Məlumatlarınız tamamilə silinəcək: statistika, cüzdan (coin, almaz), əşyalar, növbəti rol və dil ayarı. Bunu geri qaytarmaq olmaz. Davam edək?",
+  "delete.done": "Məlumatlarınız silindi.",
+  "delete.busy": "Əvvəlcə cari oyunu bitirin, sonra silmək olar.",
+  "delete.cancelled": "Ləğv edildi, heç nə silinmədi.",
+  "btn.delete_yes": "Bəli, sil",
+  "btn.delete_no": "Xeyr",
+  "dm.only": "Bu əmr yalnız botla şəxsi çatda işləyir."
 }

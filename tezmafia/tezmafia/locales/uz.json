@@ -253,5 +253,20 @@
   "profile.desc": "TezMafia — guruhingizni Qorashaharga aylantiradi. Bot — hakam: rollarni shaxsiy xabarda tarqatadi, tun va kunni boshqaradi, ovozlarni sanaydi. 5 kishidan boshlab. Botni guruhga qo‘shing va /mafia yozing.",
   "lang.admin_only": "Guruh tilini faqat adminlar o‘zgartiradi.",
   "start.not_member": "Bu stol guruh a’zolari uchun. Avval guruhga qo‘shiling.",
-  "error.generic": "Nimadir xato ketdi. Birozdan keyin qayta urinib ko‘ring."
+  "error.generic": "Nimadir xato ketdi. Birozdan keyin qayta urinib ko‘ring.",
+  "cmd.privacy": "Maxfiylik siyosati",
+  "cmd.terms": "Foydalanish shartlari",
+  "cmd.paysupport": "To‘lov bo‘yicha yordam",
+  "cmd.deletemydata": "Ma’lumotlarimni o‘chirish",
+  "legal.privacy": "<b>Maxfiylik</b>\nBot faqat o‘yin uchun keraklisini saqlaydi: Telegram ID, ism va username, o‘yin statistikasi, hamyon va til. Ma’lumot sotilmaydi va boshqalarga berilmaydi. Tugagan o‘yinlar {days} kundan keyin o‘chiriladi.\nHammasini o‘chirish: /deletemydata\nTo‘liq matn: {url}",
+  "legal.terms": "<b>Foydalanish shartlari</b>\nO‘yin bepul. Coin va VIP — faqat bot ichidagi raqamli imkoniyatlar, Telegram Stars orqali sotiladi va pulga qaytarilmaydi. Xarid tushmasa yoki xato bo‘lsa: /paysupport. Bir nechta akkaunt bilan o‘ynash, coin uchun soxta o‘yinlar va haqorat taqiqlanadi.\nTo‘liq matn: {url}",
+  "paysupport.help": "<b>To‘lov bo‘yicha yordam</b>\nMuammoni bitta xabarda yozing: /paysupport va matn. Masalan: <code>/paysupport 100⭐ to‘ladim, coin tushmadi</code>. Javob shu chatga keladi.",
+  "paysupport.sent": "Murojaatingiz qabul qilindi. Odatda 24 soat ichida javob beramiz.",
+  "delete.ask": "Ma’lumotlaringiz butunlay o‘chiriladi: statistika, hamyon (coin, olmos), buyumlar, navbatdagi rol va til sozlamasi. Buni qaytarib bo‘lmaydi. Davom etamizmi?",
+  "delete.done": "Ma’lumotlaringiz o‘chirildi.",
+  "delete.busy": "Avval joriy o‘yinni tugating, keyin o‘chirish mumkin.",
+  "delete.cancelled": "Bekor qilindi, hech narsa o‘chirilmadi.",
+  "btn.delete_yes": "Ha, o‘chirish",
+  "btn.delete_no": "Yo‘q",
+  "dm.only": "Bu buyruq faqat botning shaxsiy chatida ishlaydi."
 }

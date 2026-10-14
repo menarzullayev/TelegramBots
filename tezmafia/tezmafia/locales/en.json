@@ -253,5 +253,20 @@
   "profile.desc": "TezMafia turns your group into Qorashahar. The bot is the referee: it deals roles in private chat, runs night and day, and counts the votes. From 5 players. Add the bot to a group and type /mafia.",
   "lang.admin_only": "Only group admins can change the group language.",
   "start.not_member": "This table is for group members. Join the group first.",
-  "error.generic": "Something went wrong. Please try again in a moment."
+  "error.generic": "Something went wrong. Please try again in a moment.",
+  "cmd.privacy": "Privacy policy",
+  "cmd.terms": "Terms of service",
+  "cmd.paysupport": "Payment support",
+  "cmd.deletemydata": "Delete my data",
+  "legal.privacy": "<b>Privacy</b>\nThe bot keeps only what the game needs: Telegram ID, name and username, game stats, wallet and language. Data is never sold or shared. Finished games are deleted after {days} days.\nDelete everything: /deletemydata\nFull text: {url}",
+  "legal.terms": "<b>Terms of service</b>\nPlaying is free. Coins and VIP are in-bot digital features sold for Telegram Stars and have no cash value. If a purchase did not arrive or something broke: /paysupport. Multiple accounts, fake games to farm coins and insults are not allowed.\nFull text: {url}",
+  "paysupport.help": "<b>Payment support</b>\nDescribe the problem in one message: /paysupport followed by text. For example: <code>/paysupport paid 100⭐, no coins</code>. The answer comes to this chat.",
+  "paysupport.sent": "Your request has been received. We usually reply within 24 hours.",
+  "delete.ask": "Your data will be deleted for good: stats, wallet (coins, gems), items, queued role and language setting. This cannot be undone. Continue?",
+  "delete.done": "Your data has been deleted.",
+  "delete.busy": "Finish your current game first, then you can delete your data.",
+  "delete.cancelled": "Cancelled, nothing was deleted.",
+  "btn.delete_yes": "Yes, delete",
+  "btn.delete_no": "No",
+  "dm.only": "This command works only in a private chat with the bot."
 }

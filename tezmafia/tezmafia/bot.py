@@ -61,6 +61,7 @@ from tezmafia.engine import (
 from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import (
     chats_kb,
+    delete_kb,
     host_kb,
     lang_kb,
     lobby_kb,
@@ -1055,6 +1056,64 @@ async def cmd_help(message: Message) -> None:
     )
 
 
+@router.message(Command("privacy"))
+async def cmd_privacy(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    await message.answer(texts.privacy_text(lang, app.settings.retention_days), link_preview_options=NO_PREVIEW)
+
+
+@router.message(Command("terms"))
+async def cmd_terms(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    await message.answer(texts.terms_text(lang), link_preview_options=NO_PREVIEW)
+
+
+@router.message(Command("paysupport"))
+async def cmd_paysupport(message: Message, command: CommandObject) -> None:
+    """Telegram requires bots that sell for Stars to answer /paysupport; requests go to the owner."""
+    lang = await _lang(message.chat.id)
+    request = (command.args or "").strip()
+    if not request or not message.from_user:
+        await message.answer(t(lang, "paysupport.help"))
+        return
+    user = message.from_user
+    who = f"@{user.username}" if user.username else user.first_name
+    await app.alerts.send(
+        f"paysupport:{user.id}:{message.message_id}",
+        f"💬 /paysupport\nKimdan: {who} (id {user.id}, chat {message.chat.id})\n\n{request[:3000]}",
+    )
+    await message.answer(t(lang, "paysupport.sent"))
+
+
+@router.message(Command("deletemydata"))
+async def cmd_deletemydata(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    if message.chat.type != ChatType.PRIVATE:
+        await message.answer(t(lang, "dm.only"))
+        return
+    await message.answer(t(lang, "delete.ask"), reply_markup=delete_kb(lang))
+
+
+@router.callback_query(F.data.startswith("del:"))
+async def cb_delete(query: CallbackQuery) -> None:
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not query.message:
+        await query.answer()
+        return
+    lang = await _lang(query.from_user.id)
+    if parts[1] != "yes":
+        await query.answer()
+        await query.message.edit_text(t(lang, "delete.cancelled"))
+        return
+    if await app.store.by_user_lobby_or_live(query.from_user.id):
+        await query.answer(t(lang, "delete.busy"), show_alert=True)
+        return
+    result = await app.store.delete_user(query.from_user.id)
+    log.info("user data deleted user=%s %s", query.from_user.id, result)
+    await query.answer()
+    await query.message.edit_text(t(lang, "delete.done"))
+
+
 @router.message(Command("startgame"))
 async def cmd_startgame(message: Message) -> None:
     if not message.from_user or not _is_group(message):
@@ -1459,6 +1518,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="settings", description=cmd(lang, "settings")),
         BotCommand(command="stop", description=cmd(lang, "stop")),
         BotCommand(command="help", description=cmd(lang, "help")),
+        BotCommand(command="privacy", description=cmd(lang, "privacy")),
     ]
     group = [
         BotCommand(command="game", description=cmd(lang, "game")),
@@ -1478,6 +1538,10 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="buy", description=cmd(lang, "buy")),
         BotCommand(command="roles", description=cmd(lang, "roles")),
         BotCommand(command="status", description=cmd(lang, "status_dm")),
+        BotCommand(command="paysupport", description=cmd(lang, "paysupport")),
+        BotCommand(command="terms", description=cmd(lang, "terms")),
+        BotCommand(command="privacy", description=cmd(lang, "privacy")),
+        BotCommand(command="deletemydata", description=cmd(lang, "deletemydata")),
     ]
     return default, group, private
 
@@ -1486,6 +1550,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
     keys = (
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
+        "privacy", "terms", "paysupport", "deletemydata",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()
