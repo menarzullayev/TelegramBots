@@ -72,6 +72,10 @@ BADGES: dict[str, tuple[str, int]] = {
     "fire": ("🔥", 8),
     "crown": ("👑", 12),
 }
+# Badges that are won, never sold (shown in the gem shop only to their owners).
+SPECIAL_BADGES: dict[str, tuple[str, int]] = {
+    "trophy": ("🏆", 0),
+}
 PLAY_COINS = 10
 WIN_COINS = 25
 WIN_GEMS = 1
