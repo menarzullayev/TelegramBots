@@ -26,13 +26,17 @@ from aiogram.types import (
     EphemeralMessageParameters,
     ErrorEvent,
     FSInputFile,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
     InputProfilePhotoStatic,
     InputRichMessage,
     LabeledPrice,
     LinkPreviewOptions,
+    MenuButtonWebApp,
     Message,
     PreCheckoutQuery,
     ReactionTypeEmoji,
+    WebAppInfo,
 )
 
 from tezmafia import texts
@@ -1047,8 +1051,9 @@ async def _top_view(view: str, chat_id: int, lang: str) -> str:
 @router.message(Command("top"))
 async def cmd_top(message: Message) -> None:
     lang = await _lang(message.chat.id)
-    text = await _top_view("season", message.chat.id, lang)
-    await _answer_with_photo(message, media("menu_top"), text, reply_markup=top_kb("season", _is_group(message), lang))
+    view = "season" if await app.store.season_top(time.strftime("%Y-%m"), limit=1) else "all"
+    text = await _top_view(view, message.chat.id, lang)
+    await _answer_with_photo(message, media("menu_top"), text, reply_markup=top_kb(view, _is_group(message), lang))
 
 
 @router.callback_query(F.data.startswith("top:"))
@@ -1257,6 +1262,30 @@ async def cb_config(query: CallbackQuery) -> None:
         pass
 
 
+def _app_kb(lang: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=t(lang, "app.open"), web_app=WebAppInfo(url=app.settings.webapp_url))]]
+    )
+
+
+async def _send_app(message: Message, lang: str) -> None:
+    """web_app buttons work only in private chats; groups get a deep link that opens the bot."""
+    if not app.settings.webapp_url:
+        await message.answer(t(lang, "app.error"))
+        return
+    if _is_group(message):
+        link = f"https://t.me/{app.settings.bot_username}?start=app"
+        kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text=t(lang, "app.open"), url=link)]])
+        await message.answer(t(lang, "app.hint"), reply_markup=kb)
+        return
+    await message.answer(t(lang, "app.hint"), reply_markup=_app_kb(lang))
+
+
+@router.message(Command("app"))
+async def cmd_app(message: Message) -> None:
+    await _send_app(message, await _lang(message.chat.id))
+
+
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message) -> None:
     lang = await _lang(message.chat.id)
@@ -1405,6 +1434,9 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         await cmd_mafia(message)
         return
     lang = await _lang(message.chat.id)
+    if payload == "app":
+        await _send_app(message, lang)
+        return
     if not payload.startswith("g_"):
         await _answer_with_photo(
             message,
@@ -1964,6 +1996,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="buy", description=cmd(lang, "buy")),
         BotCommand(command="roles", description=cmd(lang, "roles")),
         BotCommand(command="status", description=cmd(lang, "status_dm")),
+        BotCommand(command="app", description=cmd(lang, "app")),
         BotCommand(command="paysupport", description=cmd(lang, "paysupport")),
         BotCommand(command="terms", description=cmd(lang, "terms")),
         BotCommand(command="privacy", description=cmd(lang, "privacy")),
@@ -1976,7 +2009,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
     keys = (
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
-        "privacy", "terms", "paysupport", "deletemydata", "config", "history",
+        "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()
@@ -2091,12 +2124,18 @@ async def _sync_profile_photo(bot: Bot) -> None:
 async def run() -> None:
     global app
     settings = Settings()
-    handlers: list[logging.Handler] = [logging.StreamHandler()]
+    handlers: list[logging.Handler] = []
     if settings.log_file:
         from logging.handlers import RotatingFileHandler
 
         Path(settings.log_file).parent.mkdir(parents=True, exist_ok=True)
         handlers.append(RotatingFileHandler(settings.log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8"))
+        # stderr (kept by the supervisor without rotation) only gets warnings and crashes.
+        stream = logging.StreamHandler()
+        stream.setLevel(logging.WARNING)
+        handlers.append(stream)
+    else:
+        handlers.append(logging.StreamHandler())
     logging.basicConfig(
         level=getattr(logging, settings.log_level.upper(), logging.INFO),
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -2122,6 +2161,21 @@ async def run() -> None:
     await app.recover()
     await assert_polling_contract(bot)
     background = [asyncio.create_task(app.watchdog()), asyncio.create_task(app.daily_report_loop())]
+    web_runner = None
+    if settings.webapp_port:
+        from tezmafia.webapp.server import start_server
+
+        try:
+            web_runner = await start_server(app, settings.webapp_port)
+        except OSError:
+            log.exception("mini app server failed to start on port %s", settings.webapp_port)
+    if settings.webapp_url:
+        try:
+            await bot.set_chat_menu_button(
+                menu_button=MenuButtonWebApp(text="TezMafia", web_app=WebAppInfo(url=settings.webapp_url))
+            )
+        except TelegramAPIError:
+            log.warning("menu button not set", exc_info=True)
     await app.alerts.send("startup", f"✅ TezMafia ishga tushdi ({_build_label()})")
     log.info(
         "DECISION-01 runtime=single-node store=sqlite polling=on lock=per-chat bot=@%s",
@@ -2133,4 +2187,6 @@ async def run() -> None:
     finally:
         for task in background:
             task.cancel()
+        if web_runner:
+            await web_runner.cleanup()
         instance.release()

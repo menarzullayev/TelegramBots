@@ -345,5 +345,12 @@
   "history.cancelled": "ləğv edilib",
   "words.prompt": "Oyundan çıxdınız. Son sözünüzü {sec} saniyə ərzində bura yazın — qrupa göndəriləcək.",
   "words.post": "{name} son sözü: «{text}»",
-  "words.sent": "Qrupa göndərildi."
+  "words.sent": "Qrupa göndərildi.",
+  "cmd.app": "TezMafia tətbiqi",
+  "app.open": "Tətbiqi aç",
+  "app.hint": "Profil, nailiyyətlər, reytinq və mağaza — bir tətbiqdə.",
+  "app.tab_ach": "Nailiyyətlər",
+  "app.tab_top": "Reytinq",
+  "app.paid": "Ödəniş qəbul olundu",
+  "app.error": "Tətbiqi açmaq olmadı. Botdan yenidən açın."
 }

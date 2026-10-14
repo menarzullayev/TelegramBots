@@ -27,7 +27,7 @@ build-backend = "setuptools.build_meta"
 include = ["tezmafia*"]
 
 [tool.setuptools.package-data]
-tezmafia = ["locales/*.json", "legal_urls.json"]
+tezmafia = ["locales/*.json", "legal_urls.json", "webapp/static/*.html"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

@@ -345,5 +345,12 @@
   "history.cancelled": "cancelled",
   "words.prompt": "You are out of the game. Write your last words here within {sec} seconds and they will be posted to the group.",
   "words.post": "Last words of {name}: “{text}”",
-  "words.sent": "Posted to the group."
+  "words.sent": "Posted to the group.",
+  "cmd.app": "TezMafia app",
+  "app.open": "Open the app",
+  "app.hint": "Profile, achievements, ranking and shop in one app.",
+  "app.tab_ach": "Achievements",
+  "app.tab_top": "Ranking",
+  "app.paid": "Payment received",
+  "app.error": "Could not open the app. Open it again from the bot."
 }

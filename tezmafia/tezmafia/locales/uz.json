@@ -345,5 +345,12 @@
   "history.cancelled": "bekor qilingan",
   "words.prompt": "Siz o‘yindan chiqdingiz. So‘nggi so‘zingizni {sec} soniya ichida shu yerga yozing — u guruhga yuboriladi.",
   "words.post": "{name}ning so‘nggi so‘zi: «{text}»",
-  "words.sent": "Guruhga yuborildi."
+  "words.sent": "Guruhga yuborildi.",
+  "cmd.app": "TezMafia ilovasi",
+  "app.open": "Ilovani ochish",
+  "app.hint": "Profil, yutuqlar, reyting va do‘kon — bitta ilovada.",
+  "app.tab_ach": "Yutuqlar",
+  "app.tab_top": "Reyting",
+  "app.paid": "To‘lov qabul qilindi",
+  "app.error": "Ilovani ochib bo‘lmadi. Botdan qayta oching."
 }

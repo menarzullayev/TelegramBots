@@ -40,6 +40,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     # When set, the bot also writes a rotating UTF-8 log file here (the Windows runner sets it).
     log_file: str = ""
+    # Mini App: the API always listens on 127.0.0.1:<port>; webapp_url is its public HTTPS address
+    # (a tunnel). Without a URL the server still runs, but no button points to it.
+    webapp_port: int = 8796
+    webapp_url: str = ""
     # Owner's daily report, local hour of the machine running the bot.
     report_hour: int = 9
     # Finished games older than this are deleted (privacy policy promises the same).
