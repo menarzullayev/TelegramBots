@@ -5,12 +5,14 @@ import hashlib
 import json
 import logging
 import time
+from collections.abc import AsyncIterator, Awaitable, Callable
+from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
-from aiogram.enums import ChatType, ParseMode
+from aiogram.enums import ChatMemberStatus, ChatType, ParseMode
 from aiogram.exceptions import TelegramAPIError, TelegramBadRequest, TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import (
@@ -20,6 +22,7 @@ from aiogram.types import (
     BotCommandScopeDefault,
     CallbackQuery,
     ChatAdministratorRights,
+    ErrorEvent,
     FSInputFile,
     InputProfilePhotoStatic,
     InputRichMessage,
@@ -28,10 +31,11 @@ from aiogram.types import (
     ReactionTypeEmoji,
 )
 
+from tezmafia import texts
+from tezmafia.brand import ASSETS, caption_fits, media, role_card, win_media
 from tezmafia.config import Settings
 from tezmafia.db import Store
-from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
-from tezmafia.shop import ROLE_TICKET_COST, resolve_item, resolve_role
+from tezmafia.emoji import FX
 from tezmafia.engine import (
     Game,
     Phase,
@@ -54,18 +58,30 @@ from tezmafia.engine import (
     set_vote,
     start,
 )
-from tezmafia.emoji import FX
-from tezmafia.brand import ASSETS, caption_fits, media, role_card, win_media
 from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
-from tezmafia.keyboards import chats_kb, host_kb, lang_kb, lobby_kb, lynch_kb, menu_kb, night_kb, roles_kb, shop_kb, vote_kb
+from tezmafia.keyboards import (
+    chats_kb,
+    host_kb,
+    lang_kb,
+    lobby_kb,
+    lynch_kb,
+    menu_kb,
+    night_kb,
+    roles_kb,
+    shop_kb,
+    vote_kb,
+)
+from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
-from tezmafia import texts
+from tezmafia.services.runtime import Alerter, ChatLocks, InstanceLock, RetryAfterMiddleware
+from tezmafia.shop import ROLE_TICKET_COST, resolve_item, resolve_role
 
 log = logging.getLogger("tezmafia")
 router = Router(name="tezmafia")
 
 NO_PREVIEW = LinkPreviewOptions(is_disabled=True)
 RECOVER_GRACE = 30.0
+ALREADY_RUNNING = 75
 
 
 def _photo(name: str) -> FSInputFile | None:
@@ -94,8 +110,10 @@ class App:
         self.settings = settings
         self.store = store
         self.bot = bot
-        self.lock = asyncio.Lock()
+        self.locks = ChatLocks()
         self.timers: dict[str, asyncio.Task[Any]] = {}
+        self._chat_of: dict[str, int] = {}
+        self.alerts = Alerter(bot, settings.owner_id)
 
     def cfg(self, game: Game | None = None) -> dict[str, Any]:
         s = self.settings
@@ -108,7 +126,20 @@ class App:
         }
 
     async def persist(self, game: Game) -> None:
+        self._chat_of[game.id] = game.chat_id
         await self.store.save(game)
+
+    @asynccontextmanager
+    async def game_lock(self, game_id: str) -> AsyncIterator[None]:
+        """Lock of the chat a game lives in; handlers then reload the game under it."""
+        chat_id = self._chat_of.get(game_id)
+        if chat_id is None:
+            game = await self.store.load(game_id)
+            chat_id = game.chat_id if game else 0
+            if game:
+                self._chat_of[game_id] = chat_id
+        async with self.locks(chat_id):
+            yield
 
     async def lang(self, chat_id: int) -> str:
         return await self.store.get_lang(chat_id)
@@ -131,8 +162,9 @@ class App:
                 await factory()
             except asyncio.CancelledError:
                 return
-            except Exception:
+            except Exception as exc:
                 log.exception("timer failed game=%s", game_id)
+                await self.alerts.send(f"timer:{type(exc).__name__}", f"⚠️ Taymer xatosi, o'yin {game_id}: {exc!r}")
 
         self.timers[game_id] = asyncio.create_task(_run())
 
@@ -186,6 +218,17 @@ class App:
             return True
         except (TelegramForbiddenError, TelegramBadRequest):
             return False
+        except TelegramAPIError:
+            # Network hiccup or a flood wait longer than the middleware absorbs: try once more.
+            log.warning("dm failed user=%s, retrying once", user_id, exc_info=True)
+            await asyncio.sleep(1)
+            try:
+                await self.bot.send_message(
+                    user_id, text, parse_mode=ParseMode.HTML, link_preview_options=NO_PREVIEW, **kwargs
+                )
+                return True
+            except TelegramAPIError:
+                return False
 
     async def dm_photo(self, user_id: int, name: str | None, text: str, **kwargs: Any) -> bool:
         """DM with a picture; any failure other than a closed DM falls back to the plain text DM."""
@@ -297,14 +340,8 @@ class App:
             if action == "refund" and taken:
                 await self.store.credit_wallet(user_id, first_name, coins=ROLE_TICKET_COST)
 
-    async def start_game(self, game: Game) -> None:
-        start(game)
-        pending = await self.apply_role_tickets(game)
-        await self.persist(game)
-        group_lang = await self.lang(game.chat_id)
-        banner = await self.safe_photo(game.chat_id, media("roles_dealt"), texts.roles_public(game, group_lang))
-        if banner:
-            await self.react(game.chat_id, banner.message_id, "🔒")
+    async def send_role_dms(self, game: Game) -> bool:
+        """Role card to every player; False when at least one DM is closed."""
         for p in game.players:
             effect = FX["fire"] if p.faction == "mafia" else FX["heart"]
             ok = await self.dm_photo(
@@ -316,8 +353,27 @@ class App:
             )
             if not ok:
                 p.dm_ok = False
-        if any(not p.dm_ok for p in game.players):
-            await self.safe_group(game, texts.action_reason("dm_pending", group_lang))
+        return all(p.dm_ok for p in game.players)
+
+    async def unpin_lobby(self, game: Game) -> None:
+        if not game.lobby_message_id:
+            return
+        try:
+            await self.bot.unpin_chat_message(game.chat_id, message_id=game.lobby_message_id)
+        except TelegramAPIError:
+            pass
+
+    async def start_game(self, game: Game) -> None:
+        start(game)
+        pending = await self.apply_role_tickets(game)
+        await self.persist(game)
+        await self.unpin_lobby(game)
+        group_lang = await self.lang(game.chat_id)
+        banner = await self.safe_photo(game.chat_id, media("roles_dealt"), texts.roles_public(game, group_lang))
+        if banner:
+            await self.react(game.chat_id, banner.message_id, "🔒")
+        if not await self.send_role_dms(game):
+            await self.safe_group(game, texts.start_reason("dm_pending", group_lang))
             cancel(game)
             await self.persist(game)
             return
@@ -332,6 +388,7 @@ class App:
     async def enter_night(self, game: Game) -> None:
         begin_night(game, time.time(), self.settings.night_action_seconds)
         await self.persist(game)
+        self.schedule(game.id, self.settings.night_action_seconds, lambda: self._timed_resolve_night(game.id))
         await apply_phase_mutes(self.bot, game, night=True, enabled=self.settings.mute_night)
         night = await self.safe_photo(game.chat_id, media("night"), texts.night_group(game, await self.lang(game.chat_id)))
         if night:
@@ -344,11 +401,6 @@ class App:
                 texts.night_prompt(game, p.user_id, has_action, await self.lang(p.user_id)),
                 reply_markup=kb if has_action else None,
             )
-        self.schedule(
-            game.id,
-            self.settings.night_action_seconds,
-            lambda: self._timed_resolve_night(game.id),
-        )
 
     async def enter_day(self, game: Game, from_night: bool) -> None:
         game.phase = Phase.DAY
@@ -357,6 +409,7 @@ class App:
         game.deadline = time.time() + self.settings.discussion_seconds
         game.version += 1
         await self.persist(game)
+        self.schedule(game.id, self.settings.discussion_seconds, lambda: self._timed_begin_vote(game.id))
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
         day_lang = await self.lang(game.chat_id)
         caption = (
@@ -368,26 +421,17 @@ class App:
         day = await self.safe_photo(game.chat_id, banner_name, caption)
         if day:
             await self.react(game.chat_id, day.message_id, "☀️")
-        self.schedule(
-            game.id,
-            self.settings.discussion_seconds,
-            lambda: self._timed_begin_vote(game.id),
-        )
 
     async def enter_vote(self, game: Game) -> None:
         begin_voting(game, time.time(), self.settings.voting_seconds)
         await self.persist(game)
+        self.schedule(game.id, self.settings.voting_seconds, lambda: self._timed_resolve_vote(game.id))
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
         vote_lang = await self.lang(game.chat_id)
         msg = await self.safe_group(game, texts.vote_tally(game, vote_lang), reply_markup=vote_kb(game, vote_lang))
         if msg:
             game.vote_message_id = msg.message_id
             await self.persist(game)
-        self.schedule(
-            game.id,
-            self.settings.voting_seconds,
-            lambda: self._timed_resolve_vote(game.id),
-        )
 
     async def record_stats(self, game: Game) -> None:
         for p in game.players:
@@ -429,7 +473,7 @@ class App:
             log.warning("unmute after finish failed", exc_info=True)
 
     async def _timed_resolve_night(self, game_id: str) -> None:
-        async with self.lock:
+        async with self.game_lock(game_id):
             game = await self.store.load(game_id)
             if not game or game.phase != Phase.NIGHT:
                 return
@@ -465,7 +509,7 @@ class App:
             await self.enter_day(game, from_night=True)
 
     async def _timed_begin_vote(self, game_id: str) -> None:
-        async with self.lock:
+        async with self.game_lock(game_id):
             game = await self.store.load(game_id)
             if not game or game.phase != Phase.DAY:
                 return
@@ -474,6 +518,7 @@ class App:
     async def enter_lynch(self, game: Game, seat: int) -> None:
         begin_lynch(game, seat, time.time(), self.settings.lynch_seconds)
         await self.persist(game)
+        self.schedule(game.id, self.settings.lynch_seconds, lambda: self._timed_resolve_lynch(game.id))
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
         lynch_lang = await self.lang(game.chat_id)
         await self.safe_photo(
@@ -482,14 +527,9 @@ class App:
             texts.lynch_text(game, lynch_lang),
             reply_markup=lynch_kb(game, lynch_lang),
         )
-        self.schedule(
-            game.id,
-            self.settings.lynch_seconds,
-            lambda: self._timed_resolve_lynch(game.id),
-        )
 
     async def _timed_resolve_vote(self, game_id: str) -> None:
-        async with self.lock:
+        async with self.game_lock(game_id):
             game = await self.store.load(game_id)
             if not game or game.phase != Phase.VOTING:
                 return
@@ -510,7 +550,7 @@ class App:
             await self.enter_night(game)
 
     async def _timed_resolve_lynch(self, game_id: str) -> None:
-        async with self.lock:
+        async with self.game_lock(game_id):
             game = await self.store.load(game_id)
             if not game or game.phase != Phase.LYNCH:
                 return
@@ -529,21 +569,23 @@ class App:
             await self.enter_night(game)
 
     async def _timed_lobby_expire(self, game_id: str) -> None:
-        async with self.lock:
+        async with self.game_lock(game_id):
             game = await self.store.load(game_id)
             if not game or game.phase != Phase.LOBBY:
                 return
             cancel(game)
             await self.persist(game)
+            await self.unpin_lobby(game)
             await self.safe_group(game, texts.cancelled(await self.lang(game.chat_id)))
 
     async def skip_phase(self, game: Game) -> bool:
         if game.phase == Phase.LOBBY:
-            ok, _reason = can_start(game)
-            if ok:
-                await self.start_game(game)
+            async with self.game_lock(game.id):
+                fresh = await self.store.load(game.id)
+                if not fresh or fresh.phase != Phase.LOBBY or not can_start(fresh)[0]:
+                    return False
+                await self.start_game(fresh)
                 return True
-            return False
         if game.phase == Phase.NIGHT:
             await self._timed_resolve_night(game.id)
             return True
@@ -558,18 +600,22 @@ class App:
             return True
         return False
 
+    def phase_timer(self, phase: str) -> Callable[[str], Awaitable[None]] | None:
+        """The handler that ends a timed phase, or None for phases without a deadline."""
+        return {
+            Phase.NIGHT: self._timed_resolve_night,
+            Phase.DAY: self._timed_begin_vote,
+            Phase.VOTING: self._timed_resolve_vote,
+            Phase.LYNCH: self._timed_resolve_lynch,
+            Phase.LOBBY: self._timed_lobby_expire,
+        }.get(phase)
+
     async def recover(self) -> None:
         now = time.time()
-        timed = {
-            Phase.NIGHT: lambda gid: self._timed_resolve_night(gid),
-            Phase.DAY: lambda gid: self._timed_begin_vote(gid),
-            Phase.VOTING: lambda gid: self._timed_resolve_vote(gid),
-            Phase.LYNCH: lambda gid: self._timed_resolve_lynch(gid),
-            Phase.LOBBY: lambda gid: self._timed_lobby_expire(gid),
-        }
         for game in await self.store.unfinished():
+            self._chat_of[game.id] = game.chat_id
             remain = (game.deadline or now) - now
-            factory = timed.get(game.phase)
+            factory = self.phase_timer(game.phase)
             if factory:
                 if remain <= 0:
                     remain = RECOVER_GRACE
@@ -578,14 +624,85 @@ class App:
                     log.info("recover grace game=%s phase=%s +%.0fs", game.id, game.phase, remain)
                 self.schedule(game.id, remain, lambda gid=game.id, fn=factory: fn(gid))
             elif game.phase == Phase.ROLE_ASSIGNMENT:
-                async with self.lock:
+                # Crashed between dealing roles and the first night: DMs may be missing, so resend them.
+                # Role tickets of that start are not charged (their claims were only in memory).
+                async with self.game_lock(game.id):
                     fresh = await self.store.load(game.id)
                     if fresh and fresh.phase == Phase.ROLE_ASSIGNMENT:
-                        await self.enter_night(fresh)
+                        if not await self.send_role_dms(fresh):
+                            cancel(fresh)
+                            await self.persist(fresh)
+                            await self.safe_group(fresh, texts.start_reason("dm_pending", await self.lang(fresh.chat_id)))
+                        else:
+                            await self.apply_loadout(fresh)
+                            await self.enter_night(fresh)
             log.info("recovered game=%s phase=%s", game.id, game.phase)
+
+    async def daily_report(self) -> str:
+        r = await self.store.report_since(time.time() - 86400)
+        pruned = await self.store.prune_finished(self.settings.retention_days)
+        return (
+            "📊 TezMafia, oxirgi 24 soat\n"
+            f"O'yinlar: {r['games']} (bekor: {r['cancelled']}), guruhlar: {r['chats']}\n"
+            f"O'yinchilar: {r['players']}, yangi: {r['new_users']}, jami: {r['users']}\n"
+            f"Hozir ochiq stollar: {r['live']}\n"
+            f"Tozalangan eski o'yinlar: {pruned}"
+        )
+
+    async def daily_report_loop(self) -> None:
+        while True:
+            now = time.localtime()
+            target = time.mktime((*now[:3], self.settings.report_hour, 0, 0, 0, 0, -1))
+            if target <= time.time():
+                target += 86400
+            await asyncio.sleep(target - time.time())
+            try:
+                await self.alerts.send(f"report:{time.strftime('%Y-%m-%d')}", await self.daily_report())
+            except Exception:
+                log.exception("daily report failed")
+
+    async def watchdog_pass(self, slack: float = 45.0) -> list[str]:
+        """Re-arm games whose deadline passed with no live timer (lost task, crash mid-phase)."""
+        now = time.time()
+        rearmed: list[str] = []
+        for game in await self.store.unfinished():
+            task = self.timers.get(game.id)
+            factory = self.phase_timer(game.phase)
+            if not factory or (task and not task.done()):
+                continue
+            if (game.deadline or now) + slack > now:
+                continue
+            self._chat_of[game.id] = game.chat_id
+            log.warning("watchdog re-armed game=%s phase=%s", game.id, game.phase)
+            self.schedule(game.id, 1.0, lambda gid=game.id, fn=factory: fn(gid))
+            rearmed.append(game.id)
+            await self.alerts.send(
+                f"stuck:{game.id}", f"⚠️ Qotib qolgan o'yin qayta ishga tushirildi: {game.id} ({game.phase})"
+            )
+        return rearmed
+
+    async def watchdog(self, interval: float = 60.0) -> None:
+        while True:
+            await asyncio.sleep(interval)
+            try:
+                await self.watchdog_pass()
+            except Exception:
+                log.exception("watchdog pass failed")
 
 
 app: App
+
+
+def _build_label() -> str:
+    """Short git commit of the running code, for the owner's startup alert."""
+    head = Path(__file__).resolve().parents[2] / ".git" / "HEAD"
+    try:
+        ref = head.read_text(encoding="utf-8").strip()
+        if ref.startswith("ref: "):
+            ref = (head.parent / ref[5:]).read_text(encoding="utf-8").strip()
+        return ref[:7]
+    except OSError:
+        return "unknown"
 
 
 async def _lang(chat_id: int) -> str:
@@ -596,12 +713,43 @@ def _is_group(message: Message) -> bool:
     return message.chat.type in {ChatType.GROUP, ChatType.SUPERGROUP}
 
 
+def _cb_parts(data: str | None, count: int) -> list[str] | None:
+    """Split callback data into exactly `count` parts; None for anything malformed."""
+    if not data:
+        return None
+    parts = data.split(":")
+    return parts if len(parts) == count and all(parts) else None
+
+
+def _seat(raw: str) -> int | None:
+    return int(raw) if raw.isdigit() and 0 < int(raw) <= 99 else None
+
+
+async def _is_admin(chat_id: int, user_id: int) -> bool:
+    if user_id == app.settings.owner_id:
+        return True
+    try:
+        member = await app.bot.get_chat_member(chat_id, user_id)
+    except TelegramAPIError:
+        return False
+    return member.status in {ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR}
+
+
+async def _in_chat(chat_id: int, user_id: int) -> bool:
+    """Whether the user is currently a member of the group; unknown counts as yes."""
+    try:
+        member = await app.bot.get_chat_member(chat_id, user_id)
+    except TelegramAPIError:
+        return True
+    return member.status not in {ChatMemberStatus.LEFT, ChatMemberStatus.KICKED}
+
+
 @router.message(Command("mafia", "newgame", "game"))
 async def cmd_mafia(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         await message.answer(t(await _lang(message.chat.id), "mafia.group_only"))
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         existing = await app.store.active_in_chat(message.chat.id)
         if existing and existing.phase != Phase.FINISHED:
             if existing.phase == Phase.LOBBY:
@@ -626,7 +774,7 @@ async def cmd_mafia(message: Message) -> None:
 async def cmd_join(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         game = await app.store.active_in_chat(message.chat.id)
         if not game or game.phase != Phase.LOBBY:
             await message.answer(t(await _lang(message.chat.id), "extend.no_lobby"))
@@ -652,7 +800,7 @@ async def cmd_join(message: Message) -> None:
 async def cmd_cancel(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         game = await app.store.active_in_chat(message.chat.id)
         lang = await _lang(message.chat.id)
         if not game:
@@ -663,8 +811,9 @@ async def cmd_cancel(message: Message) -> None:
             return
         app.cancel_timer(game.id)
         cancel(game)
-        await unmute_all(app.bot, game)
         await app.persist(game)
+        await app.unpin_lobby(game)
+        await unmute_all(app.bot, game)
         await message.answer(texts.cancelled(lang))
 
 
@@ -720,7 +869,7 @@ async def cb_role_card(query: CallbackQuery) -> None:
 async def cmd_leave(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         game = await app.store.active_in_chat(message.chat.id)
         if not game or game.phase != Phase.LOBBY:
             await message.answer(t(await _lang(message.chat.id), "leave.not_lobby"))
@@ -735,12 +884,15 @@ async def cmd_leave(message: Message) -> None:
 async def cmd_extend(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         game = await app.store.active_in_chat(message.chat.id)
         if not game:
             await message.answer(t(await _lang(message.chat.id), "extend.no_lobby"))
             return
         lang = await _lang(message.chat.id)
+        if message.from_user.id not in {game.host_id, app.settings.owner_id}:
+            await message.answer(t(lang, "next.host_only"))
+            return
         ok, reason = extend_lobby(game, app.settings.extend_seconds, app.settings.max_extends)
         if not ok:
             await message.answer(texts.action_reason(reason, lang))
@@ -877,6 +1029,9 @@ async def cmd_chats(message: Message) -> None:
 @router.message(Command("settings", "lang"))
 async def cmd_settings(message: Message) -> None:
     lang = await app.store.get_lang(message.chat.id)
+    if _is_group(message) and message.from_user and not await _is_admin(message.chat.id, message.from_user.id):
+        await message.answer(t(lang, "lang.admin_only"))
+        return
     await message.answer(texts.settings_text(lang), reply_markup=lang_kb(lang))
 
 
@@ -904,13 +1059,13 @@ async def cmd_help(message: Message) -> None:
 async def cmd_startgame(message: Message) -> None:
     if not message.from_user or not _is_group(message):
         return
-    async with app.lock:
+    async with app.locks(message.chat.id):
         game = await app.store.active_in_chat(message.chat.id)
         lang = await _lang(message.chat.id)
         if not game:
             await message.answer(t(lang, "extend.no_lobby"))
             return
-        if message.from_user.id != game.host_id:
+        if message.from_user.id not in {game.host_id, app.settings.owner_id}:
             await message.answer(t(lang, "startgame.host_only"))
             return
         ok, reason = can_start(game)
@@ -930,8 +1085,12 @@ async def cmd_action(message: Message, command: CommandObject) -> None:
         await message.answer(t(await _lang(message.chat.id), "action.usage"))
         return
     lang = await _lang(message.chat.id)
-    async with app.lock:
-        game = await app.store.by_user_lobby_or_live(message.from_user.id)
+    found = await app.store.by_user_lobby_or_live(message.from_user.id)
+    if not found:
+        await message.answer(t(lang, "no_game"))
+        return
+    async with app.game_lock(found.id):
+        game = await app.store.load(found.id)
         if not game:
             await message.answer(t(lang, "no_game"))
             return
@@ -954,12 +1113,16 @@ async def cmd_vote(message: Message, command: CommandObject) -> None:
         await message.answer(t(await _lang(message.chat.id), "vote.usage"))
         return
     lang = await _lang(message.chat.id)
-    async with app.lock:
-        game = (
-            await app.store.active_in_chat(message.chat.id)
-            if _is_group(message)
-            else await app.store.by_user_lobby_or_live(message.from_user.id)
-        )
+    found = (
+        await app.store.active_in_chat(message.chat.id)
+        if _is_group(message)
+        else await app.store.by_user_lobby_or_live(message.from_user.id)
+    )
+    if not found:
+        await message.answer(t(lang, "no_game"))
+        return
+    async with app.game_lock(found.id):
+        game = await app.store.load(found.id)
         if not game:
             await message.answer(t(lang, "no_game"))
             return
@@ -991,12 +1154,15 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         )
         return
     game_id = payload[2:]
-    async with app.lock:
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         if not game:
             await message.answer(t(lang, "start.not_found"))
             return
-        if game.phase == Phase.LOBBY:
+        if game.phase == Phase.LOBBY and not game.by_user(message.from_user.id):
+            if not await _in_chat(game.chat_id, message.from_user.id):
+                await message.answer(t(lang, "start.not_member"))
+                return
             join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
         player = game.by_user(message.from_user.id)
         if not player:
@@ -1013,8 +1179,12 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
 async def cb_start(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
         return
-    game_id = query.data.split(":", 1)[1]
-    async with app.lock:
+    parts = _cb_parts(query.data, 2)
+    if not parts:
+        await query.answer()
+        return
+    game_id = parts[1]
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         lang = await _lang(query.from_user.id)
         if not game:
@@ -1035,8 +1205,12 @@ async def cb_start(query: CallbackQuery) -> None:
 async def cb_leave(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
         return
-    game_id = query.data.split(":", 1)[1]
-    async with app.lock:
+    parts = _cb_parts(query.data, 2)
+    if not parts:
+        await query.answer()
+        return
+    game_id = parts[1]
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         lang = await _lang(query.from_user.id)
         if not game or game.phase != Phase.LOBBY:
@@ -1055,20 +1229,25 @@ async def cb_night(query: CallbackQuery) -> None:
     if query.message.chat.type != ChatType.PRIVATE:
         await query.answer(t(await _lang(query.from_user.id), "cb.dm_only"), show_alert=True)
         return
-    prefix, game_id, seat_s = query.data.split(":")
+    parts = _cb_parts(query.data, 3)
+    seat = _seat(parts[2]) if parts else None
+    if not parts or seat is None:
+        await query.answer()
+        return
+    prefix, game_id, seat_s = parts
     lang = await _lang(query.from_user.id)
-    async with app.lock:
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         if not game:
             await query.answer(t(lang, "cb.no_game"), show_alert=True)
             return
         kind = "shoot" if prefix == "ns" else ""
-        ok, reason = set_night_action(game, query.from_user.id, int(seat_s), kind=kind)
+        ok, reason = set_night_action(game, query.from_user.id, seat, kind=kind)
         if not ok:
             await query.answer(texts.action_reason(reason, lang), show_alert=True)
             return
         await app.persist(game)
-        target = game.by_seat(int(seat_s))
+        target = game.by_seat(seat)
         await query.answer(texts.picked(target.html_label() if target else seat_s, lang))
 
 
@@ -1076,19 +1255,24 @@ async def cb_night(query: CallbackQuery) -> None:
 async def cb_vote(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
         return
-    _, game_id, seat_s = query.data.split(":")
-    async with app.lock:
+    parts = _cb_parts(query.data, 3)
+    seat = _seat(parts[2]) if parts else None
+    if not parts or seat is None:
+        await query.answer()
+        return
+    _, game_id, seat_s = parts
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         lang = await _lang(query.from_user.id)
         if not game:
             await query.answer(t(lang, "cb.no_game"), show_alert=True)
             return
-        ok, reason = set_vote(game, query.from_user.id, int(seat_s))
+        ok, reason = set_vote(game, query.from_user.id, seat)
         if not ok:
             await query.answer(texts.action_reason(reason, lang), show_alert=True)
             return
         await app.persist(game)
-        target = game.by_seat(int(seat_s))
+        target = game.by_seat(seat)
         await app.refresh_vote(game)
         await query.answer(texts.voted(target.html_label() if target else seat_s, lang), show_alert=False)
 
@@ -1097,8 +1281,12 @@ async def cb_vote(query: CallbackQuery) -> None:
 async def cb_vote_clear(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
         return
-    game_id = query.data.split(":", 1)[1]
-    async with app.lock:
+    parts = _cb_parts(query.data, 2)
+    if not parts:
+        await query.answer()
+        return
+    game_id = parts[1]
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         lang = await _lang(query.from_user.id)
         if not game:
@@ -1117,8 +1305,12 @@ async def cb_vote_clear(query: CallbackQuery) -> None:
 async def cb_lynch(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
         return
-    _prefix, game_id, bit = query.data.split(":")
-    async with app.lock:
+    parts = _cb_parts(query.data, 3)
+    if not parts or parts[2] not in {"0", "1"}:
+        await query.answer()
+        return
+    _prefix, game_id, bit = parts
+    async with app.game_lock(game_id):
         game = await app.store.load(game_id)
         lang = await _lang(query.from_user.id)
         if not game:
@@ -1134,10 +1326,16 @@ async def cb_lynch(query: CallbackQuery) -> None:
 
 @router.callback_query(F.data.startswith("lang:"))
 async def cb_lang(query: CallbackQuery) -> None:
-    if not query.data or not query.message:
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.message or not query.from_user:
+        await query.answer()
         return
-    lang = query.data.split(":", 1)[1]
-    saved = await app.store.set_lang(query.message.chat.id, lang)
+    lang = parts[1]
+    chat = query.message.chat
+    if chat.type in {ChatType.GROUP, ChatType.SUPERGROUP} and not await _is_admin(chat.id, query.from_user.id):
+        await query.answer(t(await _lang(chat.id), "lang.admin_only"), show_alert=True)
+        return
+    saved = await app.store.set_lang(chat.id, lang)
     await query.answer(texts.lang_switched(saved))
     await query.message.answer(texts.lang_switched(saved))
 
@@ -1210,6 +1408,24 @@ async def cb_buy(query: CallbackQuery) -> None:
                 await query.message.edit_text(text, reply_markup=shop_kb(lang))
         except TelegramAPIError:
             pass
+
+
+@router.errors()
+async def on_error(event: ErrorEvent) -> bool:
+    """Last line of defence: log, tell the user something failed, alert the owner."""
+    exc = event.exception
+    log.error("handler failed: %r", exc, exc_info=exc)
+    update = event.update
+    try:
+        if update.callback_query:
+            lang = await _lang(update.callback_query.from_user.id)
+            await update.callback_query.answer(t(lang, "error.generic"), show_alert=True)
+        elif update.message and update.message.chat.type == ChatType.PRIVATE:
+            await update.message.answer(t(await _lang(update.message.chat.id), "error.generic"))
+    except Exception:
+        log.debug("error reply failed", exc_info=True)
+    await app.alerts.send(f"handler:{type(exc).__name__}", f"⚠️ Handler xatosi: {exc!r}")
+    return True
 
 
 @router.message(F.chat.type.in_({ChatType.GROUP, ChatType.SUPERGROUP}))
@@ -1358,21 +1574,45 @@ async def setup_bot_profile(bot: Bot) -> None:
             can_manage_topics=False,
         )
     )
-    pic = _photo(media("avatar"))
-    if pic:
-        try:
-            await bot.set_my_profile_photo(photo=InputProfilePhotoStatic(photo=pic))
-        except Exception:
-            log.warning("profile photo rejected", exc_info=True)
+    await _sync_profile_photo(bot)
+
+
+async def _sync_profile_photo(bot: Bot) -> None:
+    """Upload the avatar only when the file changed; repeated uploads clutter the bot's photo history."""
+    path = ASSETS / media("avatar")
+    if not path.is_file():
+        return
+    digest = hashlib.sha1(path.read_bytes()).hexdigest()[:12]
+    marker = Path("data") / f".avatar_{digest}"
+    if marker.exists():
+        return
+    try:
+        await bot.set_my_profile_photo(photo=InputProfilePhotoStatic(photo=FSInputFile(path)))
+    except Exception:
+        log.warning("profile photo rejected", exc_info=True)
+        return
+    Path("data").mkdir(exist_ok=True)
+    for old in Path("data").glob(".avatar_*"):
+        old.unlink(missing_ok=True)
+    marker.write_text(digest + "\n", encoding="utf-8")
 
 
 async def run() -> None:
     global app
     settings = Settings()
-    logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
+    logging.basicConfig(
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+    instance = InstanceLock(Path("data") / ".instance.lock")
+    if not instance.acquire():
+        # Exit code 75 tells the autostart wrappers not to restart: the other copy is the live one.
+        log.error("another TezMafia instance already polls with this data directory")
+        raise SystemExit(ALREADY_RUNNING)
     store = Store(settings.database_url)
     await store.init()
     bot = Bot(settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot.session.middleware(RetryAfterMiddleware())
     app = App(settings, store, bot)
     dp = Dispatcher()
     dp.include_router(router)
@@ -1382,9 +1622,16 @@ async def run() -> None:
         log.exception("setup_bot_profile failed; continuing to poll")
     await app.recover()
     await assert_polling_contract(bot)
+    background = [asyncio.create_task(app.watchdog()), asyncio.create_task(app.daily_report_loop())]
+    await app.alerts.send("startup", f"✅ TezMafia ishga tushdi ({_build_label()})")
     log.info(
-        "DECISION-01 runtime=single-node store=sqlite polling=on lock=in-process bot=@%s",
+        "DECISION-01 runtime=single-node store=sqlite polling=on lock=per-chat bot=@%s",
         settings.bot_username,
     )
     log.info("polling as @%s", settings.bot_username)
-    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    try:
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    finally:
+        for task in background:
+            task.cancel()
+        instance.release()

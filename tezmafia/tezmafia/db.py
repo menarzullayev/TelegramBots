@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 
-from sqlalchemy import BigInteger, Integer, String, Text, select, text
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from tezmafia.engine import Game, from_dict, to_dict
@@ -23,6 +24,8 @@ class GameRow(Base):
     status: Mapped[str] = mapped_column(String(32), index=True)
     payload: Mapped[str] = mapped_column(Text)
     version: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[float | None] = mapped_column(Float, default=time.time, nullable=True)
+    updated_at: Mapped[float | None] = mapped_column(Float, default=time.time, nullable=True, index=True)
 
 
 class UserStat(Base):
@@ -36,6 +39,7 @@ class UserStat(Base):
     gems: Mapped[int] = mapped_column(Integer, default=0)
     inventory: Mapped[str] = mapped_column(Text, default="{}")
     next_role: Mapped[str] = mapped_column(String(32), default="")
+    first_seen: Mapped[float | None] = mapped_column(Float, default=time.time, nullable=True)
 
 
 class ChatPref(Base):
@@ -45,11 +49,22 @@ class ChatPref(Base):
     lang: Mapped[str] = mapped_column(String(8), default="uz")
 
 
+def _sqlite_pragmas(dbapi_conn, _record) -> None:
+    # busy_timeout makes a writer wait for another chat's write instead of failing with "database is locked".
+    # No WAL: the file is shared between Windows and Linux boots on NTFS, and a plain file copy must stay a backup.
+    cur = dbapi_conn.cursor()
+    for pragma in ("busy_timeout=5000", "foreign_keys=ON"):
+        cur.execute(f"PRAGMA {pragma}")
+    cur.close()
+
+
 class Store:
     def __init__(self, url: str) -> None:
         if url.startswith("sqlite"):
             Path("data").mkdir(exist_ok=True)
         self.engine = create_async_engine(url, echo=False)
+        if url.startswith("sqlite"):
+            event.listen(self.engine.sync_engine, "connect", _sqlite_pragmas)
         self.session = async_sessionmaker(self.engine, expire_on_commit=False)
 
     async def init(self) -> None:
@@ -60,6 +75,10 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN gems INTEGER DEFAULT 0",
                 "ALTER TABLE stats ADD COLUMN inventory TEXT DEFAULT '{}'",
                 "ALTER TABLE stats ADD COLUMN next_role VARCHAR(32) DEFAULT ''",
+                "ALTER TABLE stats ADD COLUMN first_seen FLOAT",
+                "ALTER TABLE games ADD COLUMN created_at FLOAT",
+                "ALTER TABLE games ADD COLUMN updated_at FLOAT",
+                "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
             ):
                 try:
                     await conn.execute(text(ddl))
@@ -85,7 +104,46 @@ class Store:
                 row.status = game.phase
                 row.payload = payload
                 row.version = game.version
+                row.updated_at = time.time()
             await s.commit()
+
+    async def prune_finished(self, older_than_days: float) -> int:
+        """Delete finished games last touched before the cutoff (rows without a timestamp are kept)."""
+        cutoff = time.time() - older_than_days * 86400
+        async with self.session() as s:
+            res = await s.execute(
+                delete(GameRow).where(GameRow.status == "finished", GameRow.updated_at.is_not(None), GameRow.updated_at < cutoff)
+            )
+            await s.commit()
+            return res.rowcount or 0
+
+    async def report_since(self, since: float) -> dict[str, int]:
+        """Counters for the owner's daily report."""
+        async with self.session() as s:
+            finished = (
+                await s.execute(select(GameRow.payload).where(GameRow.status == "finished", GameRow.updated_at >= since))
+            ).scalars().all()
+            live = (await s.execute(select(func.count()).select_from(GameRow).where(GameRow.status != "finished"))).scalar_one()
+            new_users = (await s.execute(select(func.count()).select_from(UserStat).where(UserStat.first_seen >= since))).scalar_one()
+            users = (await s.execute(select(func.count()).select_from(UserStat))).scalar_one()
+        players: set[int] = set()
+        chats: set[int] = set()
+        played = 0
+        for payload in finished:
+            game = from_dict(json.loads(payload))
+            if game.winner:
+                played += 1
+            chats.add(game.chat_id)
+            players.update(p.user_id for p in game.players)
+        return {
+            "games": played,
+            "cancelled": len(finished) - played,
+            "chats": len(chats),
+            "players": len(players),
+            "new_users": new_users,
+            "users": users,
+            "live": live,
+        }
 
     async def load(self, game_id: str) -> Game | None:
         async with self.session() as s:

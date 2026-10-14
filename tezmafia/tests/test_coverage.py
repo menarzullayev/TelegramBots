@@ -5,6 +5,7 @@ import random
 
 import pytest
 
+from tezmafia import texts
 from tezmafia.emoji import FX, SLOTS, ce, icon
 from tezmafia.engine import (
     Phase,
@@ -28,10 +29,9 @@ from tezmafia.engine import (
     to_dict,
     win_check,
 )
+from tezmafia.i18n import t
 from tezmafia.keyboards import lobby_kb, night_kb, roles_kb, vote_kb
 from tezmafia.roles import Role, bag_for
-from tezmafia import texts
-from tezmafia.i18n import t
 
 
 def _ready(n: int = 5, host: int = 100) -> object:
@@ -46,7 +46,7 @@ def _force(g, roles: list[str]) -> None:
     start(g, rng=random.Random(0))
     for p, role in zip(g.players, roles, strict=True):
         p.role = role
-        from tezmafia.roles import ROLE_FACTION, Role
+        from tezmafia.roles import ROLE_FACTION
 
         p.faction = ROLE_FACTION[Role(role)].value
 
@@ -329,7 +329,7 @@ def test_texts_and_emoji_and_keyboards() -> None:
     assert t("uz", "day.death", name="|").split("|")[0] in texts.day_group(g, True)
     assert "Sud" in texts.vote_group(g)
     assert t("uz", "vote.none") in texts.vote_tally(g)
-    set_vote  # keep import used
+    assert callable(set_vote)
     begin_voting(g, 0, 10)
     set_vote(g, 101, 1)
     assert "ovoz" in texts.vote_tally(g)

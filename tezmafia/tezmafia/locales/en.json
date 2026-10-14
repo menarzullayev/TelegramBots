@@ -250,5 +250,8 @@
   "cmd.help": "Help and rules",
   "cmd.start": "Start the bot",
   "profile.short": "Qorashahar — classic Mafia for your group. The bot is the referee.",
-  "profile.desc": "TezMafia turns your group into Qorashahar. The bot is the referee: it deals roles in private chat, runs night and day, and counts the votes. From 5 players. Add the bot to a group and type /mafia."
+  "profile.desc": "TezMafia turns your group into Qorashahar. The bot is the referee: it deals roles in private chat, runs night and day, and counts the votes. From 5 players. Add the bot to a group and type /mafia.",
+  "lang.admin_only": "Only group admins can change the group language.",
+  "start.not_member": "This table is for group members. Join the group first.",
+  "error.generic": "Something went wrong. Please try again in a moment."
 }

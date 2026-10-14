@@ -8,12 +8,11 @@ from unittest.mock import MagicMock
 import pytest
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 
+from tests.test_bot_e2e import FakeBot, _ready_game, _settings
 from tezmafia import bot as botmod
 from tezmafia.bot import App, _answer_with_photo
 from tezmafia.brand import CAPTION_LIMIT, media, role_card
 from tezmafia.db import Store
-
-from tests.test_bot_e2e import FakeBot, _ready_game, _settings
 
 
 def _photo_path(call: tuple) -> str:

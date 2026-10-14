@@ -250,5 +250,8 @@
   "cmd.help": "Ajuda e regras",
   "cmd.start": "Iniciar o bot",
   "profile.short": "Qorashahar — Máfia clássica para o seu grupo. O juiz é o bot.",
-  "profile.desc": "TezMafia transforma o seu grupo em Qorashahar. O bot é o juiz: distribui os papéis no privado, conduz a noite e o dia e conta os votos. A partir de 5 jogadores. Adicione o bot a um grupo e escreva /mafia."
+  "profile.desc": "TezMafia transforma o seu grupo em Qorashahar. O bot é o juiz: distribui os papéis no privado, conduz a noite e o dia e conta os votos. A partir de 5 jogadores. Adicione o bot a um grupo e escreva /mafia.",
+  "lang.admin_only": "Só admins do grupo podem mudar o idioma do grupo.",
+  "start.not_member": "Esta mesa é para membros do grupo. Entre no grupo primeiro.",
+  "error.generic": "Algo deu errado. Tente de novo daqui a pouco."
 }
