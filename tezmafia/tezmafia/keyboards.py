@@ -284,3 +284,27 @@ def delete_kb(lang: str = "uz") -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+def config_kb(cfg: dict, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    def mode_btn(key: str) -> InlineKeyboardButton:
+        chosen = cfg["mode"] == key
+        return _btn(("● " if chosen else "") + t(lang, f"mode.{key}"), callback_data=f"cfg:mode:{key}",
+                    style="success" if chosen else None)
+
+    def toggle(label: str, on: bool, key: str) -> InlineKeyboardButton:
+        return _btn(f"{'✅' if on else '❌'} {label}", callback_data=f"cfg:{key}")
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [mode_btn("classic"), mode_btn("chaos")],
+            [mode_btn("secret"), mode_btn("fast")],
+            [toggle(t(lang, "btn.cfg_reveal"), cfg["reveal"], "reveal"), toggle(t(lang, "btn.cfg_mute"), cfg["mute"], "mute")],
+            [
+                _btn(t(lang, "btn.cfg_day", n=cfg["day"]), callback_data="cfg:day", emoji="day"),
+                _btn(t(lang, "btn.cfg_night", n=cfg["night"]), callback_data="cfg:night", emoji="night"),
+            ],
+        ]
+    )

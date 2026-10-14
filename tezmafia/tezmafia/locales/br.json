@@ -296,5 +296,22 @@
   "gems.removed": "Emblema removido.",
   "btn.badge_buy": "{icon} — {cost} gemas",
   "btn.badge_wear": "Usar {icon}",
-  "btn.badge_off": "Remover emblema"
+  "btn.badge_off": "Remover emblema",
+  "cmd.config": "Configurações do grupo",
+  "config.title": "Configurações do grupo",
+  "config.body": "Modo: <b>{mode}</b> — {desc}\nPapel revelado ao morrer: {reveal}\nChat fechado à noite: {mute}\nDia: {day} s · Noite: {night} s\n<i>As mudanças valem a partir da próxima mesa.</i>",
+  "config.admin_only": "Só admins do grupo podem mudar as configurações.",
+  "config.saved": "Salvo",
+  "mode.classic": "Clássico",
+  "mode.chaos": "Caos",
+  "mode.secret": "Secreto",
+  "mode.fast": "Rápido",
+  "mode.classic.d": "papéis equilibrados pelo número de jogadores",
+  "mode.chaos.d": "papéis especiais sorteados ao acaso",
+  "mode.secret.d": "o papel dos mortos fica secreto até o fim",
+  "mode.fast.d": "temporizadores curtos, jogos rápidos",
+  "btn.cfg_reveal": "Revelar papéis",
+  "btn.cfg_mute": "Fechar chat à noite",
+  "btn.cfg_day": "Dia: {n} s",
+  "btn.cfg_night": "Noite: {n} s"
 }

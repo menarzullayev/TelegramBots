@@ -296,5 +296,22 @@
   "gems.removed": "Значок знято.",
   "btn.badge_buy": "{icon} — {cost} алмазів",
   "btn.badge_wear": "Вдягти {icon}",
-  "btn.badge_off": "Зняти значок"
+  "btn.badge_off": "Зняти значок",
+  "cmd.config": "Налаштування групи",
+  "config.title": "Налаштування групи",
+  "config.body": "Режим: <b>{mode}</b> — {desc}\nРоль розкривається: {reveal}\nЧат закритий уночі: {mute}\nДень: {day} с · Ніч: {night} с\n<i>Зміни діють з наступного столу.</i>",
+  "config.admin_only": "Налаштування змінюють лише адміни групи.",
+  "config.saved": "Збережено",
+  "mode.classic": "Класика",
+  "mode.chaos": "Хаос",
+  "mode.secret": "Таємний",
+  "mode.fast": "Швидкий",
+  "mode.classic.d": "ролі збалансовані під кількість гравців",
+  "mode.chaos.d": "особливі ролі випадають випадково",
+  "mode.secret.d": "ролі вибулих приховані до кінця гри",
+  "mode.fast.d": "короткі таймери, швидкі ігри",
+  "btn.cfg_reveal": "Розкривати ролі",
+  "btn.cfg_mute": "Закривати чат уночі",
+  "btn.cfg_day": "День: {n} с",
+  "btn.cfg_night": "Ніч: {n} с"
 }

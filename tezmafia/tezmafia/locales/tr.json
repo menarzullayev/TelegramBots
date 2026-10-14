@@ -296,5 +296,22 @@
   "gems.removed": "Rozet çıkarıldı.",
   "btn.badge_buy": "{icon} — {cost} elmas",
   "btn.badge_wear": "{icon} tak",
-  "btn.badge_off": "Rozeti çıkar"
+  "btn.badge_off": "Rozeti çıkar",
+  "cmd.config": "Grup ayarları",
+  "config.title": "Grup ayarları",
+  "config.body": "Mod: <b>{mode}</b> — {desc}\nÖlünce rol açılır: {reveal}\nGece sohbet kapanır: {mute}\nGündüz: {day} sn · Gece: {night} sn\n<i>Değişiklikler bir sonraki masadan itibaren geçerli.</i>",
+  "config.admin_only": "Ayarları yalnızca grup yöneticileri değiştirebilir.",
+  "config.saved": "Kaydedildi",
+  "mode.classic": "Klasik",
+  "mode.chaos": "Kaos",
+  "mode.secret": "Gizli",
+  "mode.fast": "Hızlı",
+  "mode.classic.d": "roller oyuncu sayısına göre dengelenir",
+  "mode.chaos.d": "özel roller rastgele dağıtılır",
+  "mode.secret.d": "ölenlerin rolü oyun sonuna kadar gizli kalır",
+  "mode.fast.d": "kısa süreler, hızlı oyunlar",
+  "btn.cfg_reveal": "Rolleri aç",
+  "btn.cfg_mute": "Gece sohbeti kapat",
+  "btn.cfg_day": "Gündüz: {n} sn",
+  "btn.cfg_night": "Gece: {n} sn"
 }

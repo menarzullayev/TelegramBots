@@ -296,5 +296,22 @@
   "gems.removed": "Belgi olib tashlandi.",
   "btn.badge_buy": "{icon} — {cost} olmos",
   "btn.badge_wear": "{icon} taqish",
-  "btn.badge_off": "Belgini olib tashlash"
+  "btn.badge_off": "Belgini olib tashlash",
+  "cmd.config": "Guruh sozlamalari",
+  "config.title": "Guruh sozlamalari",
+  "config.body": "Rejim: <b>{mode}</b> — {desc}\nRol ochilishi: {reveal}\nTunda chat yopiladi: {mute}\nKunduz: {day} s · Tun: {night} s\n<i>O‘zgarishlar keyingi stoldan kuchga kiradi.</i>",
+  "config.admin_only": "Sozlamalarni faqat guruh adminlari o‘zgartiradi.",
+  "config.saved": "Saqlandi",
+  "mode.classic": "Klassik",
+  "mode.chaos": "Xaos",
+  "mode.secret": "Sirli",
+  "mode.fast": "Tezkor",
+  "mode.classic.d": "rollar o‘yinchilar soniga qarab balanslangan",
+  "mode.chaos.d": "maxsus rollar tasodifiy tushadi",
+  "mode.secret.d": "o‘lganlarning roli o‘yin oxirigacha sir",
+  "mode.fast.d": "qisqa taymerlar, tez o‘yin",
+  "btn.cfg_reveal": "Rol ochilishi",
+  "btn.cfg_mute": "Tunda chat yopiq",
+  "btn.cfg_day": "Kunduz: {n} s",
+  "btn.cfg_night": "Tun: {n} s"
 }

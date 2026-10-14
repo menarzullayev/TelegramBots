@@ -296,5 +296,22 @@
   "gems.removed": "Badge removed.",
   "btn.badge_buy": "{icon} — {cost} gems",
   "btn.badge_wear": "Wear {icon}",
-  "btn.badge_off": "Remove badge"
+  "btn.badge_off": "Remove badge",
+  "cmd.config": "Group settings",
+  "config.title": "Group settings",
+  "config.body": "Mode: <b>{mode}</b> — {desc}\nRoles revealed on death: {reveal}\nChat closed at night: {mute}\nDay: {day} s · Night: {night} s\n<i>Changes apply from the next table.</i>",
+  "config.admin_only": "Only group admins can change the settings.",
+  "config.saved": "Saved",
+  "mode.classic": "Classic",
+  "mode.chaos": "Chaos",
+  "mode.secret": "Secret",
+  "mode.fast": "Fast",
+  "mode.classic.d": "roles balanced for the number of players",
+  "mode.chaos.d": "special roles are drawn at random",
+  "mode.secret.d": "the dead keep their role secret until the end",
+  "mode.fast.d": "short timers, quick games",
+  "btn.cfg_reveal": "Reveal roles",
+  "btn.cfg_mute": "Close chat at night",
+  "btn.cfg_day": "Day: {n} s",
+  "btn.cfg_night": "Night: {n} s"
 }

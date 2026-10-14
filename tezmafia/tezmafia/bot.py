@@ -65,6 +65,7 @@ from tezmafia.engine import (
 from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import (
     chats_kb,
+    config_kb,
     delete_kb,
     gems_kb,
     host_kb,
@@ -90,6 +91,15 @@ router = Router(name="tezmafia")
 
 NO_PREVIEW = LinkPreviewOptions(is_disabled=True)
 RECOVER_GRACE = 30.0
+# Mode -> timer overrides on top of the group's day/night choice.
+MODES: dict[str, dict[str, int]] = {
+    "classic": {},
+    "chaos": {},
+    "secret": {},
+    "fast": {"night": 25, "day": 45, "vote": 25, "lynch": 15},
+}
+DAY_CHOICES = (60, 90, 120)
+NIGHT_CHOICES = (30, 45, 60)
 ALREADY_RUNNING = 75
 
 
@@ -123,6 +133,40 @@ class App:
         self.timers: dict[str, asyncio.Task[Any]] = {}
         self._chat_of: dict[str, int] = {}
         self.alerts = Alerter(bot, settings.owner_id)
+
+    async def chat_cfg(self, chat_id: int) -> dict[str, Any]:
+        """The group's /config view: stored choices over the bot-wide defaults."""
+        raw = await self.store.chat_settings(chat_id)
+        s = self.settings
+        return {
+            "mode": raw.get("mode") if raw.get("mode") in MODES else "classic",
+            "reveal": bool(raw.get("reveal", s.reveal_on_death)),
+            "mute": bool(raw.get("mute", s.mute_night)),
+            "day": int(raw.get("day", s.discussion_seconds)),
+            "night": int(raw.get("night", s.night_action_seconds)),
+        }
+
+    async def game_cfg(self, chat_id: int) -> dict[str, Any]:
+        """new_game() arguments: the group's settings frozen into the game at /game time."""
+        c = await self.chat_cfg(chat_id)
+        s = self.settings
+        timers = {"night": c["night"], "day": c["day"], "vote": s.voting_seconds, "lynch": s.lynch_seconds}
+        timers.update(MODES[c["mode"]])
+        timers["mute"] = int(c["mute"])  # stored with the timers so a running game keeps its rule
+        return {
+            **self.cfg(),
+            "reveal_on_death": c["reveal"] and c["mode"] != "secret",
+            "mode": c["mode"],
+            "timers": timers,
+        }
+
+    def timer(self, game: Game, key: str) -> int:
+        s = self.settings
+        defaults = {"night": s.night_action_seconds, "day": s.discussion_seconds, "vote": s.voting_seconds, "lynch": s.lynch_seconds}
+        return int(game.timers.get(key) or defaults[key])
+
+    def mute_on(self, game: Game) -> bool:
+        return bool(game.timers.get("mute", int(self.settings.mute_night)))
 
     def cfg(self, game: Game | None = None) -> dict[str, Any]:
         s = self.settings
@@ -395,10 +439,10 @@ class App:
             await self.enter_day(game, from_night=False)
 
     async def enter_night(self, game: Game) -> None:
-        begin_night(game, time.time(), self.settings.night_action_seconds)
+        begin_night(game, time.time(), self.timer(game, "night"))
         await self.persist(game)
-        self.schedule(game.id, self.settings.night_action_seconds, lambda: self._timed_resolve_night(game.id))
-        await apply_phase_mutes(self.bot, game, night=True, enabled=self.settings.mute_night)
+        self.schedule(game.id, self.timer(game, "night"), lambda: self._timed_resolve_night(game.id))
+        await apply_phase_mutes(self.bot, game, night=True, enabled=self.mute_on(game))
         group_lang = await self.lang(game.chat_id)
         night = await self.safe_photo(
             game.chat_id, media("night"), texts.night_group(game, group_lang), reply_markup=my_role_kb(game, group_lang)
@@ -418,14 +462,14 @@ class App:
         game.phase = Phase.DAY
         if game.round == 0:
             game.round = 1
-        game.deadline = time.time() + self.settings.discussion_seconds
+        game.deadline = time.time() + self.timer(game, "day")
         game.version += 1
         await self.persist(game)
-        self.schedule(game.id, self.settings.discussion_seconds, lambda: self._timed_begin_vote(game.id))
-        await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
+        self.schedule(game.id, self.timer(game, "day"), lambda: self._timed_begin_vote(game.id))
+        await apply_phase_mutes(self.bot, game, night=False, enabled=self.mute_on(game))
         day_lang = await self.lang(game.chat_id)
         caption = (
-            texts.day_group(game, self.settings.reveal_on_death, day_lang)
+            texts.day_group(game, game.reveal_on_death, day_lang)
             if from_night
             else texts.day_group(game, False, day_lang)
         )
@@ -435,10 +479,10 @@ class App:
             await self.react(game.chat_id, day.message_id, "☀️")
 
     async def enter_vote(self, game: Game) -> None:
-        begin_voting(game, time.time(), self.settings.voting_seconds)
+        begin_voting(game, time.time(), self.timer(game, "vote"))
         await self.persist(game)
-        self.schedule(game.id, self.settings.voting_seconds, lambda: self._timed_resolve_vote(game.id))
-        await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
+        self.schedule(game.id, self.timer(game, "vote"), lambda: self._timed_resolve_vote(game.id))
+        await apply_phase_mutes(self.bot, game, night=False, enabled=self.mute_on(game))
         vote_lang = await self.lang(game.chat_id)
         msg = await self.safe_group(game, texts.vote_tally(game, vote_lang), reply_markup=vote_kb(game, vote_lang))
         if msg:
@@ -538,10 +582,10 @@ class App:
             await self.enter_vote(game)
 
     async def enter_lynch(self, game: Game, seat: int) -> None:
-        begin_lynch(game, seat, time.time(), self.settings.lynch_seconds)
+        begin_lynch(game, seat, time.time(), self.timer(game, "lynch"))
         await self.persist(game)
-        self.schedule(game.id, self.settings.lynch_seconds, lambda: self._timed_resolve_lynch(game.id))
-        await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
+        self.schedule(game.id, self.timer(game, "lynch"), lambda: self._timed_resolve_lynch(game.id))
+        await apply_phase_mutes(self.bot, game, night=False, enabled=self.mute_on(game))
         lynch_lang = await self.lang(game.chat_id)
         await self.safe_photo(
             game.chat_id,
@@ -564,7 +608,7 @@ class App:
             await self.safe_photo(
                 game.chat_id,
                 media("trial"),
-                texts.elim_group(game, result["tie"], self.settings.reveal_on_death, await self.lang(game.chat_id)),
+                texts.elim_group(game, result["tie"], game.reveal_on_death, await self.lang(game.chat_id)),
             )
             if result["winner"]:
                 await self.finish(game)
@@ -579,7 +623,7 @@ class App:
             result = resolve_lynch(game)
             await self.persist(game)
             verdict = texts.elim_group(
-                game, not result["confirmed"], self.settings.reveal_on_death, await self.lang(game.chat_id)
+                game, not result["confirmed"], game.reveal_on_death, await self.lang(game.chat_id)
             )
             if result["confirmed"]:
                 await self.safe_photo(game.chat_id, media("verdict_sealed"), verdict)
@@ -795,7 +839,7 @@ async def cmd_mafia(message: Message) -> None:
                 lang = await _lang(message.chat.id)
                 await message.answer(t(lang, "mafia.busy", phase=phase_label(lang, existing.phase)))
             return
-        game = new_game(message.chat.id, message.from_user.id, **app.cfg())
+        game = new_game(message.chat.id, message.from_user.id, **(await app.game_cfg(message.chat.id)))
         join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
         await _wear_badge(game, message.from_user.id)
         game.deadline = time.time() + app.settings.lobby_seconds
@@ -1096,6 +1140,48 @@ async def cmd_help(message: Message) -> None:
         t(lang, "btn.shortcuts") if rich_ok else texts.help_text(lang),
         reply_markup=menu_kb(lang),
     )
+
+
+@router.message(Command("config"))
+async def cmd_config(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    if not _is_group(message):
+        await message.answer(t(lang, "mafia.group_only"))
+        return
+    cfg = await app.chat_cfg(message.chat.id)
+    await message.answer(texts.config_text(cfg, lang), reply_markup=config_kb(cfg, lang))
+
+
+@router.callback_query(F.data.startswith("cfg:"))
+async def cb_config(query: CallbackQuery) -> None:
+    parts = (query.data or "").split(":")
+    if len(parts) not in (2, 3) or not query.from_user or not query.message:
+        await query.answer()
+        return
+    chat_id = query.message.chat.id
+    lang = await _lang(chat_id)
+    if not await _is_admin(chat_id, query.from_user.id):
+        await query.answer(t(lang, "config.admin_only"), show_alert=True)
+        return
+    cfg = await app.chat_cfg(chat_id)
+    key = parts[1]
+    if key == "mode" and len(parts) == 3 and parts[2] in MODES:
+        await app.store.set_chat_setting(chat_id, "mode", parts[2])
+    elif key in ("reveal", "mute"):
+        await app.store.set_chat_setting(chat_id, key, not cfg[key])
+    elif key in ("day", "night"):
+        choices = DAY_CHOICES if key == "day" else NIGHT_CHOICES
+        nxt = choices[(choices.index(cfg[key]) + 1) % len(choices)] if cfg[key] in choices else choices[0]
+        await app.store.set_chat_setting(chat_id, key, nxt)
+    else:
+        await query.answer()
+        return
+    cfg = await app.chat_cfg(chat_id)
+    await query.answer(t(lang, "config.saved"))
+    try:
+        await query.message.edit_text(texts.config_text(cfg, lang), reply_markup=config_kb(cfg, lang))
+    except TelegramAPIError:
+        pass
 
 
 @router.message(Command("privacy"))
@@ -1768,6 +1854,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="next", description=cmd(lang, "next")),
         BotCommand(command="status", description=cmd(lang, "status")),
         BotCommand(command="stop", description=cmd(lang, "stop")),
+        BotCommand(command="config", description=cmd(lang, "config")),
         BotCommand(command="help", description=cmd(lang, "help")),
     ]
     private = [
@@ -1790,7 +1877,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
     keys = (
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
-        "privacy", "terms", "paysupport", "deletemydata",
+        "privacy", "terms", "paysupport", "deletemydata", "config",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

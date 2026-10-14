@@ -296,5 +296,22 @@
   "gems.removed": "Белгі алынды.",
   "btn.badge_buy": "{icon} — {cost} алмас",
   "btn.badge_wear": "{icon} тағу",
-  "btn.badge_off": "Белгіні алу"
+  "btn.badge_off": "Белгіні алу",
+  "cmd.config": "Топ баптаулары",
+  "config.title": "Топ баптаулары",
+  "config.body": "Режим: <b>{mode}</b> — {desc}\nРөл ашылады: {reveal}\nТүнде чат жабылады: {mute}\nКүндіз: {day} с · Түн: {night} с\n<i>Өзгерістер келесі үстелден күшіне енеді.</i>",
+  "config.admin_only": "Баптауларды тек топ админдері өзгертеді.",
+  "config.saved": "Сақталды",
+  "mode.classic": "Классика",
+  "mode.chaos": "Хаос",
+  "mode.secret": "Құпия",
+  "mode.fast": "Жылдам",
+  "mode.classic.d": "рөлдер ойыншылар санына қарай теңгерілген",
+  "mode.chaos.d": "арнайы рөлдер кездейсоқ түседі",
+  "mode.secret.d": "өлгендердің рөлі ойын соңына дейін құпия",
+  "mode.fast.d": "қысқа таймерлер, жылдам ойын",
+  "btn.cfg_reveal": "Рөлді ашу",
+  "btn.cfg_mute": "Түнде чатты жабу",
+  "btn.cfg_day": "Күндіз: {n} с",
+  "btn.cfg_night": "Түн: {n} с"
 }

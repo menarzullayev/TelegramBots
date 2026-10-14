@@ -296,5 +296,22 @@
   "gems.removed": "Nişan çıxarıldı.",
   "btn.badge_buy": "{icon} — {cost} almaz",
   "btn.badge_wear": "{icon} tax",
-  "btn.badge_off": "Nişanı çıxar"
+  "btn.badge_off": "Nişanı çıxar",
+  "cmd.config": "Qrup ayarları",
+  "config.title": "Qrup ayarları",
+  "config.body": "Rejim: <b>{mode}</b> — {desc}\nRol açılır: {reveal}\nGecə çat bağlanır: {mute}\nGündüz: {day} s · Gecə: {night} s\n<i>Dəyişikliklər növbəti masadan qüvvəyə minir.</i>",
+  "config.admin_only": "Ayarları yalnız qrup adminləri dəyişə bilər.",
+  "config.saved": "Yadda saxlanıldı",
+  "mode.classic": "Klassik",
+  "mode.chaos": "Xaos",
+  "mode.secret": "Gizli",
+  "mode.fast": "Sürətli",
+  "mode.classic.d": "rollar oyunçu sayına görə balanslaşdırılıb",
+  "mode.chaos.d": "xüsusi rollar təsadüfi düşür",
+  "mode.secret.d": "ölənlərin rolu oyunun sonunadək gizli qalır",
+  "mode.fast.d": "qısa taymerlər, tez oyun",
+  "btn.cfg_reveal": "Rolları aç",
+  "btn.cfg_mute": "Gecə çatı bağla",
+  "btn.cfg_day": "Gündüz: {n} s",
+  "btn.cfg_night": "Gecə: {n} s"
 }

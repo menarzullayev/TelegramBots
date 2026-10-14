@@ -296,5 +296,22 @@
   "gems.removed": "Значок снят.",
   "btn.badge_buy": "{icon} — {cost} алмазов",
   "btn.badge_wear": "Надеть {icon}",
-  "btn.badge_off": "Снять значок"
+  "btn.badge_off": "Снять значок",
+  "cmd.config": "Настройки группы",
+  "config.title": "Настройки группы",
+  "config.body": "Режим: <b>{mode}</b> — {desc}\nРоль раскрывается: {reveal}\nЧат закрыт ночью: {mute}\nДень: {day} с · Ночь: {night} с\n<i>Изменения действуют со следующего стола.</i>",
+  "config.admin_only": "Настройки меняют только админы группы.",
+  "config.saved": "Сохранено",
+  "mode.classic": "Классика",
+  "mode.chaos": "Хаос",
+  "mode.secret": "Тайный",
+  "mode.fast": "Быстрый",
+  "mode.classic.d": "роли сбалансированы под число игроков",
+  "mode.chaos.d": "особые роли выпадают случайно",
+  "mode.secret.d": "роли выбывших скрыты до конца игры",
+  "mode.fast.d": "короткие таймеры, быстрые игры",
+  "btn.cfg_reveal": "Раскрывать роли",
+  "btn.cfg_mute": "Закрывать чат ночью",
+  "btn.cfg_day": "День: {n} с",
+  "btn.cfg_night": "Ночь: {n} с"
 }

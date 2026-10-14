@@ -79,6 +79,15 @@ class Activity(Base):
     channel: Mapped[str] = mapped_column(String(8), primary_key=True)
 
 
+class ChatSettings(Base):
+    """Per-group /config choices as JSON; missing keys fall back to the bot-wide defaults."""
+
+    __tablename__ = "chat_settings"
+
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    data: Mapped[str] = mapped_column(Text, default="{}")
+
+
 class ChatPref(Base):
     __tablename__ = "prefs"
 
@@ -541,6 +550,27 @@ class Store:
         async with self.session() as s:
             q = await s.execute(select(UserStat).order_by(UserStat.wins.desc(), UserStat.games.desc()).limit(limit))
             return [(r.name or str(r.user_id), r.games, r.wins) for r in q.scalars()]
+
+    async def chat_settings(self, chat_id: int) -> dict:
+        async with self.session() as s:
+            row = await s.get(ChatSettings, chat_id)
+        try:
+            data = json.loads(row.data) if row else {}
+        except json.JSONDecodeError:
+            data = {}
+        return data if isinstance(data, dict) else {}
+
+    async def set_chat_setting(self, chat_id: int, key: str, value: object) -> dict:
+        async with self.session() as s:
+            row = await s.get(ChatSettings, chat_id)
+            data = json.loads(row.data) if row and row.data else {}
+            data[key] = value
+            if row is None:
+                s.add(ChatSettings(chat_id=chat_id, data=json.dumps(data)))
+            else:
+                row.data = json.dumps(data)
+            await s.commit()
+        return data
 
     async def get_lang(self, chat_id: int) -> str:
         async with self.session() as s:
