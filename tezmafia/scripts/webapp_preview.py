@@ -27,6 +27,18 @@ async def main(port: int = 8797) -> None:
     await store.credit_wallet(7, "Saidakbar", coins=320, gems=9)
     await store.buy_badge(7, "Saidakbar", "rose")
     await store.award(7, {"first_game", "games_10", "first_win", "survivor", "win_mafia"})
+    from tezmafia.engine import Phase, join, mark_dm_ok, new_game, start
+
+    game = new_game(-1, 7)
+    for uid, name in [(7, "Saidakbar"), (8, "Nodir"), (9, "Dilnoza"), (10, "Aziz"), (11, "Malika")]:
+        join(game, uid, name, None)
+        mark_dm_ok(game, uid)
+    start(game)
+    game.winner, game.phase = "town", Phase.FINISHED
+    game.chronicle = [{"n": 1, "seat": 2, "cause": "night"}, {"n": 1, "seat": 4, "cause": "vote"},
+                      {"n": 2, "seat": 3, "cause": "afk"}]
+    await store.save(game)
+    await store.link_game(game.id, [p.user_id for p in game.players])
     fake_app = SimpleNamespace(store=store)
     user = {"id": 7, "first_name": "Saidakbar", "language_code": "uz"}
 

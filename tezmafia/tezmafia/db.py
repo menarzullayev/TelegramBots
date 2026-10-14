@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import time
 from pathlib import Path
+from typing import Any
 
 from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -57,6 +58,35 @@ class UserStat(Base):
     xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     daily_last: Mapped[str] = mapped_column(String(10), default="", server_default="")
     daily_streak: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class GamePlayer(Base):
+    """Who played which finished game, so a player's own games are found without scanning payloads."""
+
+    __tablename__ = "game_players"
+
+    game_id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time, index=True)
+
+
+class FairPlay(Base):
+    __tablename__ = "fair_play"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    score: Mapped[int] = mapped_column(Integer, default=100, server_default="100")
+    afk: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class ChatBan(Base):
+    """Bot-level ban: the user cannot join TezMafia games in that chat (no Telegram restriction)."""
+
+    __tablename__ = "chat_bans"
+
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    by: Mapped[int] = mapped_column(BigInteger, default=0)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
 
 
 class Clan(Base):
@@ -297,6 +327,9 @@ class Store:
             await s.execute(delete(QuestProgress).where(QuestProgress.user_id == user_id))
             await s.execute(delete(WeeklyStat).where(WeeklyStat.user_id == user_id))
             await s.execute(delete(LastCard).where(LastCard.user_id == user_id))
+            await s.execute(delete(GamePlayer).where(GamePlayer.user_id == user_id))
+            await s.execute(delete(FairPlay).where(FairPlay.user_id == user_id))
+            # chat_bans stay: a moderation record must not be erasable by the banned user.
             await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
@@ -565,6 +598,78 @@ class Store:
         async with self.session() as s:
             q = await s.execute(select(ScheduleSub.user_id).where(ScheduleSub.schedule_id == schedule_id))
             return list(q.scalars())
+
+    # --- community: chronicle, fair play, bans, group stats ------------------------------------
+
+    async def link_game(self, game_id: str, user_ids: list[int]) -> None:
+        async with self.session() as s:
+            for uid in user_ids:
+                await s.merge(GamePlayer(game_id=game_id, user_id=uid, at=time.time()))
+            await s.commit()
+
+    async def user_games(self, user_id: int, limit: int = 10) -> list[Game]:
+        """The player's finished games, newest first (pruned games drop out on their own)."""
+        async with self.session() as s:
+            q = await s.execute(
+                select(GameRow.payload)
+                .join(GamePlayer, GamePlayer.game_id == GameRow.id)
+                .where(GamePlayer.user_id == user_id, GameRow.status == "finished")
+                .order_by(GamePlayer.at.desc())
+                .limit(limit)
+            )
+            return [from_dict(json.loads(p)) for p in q.scalars()]
+
+    async def adjust_fair_play(self, user_id: int, afk: bool, penalty: int, bonus: int) -> int:
+        async with self.session() as s:
+            row = await s.get(FairPlay, user_id)
+            if row is None:
+                row = FairPlay(user_id=user_id, score=100, afk=0)
+                s.add(row)
+            row.score = max(0, min(100, (row.score if row.score is not None else 100) + (-penalty if afk else bonus)))
+            if afk:
+                row.afk = (row.afk or 0) + 1
+            await s.commit()
+            return row.score
+
+    async def fair_play(self, user_id: int) -> int:
+        async with self.session() as s:
+            row = await s.get(FairPlay, user_id)
+            return 100 if row is None or row.score is None else row.score
+
+    async def ban(self, chat_id: int, user_id: int, by: int) -> None:
+        async with self.session() as s:
+            await s.merge(ChatBan(chat_id=chat_id, user_id=user_id, by=by, at=time.time()))
+            await s.commit()
+
+    async def unban(self, chat_id: int, user_id: int) -> bool:
+        async with self.session() as s:
+            res = await s.execute(delete(ChatBan).where(ChatBan.chat_id == chat_id, ChatBan.user_id == user_id))
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def is_banned(self, chat_id: int, user_id: int) -> bool:
+        async with self.session() as s:
+            return await s.get(ChatBan, (chat_id, user_id)) is not None
+
+    async def group_stats(self, chat_id: int, season: str) -> dict[str, Any]:
+        async with self.session() as s:
+            winners = await s.execute(
+                select(func.json_extract(GameRow.payload, "$.winner"), func.count())
+                .where(GameRow.chat_id == chat_id, GameRow.status == "finished")
+                .group_by(func.json_extract(GameRow.payload, "$.winner"))
+            )
+            results = {str(w): int(n) for w, n in winners.all() if w}
+            players = (
+                await s.execute(
+                    select(func.count()).select_from(SeasonStat).where(SeasonStat.chat_id == chat_id, SeasonStat.season == season)
+                )
+            ).scalar_one()
+        return {
+            "games": sum(results.values()),
+            "results": sorted(results.items(), key=lambda kv: -kv[1]),
+            "players": int(players),
+            "top": await self.season_top(season, chat_id=chat_id, limit=5),
+        }
 
     # --- social: cards, clans, weekly tournament -----------------------------------------------
 

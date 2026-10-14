@@ -345,6 +345,7 @@ def profile_text(
     badge: str = "",
     xp: int = 0,
     achievements: int = 0,
+    fair: int | None = None,
 ) -> str:
     from html import escape
 
@@ -364,6 +365,8 @@ def profile_text(
 
         lines.append(f"⭐ {t(lang, 'profile.level', level=level_of(xp), xp=xp)}")
         lines.append(f"🏅 {t(lang, 'profile.ach', n=achievements, total=len(ACHIEVEMENTS))}")
+    if fair is not None:
+        lines.append(f"🤝 {t(lang, 'profile.fair', score=fair)}")
     bag = []
     for key, n in (inventory or {}).items():
         title = item_title(lang, key) if key in ITEMS else key
@@ -422,6 +425,38 @@ def history_text(games: list[Game], lang: str = "uz") -> str:
     for g in games:
         result = t(lang, f"go.short.{g.winner}") if g.winner else t(lang, "history.cancelled")
         lines.append("• " + t(lang, "history.row", date=date_tag(g.created_at), result=result, n=len(g.players)))
+    return "\n".join(lines)
+
+
+def chronicle_lines(game: Game, lang: str = "uz") -> list[str]:
+    """Deaths in order with revealed roles; only for finished games (roles are public by then)."""
+    lines = []
+    for ev in game.chronicle:
+        p = game.by_seat(ev.get("seat", -1))
+        if not p:
+            continue
+        cause = ev.get("cause", "night")
+        when = t(lang, "chr.day" if cause in ("vote", "kick") else "chr.night", n=max(1, ev.get("n", 1)))
+        icon = "☀️" if cause in ("vote", "kick") else "🌙"
+        role = role_title(lang, p.role) if p.role else "?"
+        lines.append(f"{icon} {when}: {p.first_name} ({role}) — {t(lang, 'chr.cause.' + cause)}")
+    return lines
+
+
+def group_stats_text(stats: dict, season: str, lang: str = "uz") -> str:
+    from html import escape
+
+    lines = [
+        f"{ce('group')} <b>{t(lang, 'gs.title')}</b>",
+        t(lang, "gs.games", n=stats["games"]),
+        t(lang, "gs.players", n=stats["players"]),
+    ]
+    if stats["results"]:
+        lines += ["", t(lang, "gs.results")]
+        lines += [f"• {t(lang, f'go.short.{w}').rstrip('.')} — {n}" for w, n in stats["results"]]
+    if stats["top"]:
+        lines += ["", f"<b>{t(lang, 'gs.top')}</b> ({season})"]
+        lines += [f"{i}. {escape(n)} — {w}/{g}" for i, (n, g, w) in enumerate(stats["top"], start=1)]
     return "\n".join(lines)
 
 
