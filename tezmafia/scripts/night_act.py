@@ -17,7 +17,6 @@ async def main() -> None:
         async with client:
             me = await client.get_me()
             async for msg in client.get_chat_history("qorashahar_mafia_bot", limit=4):
-                text = msg.text or ""
                 markup = msg.reply_markup
                 data = ""
                 if markup and getattr(markup, "inline_keyboard", None):

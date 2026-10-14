@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 
+from tezmafia import texts
 from tezmafia.engine import (
     Phase,
     Winner,
@@ -24,10 +25,9 @@ from tezmafia.engine import (
     to_dict,
     win_check,
 )
+from tezmafia.i18n import t
 from tezmafia.keyboards import lang_kb, lynch_kb, night_kb
 from tezmafia.roles import ROLE_FACTION, Role, bag_for
-from tezmafia import texts
-from tezmafia.i18n import t
 
 
 def _ready(n: int = 5) -> object:

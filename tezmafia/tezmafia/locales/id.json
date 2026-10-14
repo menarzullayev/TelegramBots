@@ -250,5 +250,8 @@
   "cmd.help": "Bantuan dan aturan",
   "cmd.start": "Jalankan bot",
   "profile.short": "Qorashahar — Mafia klasik untuk grup Anda. Wasitnya — bot.",
-  "profile.desc": "TezMafia mengubah grup Anda menjadi Qorashahar. Bot adalah wasitnya: membagikan peran lewat pesan pribadi, mengatur malam dan siang, serta menghitung suara. Mulai dari 5 pemain. Tambahkan bot ke grup lalu ketik /mafia."
+  "profile.desc": "TezMafia mengubah grup Anda menjadi Qorashahar. Bot adalah wasitnya: membagikan peran lewat pesan pribadi, mengatur malam dan siang, serta menghitung suara. Mulai dari 5 pemain. Tambahkan bot ke grup lalu ketik /mafia.",
+  "lang.admin_only": "Hanya admin grup yang bisa mengganti bahasa grup.",
+  "start.not_member": "Meja ini untuk anggota grup. Gabung ke grup dulu.",
+  "error.generic": "Terjadi kesalahan. Coba lagi sebentar lagi."
 }

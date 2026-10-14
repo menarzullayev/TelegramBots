@@ -102,6 +102,7 @@ async def test_mutes() -> None:
         return_value=SimpleNamespace(status=ChatMemberStatus.MEMBER)
     )
     bot.me = AsyncMock(return_value=SimpleNamespace(id=1))
+    bot.get_chat = AsyncMock(return_value=SimpleNamespace(permissions=None))
     g = new_game(1, 1)
     join(g, 2, "A", None)
     await apply_phase_mutes(bot, g, night=True, enabled=False)

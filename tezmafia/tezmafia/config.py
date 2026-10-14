@@ -33,10 +33,12 @@ class Settings(BaseSettings):
     lobby_seconds: int = 180
     extend_seconds: int = 90
     max_extends: int = 3
-    tie_seconds: int = 20
     mafia_resolve: str = "majority"
     reveal_on_death: bool = True
     first_phase: str = "night_kill"
-    mute_dead: bool = True
     mute_night: bool = True
     log_level: str = "INFO"
+    # Owner's daily report, local hour of the machine running the bot.
+    report_hour: int = 9
+    # Finished games older than this are deleted (privacy policy promises the same).
+    retention_days: int = 90

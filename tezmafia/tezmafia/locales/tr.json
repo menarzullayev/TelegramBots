@@ -250,5 +250,8 @@
   "cmd.help": "Yardım ve kurallar",
   "cmd.start": "Botu başlat",
   "profile.short": "Qorashahar — grubunuz için klasik Mafya. Hakem — bot.",
-  "profile.desc": "TezMafia grubunuzu Qorashahar'a çevirir. Bot hakemdir: rolleri özel mesajda dağıtır, geceyi ve gündüzü yönetir, oyları sayar. 5 kişiden itibaren. Botu gruba ekleyin ve /mafia yazın."
+  "profile.desc": "TezMafia grubunuzu Qorashahar'a çevirir. Bot hakemdir: rolleri özel mesajda dağıtır, geceyi ve gündüzü yönetir, oyları sayar. 5 kişiden itibaren. Botu gruba ekleyin ve /mafia yazın.",
+  "lang.admin_only": "Grup dilini yalnızca yöneticiler değiştirebilir.",
+  "start.not_member": "Bu masa grup üyeleri içindir. Önce gruba katılın.",
+  "error.generic": "Bir şeyler ters gitti. Biraz sonra tekrar deneyin."
 }

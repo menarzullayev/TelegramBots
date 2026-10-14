@@ -1,0 +1,2 @@
+# Shell scripts run on Linux straight from the shared NTFS working tree: never CRLF.
+*.sh text eol=lf

@@ -1,9 +1,9 @@
 import re
 
+from tezmafia import texts
 from tezmafia.engine import Phase
 from tezmafia.i18n import ALLOWED, LANGS, TG_LANG, _load, cmd, missing_keys, phase_label, role_title, t
 from tezmafia.roles import ROLE_UZ, Role
-from tezmafia import texts
 
 
 def _shape(value: str) -> tuple[list[str], list[str]]:

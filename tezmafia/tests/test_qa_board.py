@@ -91,6 +91,12 @@ class FakeBot:
     async def pin_chat_message(self, *a, **k):
         self.calls.append(("pin", a, k))
 
+    async def unpin_chat_message(self, *a, **k):
+        self.calls.append(("unpin", a, k))
+
+    async def get_chat(self, *a, **k):
+        raise TelegramBadRequest(method=MagicMock(), message="no")
+
     async def set_message_reaction(self, *a, **k):
         self.calls.append(("react", a, k))
 
@@ -366,12 +372,12 @@ async def qa_19(tmp, mp):
     await app.persist(g)
 
     async def a() -> None:
-        async with app.lock:
+        async with app.locks(g.chat_id):
             x = await app.store.load(g.id)
             await app.persist(x)
 
     async def b() -> None:
-        async with app.lock:
+        async with app.locks(g.chat_id):
             x = await app.store.load(g.id)
             await app.persist(x)
 
@@ -509,7 +515,7 @@ async def qa_32(tmp, mp):
 async def qa_33(tmp, mp):
     from tezmafia.bot import cb_vote
 
-    app = await _app(tmp, mp)
+    await _app(tmp, mp)
     q = SimpleNamespace(
         from_user=User(id=1, is_bot=False, first_name="X"),
         data="v:not-a-game:1",
@@ -847,9 +853,9 @@ async def qa_72(tmp, mp):
 
 
 async def qa_73(tmp, mp):
-    from tezmafia.bot import cb_vote, cb_night
+    from tezmafia.bot import cb_night, cb_vote
 
-    app = await _app(tmp, mp)
+    await _app(tmp, mp)
     rng = random.Random(9)
     for raw in [rng.randbytes(8).hex(), "::::", "v:", "nm:x:999", ""]:
         q = SimpleNamespace(from_user=User(id=1, is_bot=False, first_name="X"), data=raw or "v:x:1", message=None, answer=AsyncMock())
@@ -1123,7 +1129,7 @@ async def qa_99(tmp, mp):
 async def qa_100(tmp, mp):
     tracemalloc.start()
     snap1 = tracemalloc.take_snapshot()
-    for i in range(25):
+    for _i in range(25):
         g = _ready(5)
         _force(g, ["mafia", "citizen", "citizen", "citizen", "citizen"])
         begin_night(g, 0, 10)
