@@ -468,5 +468,18 @@
   "btn.add_bot": "Bot ekle",
   "bot.name": "Robot",
   "cmd.addbot": "Boş yere bot ekle (sunucu)",
-  "bot.reward_note": "🤖 Botlu oyun: {humans} kişi — ödüller azaltıldı."
+  "bot.reward_note": "🤖 Botlu oyun: {humans} kişi — ödüller azaltıldı.",
+  "skins.title": "🎨 Rol kartı stilleri",
+  "skins.body": "Rol ve sonuç kartın bu stilde olur. Her stil {cost} elmas. Sende: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Altın",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — kullan",
+  "btn.skin_off": "Orijinale dön",
+  "skins.bought": "Stil satın alındı ve uygulandı.",
+  "skins.worn": "Stil uygulandı.",
+  "skins.removed": "Orijinal stile dönüldü.",
+  "cmd.skins": "Rol kartı stilleri",
+  "app.tab_skins": "Stiller"
 }

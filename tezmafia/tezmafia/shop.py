@@ -77,6 +77,9 @@ SPECIAL_BADGES: dict[str, tuple[str, int]] = {
     "trophy": ("🏆", 0),
     "founder": ("🎖", 0),
 }
+# Role-card styles (DECISION-17): pre-rendered by scripts/make_skins.py, bought with gems.
+SKINS: dict[str, str] = {"noir": "🖤", "gold": "🟨", "neon": "💜"}
+SKIN_COST = 20
 PLAY_COINS = 10
 WIN_COINS = 25
 WIN_GEMS = 1

@@ -468,5 +468,18 @@
   "btn.add_bot": "Bot qo‘shish",
   "bot.name": "Robot",
   "cmd.addbot": "Bo‘sh o‘ringa bot qo‘shish (xost)",
-  "bot.reward_note": "🤖 Botli o‘yin: odamlar {humans} ta — mukofot kamaytirilgan."
+  "bot.reward_note": "🤖 Botli o‘yin: odamlar {humans} ta — mukofot kamaytirilgan.",
+  "skins.title": "🎨 Rol kartasi uslublari",
+  "skins.body": "Rolingiz kartasi va natija kartangiz shu uslubda chiqadi. Har uslub {cost} olmos. Sizda: {gems} 💎",
+  "skin.noir": "Noir",
+  "skin.gold": "Oltin",
+  "skin.neon": "Neon",
+  "btn.skin_buy": "{name} — {cost} 💎",
+  "btn.skin_wear": "{name} — kiyish",
+  "btn.skin_off": "Asl uslubga qaytish",
+  "skins.bought": "Uslub sotib olindi va kiyildi.",
+  "skins.worn": "Uslub kiyildi.",
+  "skins.removed": "Asl uslub qaytdi.",
+  "cmd.skins": "Rol kartasi uslublari",
+  "app.tab_skins": "Uslublar"
 }

@@ -48,10 +48,12 @@ def _fit(draw: ImageDraw.ImageDraw, text: str, paths: tuple[str, ...], size: int
     return text + "…", font
 
 
-def result_card(name: str, role: str, role_title: str, won: bool, result_line: str, footer: str) -> bytes:
+def result_card(
+    name: str, role: str, role_title: str, won: bool, result_line: str, footer: str, skin: str = ""
+) -> bytes:
     bg, ivory, gold, red, ash = (_rgb(PALETTE[k]) for k in ("raven_black", "ivory", "gold", "raven_red", "ash"))
     img = Image.new("RGB", (W, H), bg)
-    path = role_card(role)
+    path = role_card(role, skin)
     if path and (ASSETS / path).is_file():
         portrait = Image.open(ASSETS / path).convert("RGB").resize((H, H), Image.LANCZOS)
         img.paste(portrait, (0, 0))

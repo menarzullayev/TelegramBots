@@ -130,7 +130,12 @@ function render(active = "profile") {
       el("p", { class: "name" }, S.strings["btn.gems_shop"]), el("p", { class: "muted" }, S.gems_body),
       ...S.badges.map(b => el("button", { class: "buy alt" + (b.worn ? " worn" : ""), onclick: () => badge(b.key) },
         (b.worn ? "✓ " : "") + b.label)),
-      p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""));
+      p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""),
+    el("div", { class: "card" },
+      el("p", { class: "name" }, S.strings["skins.title"]), el("p", { class: "muted" }, S.skins.body),
+      ...S.skins.items.map(k => el("button", { class: "buy alt" + (k.worn ? " worn" : ""), onclick: () => skin(k.key) },
+        (k.worn ? "✓ " : "") + k.label)),
+      S.skins.worn ? el("button", { class: "buy alt", onclick: () => skin("off") }, S.strings["btn.skin_off"]) : ""));
 
   document.getElementById("root").replaceChildren(profile, ach, top, games, shop,
     S.admin ? el("section", { id: "admin" }, el("div", { class: "card" }, el("p", { class: "name" }, S.admin.title),
@@ -150,6 +155,15 @@ async function buy(product) {
 async function badge(key) {
   try {
     const r = await api("/api/badge", { key });
+    S = r.state; render("shop");
+    if (r.result === "no_gems") tg.showAlert(S.strings["gems.no_gems"]);
+    else tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success");
+  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
+}
+
+async function skin(key) {
+  try {
+    const r = await api("/api/skin", { key });
     S = r.state; render("shop");
     if (r.result === "no_gems") tg.showAlert(S.strings["gems.no_gems"]);
     else tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success");
