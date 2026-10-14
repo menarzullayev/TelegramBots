@@ -225,3 +225,16 @@ def vote_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
 
     skip = [_btn(t(lang, "btn.vote_clear"), callback_data=f"vx:{game.id}", style="danger", emoji="cancel")]
     return player_buttons(game, "v", extra=[skip])
+
+
+def delete_kb(lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                _btn(t(lang, "btn.delete_yes"), callback_data="del:yes", style="danger", emoji="warning"),
+                _btn(t(lang, "btn.delete_no"), callback_data="del:no", emoji="cancel"),
+            ]
+        ]
+    )

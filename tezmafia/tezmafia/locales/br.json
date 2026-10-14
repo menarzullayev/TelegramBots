@@ -253,5 +253,20 @@
   "profile.desc": "TezMafia transforma o seu grupo em Qorashahar. O bot é o juiz: distribui os papéis no privado, conduz a noite e o dia e conta os votos. A partir de 5 jogadores. Adicione o bot a um grupo e escreva /mafia.",
   "lang.admin_only": "Só admins do grupo podem mudar o idioma do grupo.",
   "start.not_member": "Esta mesa é para membros do grupo. Entre no grupo primeiro.",
-  "error.generic": "Algo deu errado. Tente de novo daqui a pouco."
+  "error.generic": "Algo deu errado. Tente de novo daqui a pouco.",
+  "cmd.privacy": "Política de privacidade",
+  "cmd.terms": "Termos de uso",
+  "cmd.paysupport": "Suporte a pagamentos",
+  "cmd.deletemydata": "Apagar meus dados",
+  "legal.privacy": "<b>Privacidade</b>\nO bot guarda só o que o jogo precisa: ID do Telegram, nome e username, estatísticas, carteira e idioma. Os dados nunca são vendidos nem compartilhados. Jogos terminados são apagados após {days} dias.\nApagar tudo: /deletemydata\nTexto completo: {url}",
+  "legal.terms": "<b>Termos de uso</b>\nJogar é grátis. Moedas e VIP são recursos digitais do bot vendidos por Telegram Stars e não têm valor em dinheiro. Se uma compra não chegou ou algo deu errado: /paysupport. Várias contas, jogos falsos para farmar moedas e insultos são proibidos.\nTexto completo: {url}",
+  "paysupport.help": "<b>Suporte a pagamentos</b>\nDescreva o problema em uma mensagem: /paysupport e o texto. Por exemplo: <code>/paysupport paguei 100⭐, não recebi moedas</code>. A resposta chega neste chat.",
+  "paysupport.sent": "Seu pedido foi recebido. Normalmente respondemos em até 24 horas.",
+  "delete.ask": "Seus dados serão apagados de vez: estatísticas, carteira (moedas, gemas), itens, papel na fila e idioma. Isso não pode ser desfeito. Continuar?",
+  "delete.done": "Seus dados foram apagados.",
+  "delete.busy": "Termine o jogo atual primeiro, depois você pode apagar seus dados.",
+  "delete.cancelled": "Cancelado, nada foi apagado.",
+  "btn.delete_yes": "Sim, apagar",
+  "btn.delete_no": "Não",
+  "dm.only": "Este comando funciona só no chat privado com o bot."
 }

@@ -399,3 +399,25 @@ def journalist_result(label: str, visitors: list[str], helper: bool, lang: str =
     who = ", ".join(visitors) if visitors else t(lang, "journalist.none")
     kind = t(lang, "journalist.helper") if helper else t(lang, "journalist.plain")
     return f"{ce('search')} {t(lang, 'journalist.line', label=label, who=who, kind=kind)}"
+
+
+def _legal_url(kind: str, lang: str) -> str:
+    import json
+    from pathlib import Path
+
+    path = Path(__file__).with_name("legal_urls.json")
+    try:
+        urls = json.loads(path.read_text(encoding="utf-8")).get(kind, {})
+    except (OSError, ValueError):
+        return ""
+    # Full pages exist in uz, ru, en; the other locales read the closest one.
+    fallback = {"kg": "ru", "kz": "ru", "tj": "ru", "ua": "ru"}.get(lang, "en")
+    return urls.get(lang) or urls.get(fallback) or urls.get("en", "")
+
+
+def privacy_text(lang: str = "uz", days: int = 90) -> str:
+    return f"{ce('lock')} {t(lang, 'legal.privacy', days=days, url=_legal_url('privacy', lang))}"
+
+
+def terms_text(lang: str = "uz") -> str:
+    return f"{ce('book')} {t(lang, 'legal.terms', url=_legal_url('terms', lang))}"

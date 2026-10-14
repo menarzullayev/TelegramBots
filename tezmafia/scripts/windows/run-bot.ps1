@@ -13,7 +13,8 @@ while ($true) {
     $stamp = Get-Date -Format 'yyyy-MM-dd'
     $log = Join-Path $logDir "bot-$stamp.log"
     Add-Content $log "=== start $(Get-Date -Format s) ==="
-    & $python -m tezmafia *>> $log
+    # cmd's redirection keeps Python's UTF-8 bytes; PowerShell 5.1's *>> would write UTF-16.
+    cmd.exe /c "`"$python`" -m tezmafia >> `"$log`" 2>&1"
     $code = $LASTEXITCODE
     Add-Content $log "=== exit $code at $(Get-Date -Format s) ==="
     if ($code -eq $alreadyRunning) { break }

@@ -117,6 +117,30 @@ class Store:
             await s.commit()
             return res.rowcount or 0
 
+    async def delete_user(self, user_id: int) -> dict[str, int]:
+        """Erase a user's data: stats/wallet row, private-chat language, and their name in finished games.
+
+        Unfinished games are left alone; callers refuse deletion while the user is still playing.
+        """
+        scrubbed = 0
+        async with self.session() as s:
+            stats = await s.execute(delete(UserStat).where(UserStat.user_id == user_id))
+            prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
+            rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
+            for row in rows:
+                data = json.loads(row.payload)
+                touched = False
+                for player in data.get("players", []):
+                    if player.get("user_id") == user_id and (player.get("first_name") != "—" or player.get("username")):
+                        player["first_name"] = "—"
+                        player["username"] = None
+                        touched = True
+                if touched:
+                    row.payload = json.dumps(data, ensure_ascii=False)
+                    scrubbed += 1
+            await s.commit()
+        return {"stats": stats.rowcount or 0, "prefs": prefs.rowcount or 0, "games": scrubbed}
+
     async def report_since(self, since: float) -> dict[str, int]:
         """Counters for the owner's daily report."""
         async with self.session() as s:
