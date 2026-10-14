@@ -352,5 +352,14 @@
   "app.tab_ach": "Conquistas",
   "app.tab_top": "Ranking",
   "app.paid": "Pagamento recebido",
-  "app.error": "Não foi possível abrir o app. Abra de novo pelo bot."
+  "app.error": "Não foi possível abrir o app. Abra de novo pelo bot.",
+  "btn.cfg_roles": "Papéis",
+  "btn.cfg_anon": "Voto anônimo",
+  "btn.back": "Voltar",
+  "config.roles_title": "Quais papéis especiais estão em jogo? Um papel desligado vira cidadão.",
+  "config.extra": "Voto anônimo: {anon} · Papéis desligados: {off}",
+  "vote.anon": "Votaram: {n}/{m}. O resultado aparece quando a votação fechar.",
+  "dead.joined": "Agora você está na sala dos mortos: o que escrever aqui vai só para outros jogadores mortos.",
+  "btn.rematch": "Jogar de novo",
+  "rematch.invite": "{host} abriu uma nova mesa. Entrar: {link}"
 }

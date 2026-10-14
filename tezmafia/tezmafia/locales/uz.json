@@ -352,5 +352,14 @@
   "app.tab_ach": "Yutuqlar",
   "app.tab_top": "Reyting",
   "app.paid": "To‘lov qabul qilindi",
-  "app.error": "Ilovani ochib bo‘lmadi. Botdan qayta oching."
+  "app.error": "Ilovani ochib bo‘lmadi. Botdan qayta oching.",
+  "btn.cfg_roles": "Rollar",
+  "btn.cfg_anon": "Anonim ovoz",
+  "btn.back": "Orqaga",
+  "config.roles_title": "Qaysi maxsus rollar o‘ynalsin? O‘chirilgan rol o‘rniga tinch aholi tushadi.",
+  "config.extra": "Anonim ovoz: {anon} · O‘chirilgan rollar: {off}",
+  "vote.anon": "Ovoz berganlar: {n}/{m}. Natija ovoz yopilganda ochiladi.",
+  "dead.joined": "Endi siz o‘liklar xonasidasiz: bu yerga yozganingiz faqat boshqa o‘lgan o‘yinchilarga boradi.",
+  "btn.rematch": "Yana o‘ynash",
+  "rematch.invite": "{host} yangi stol ochdi. Qo‘shilish: {link}"
 }
