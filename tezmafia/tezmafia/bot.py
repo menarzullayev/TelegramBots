@@ -1905,9 +1905,16 @@ async def _sync_profile_photo(bot: Bot) -> None:
 async def run() -> None:
     global app
     settings = Settings()
+    handlers: list[logging.Handler] = [logging.StreamHandler()]
+    if settings.log_file:
+        from logging.handlers import RotatingFileHandler
+
+        Path(settings.log_file).parent.mkdir(parents=True, exist_ok=True)
+        handlers.append(RotatingFileHandler(settings.log_file, maxBytes=5_000_000, backupCount=5, encoding="utf-8"))
     logging.basicConfig(
         level=getattr(logging, settings.log_level.upper(), logging.INFO),
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+        handlers=handlers,
     )
     instance = InstanceLock(Path("data") / ".instance.lock")
     if not instance.acquire():

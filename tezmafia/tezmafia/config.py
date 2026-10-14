@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     first_phase: str = "night_kill"
     mute_night: bool = True
     log_level: str = "INFO"
+    # When set, the bot also writes a rotating UTF-8 log file here (the Windows runner sets it).
+    log_file: str = ""
     # Owner's daily report, local hour of the machine running the bot.
     report_hour: int = 9
     # Finished games older than this are deleted (privacy policy promises the same).
