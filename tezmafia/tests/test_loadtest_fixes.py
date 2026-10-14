@@ -259,3 +259,53 @@ async def test_active_users_stays_on_the_date_range(app: App) -> None:
             " WHERE day >= '2026-10-01'")))
     assert "ix_activity_user" not in plan and "day>" in plan
     await app.store.optimize()  # must not fail on a fresh database
+
+
+@pytest.mark.asyncio
+async def test_deferred_lobby_edit_never_writes_back_a_stale_game(app: App) -> None:
+    from unittest.mock import MagicMock
+
+    from aiogram.exceptions import TelegramBadRequest
+
+    app.settings.edit_debounce = 0.05
+    g = _ready_game(5)
+    g.lobby_message_id = 9
+    await app.persist(g)
+
+    async def start_under_lock() -> None:  # another handler starts the game meanwhile, as handlers do: under the lock
+        async with app.game_lock(g.id):
+            fresh = await app.store.load(g.id)
+            start(fresh)
+            await app.persist(fresh)
+
+    racers: list[asyncio.Task] = []
+
+    async def gone(*a, **k):  # the lobby message was deleted: refresh_lobby posts a new one and persists
+        if not racers:
+            racers.append(asyncio.create_task(start_under_lock()))
+            await asyncio.sleep(0.05)
+        raise TelegramBadRequest(method=MagicMock(), message="message to edit not found")
+
+    app.bot.edit_message_text = gone  # type: ignore[method-assign]
+    await app.refresh_lobby(g)
+    await asyncio.sleep(0.3)
+    await asyncio.gather(*racers)
+    assert (await app.store.load(g.id)).phase != Phase.LOBBY  # the start is not overwritten by the deferred edit
+
+
+@pytest.mark.asyncio
+async def test_unchanged_lobby_is_not_reposted(app: App) -> None:
+    from unittest.mock import MagicMock
+
+    from aiogram.exceptions import TelegramBadRequest
+
+    app.settings.edit_debounce = 0
+    g = _ready_game(5)
+    g.lobby_message_id = 9
+
+    async def same(*a, **k):
+        raise TelegramBadRequest(method=MagicMock(), message="Bad Request: message is not modified")
+
+    app.bot.edit_message_text = same  # type: ignore[method-assign]
+    await app.refresh_lobby(g)
+    assert not [c for c in app.bot.calls if c[0] in ("send_message", "pin")] and g.lobby_message_id == 9

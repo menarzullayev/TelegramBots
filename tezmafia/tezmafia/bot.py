@@ -367,14 +367,17 @@ class App:
         return True
 
     async def _edit_vote_latest(self, game_id: str) -> None:
-        game = await self.store.load(game_id)
-        if game and game.phase == Phase.VOTING:
-            await self._edit_vote(game)
+        async with self.game_lock(game_id):  # same lock as every other writer of this game
+            game = await self.store.load(game_id)
+            if game and game.phase == Phase.VOTING:
+                await self._edit_vote(game)
 
     async def _edit_lobby_latest(self, game_id: str) -> None:
-        game = await self.store.load(game_id)
-        if game and game.phase == Phase.LOBBY and game.lobby_message_id:
-            await self.refresh_lobby(game, now=True)
+        # refresh_lobby may persist (new lobby message): without the lock it could write back a stale game
+        async with self.game_lock(game_id):
+            game = await self.store.load(game_id)
+            if game and game.phase == Phase.LOBBY and game.lobby_message_id:
+                await self.refresh_lobby(game, now=True)
 
     async def refresh_vote(self, game: Game) -> None:
         if not game.vote_message_id:
@@ -415,8 +418,9 @@ class App:
                     link_preview_options=NO_PREVIEW,
                 )
                 return
-            except TelegramBadRequest:
-                pass
+            except TelegramBadRequest as e:
+                if "not modified" in str(e).lower():  # same text: the lobby is already current
+                    return
         msg = await self.safe_group(game, text, reply_markup=kb)
         if msg:
             game.lobby_message_id = msg.message_id
