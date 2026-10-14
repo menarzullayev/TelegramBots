@@ -60,6 +60,7 @@ from tezmafia.engine import (
     cancel,
     extend_lobby,
     join,
+    kick,
     leave,
     mark_dm_ok,
     new_game,
@@ -554,17 +555,14 @@ class App:
         notes: list[tuple[int, list[str], int | None]] = []
         quest_notes: dict[int, list[str]] = {}
         card_jobs: list[tuple[Any, bool, dict[str, int]]] = []
+        from tezmafia.engine import player_won
+        from tezmafia.social import FAIR_AFK_PENALTY, FAIR_GAME_BONUS
+
+        await self.store.link_game(game.id, [p.user_id for p in game.players])
+        afk_seats = {ev.get("seat") for ev in game.chronicle if ev.get("cause") == "afk"}
         for p in game.players:
-            won = (
-                (game.winner == "mafia" and p.faction == "mafia")
-                or (game.winner == "town" and p.faction == "town")
-                or (game.winner == "maniac" and p.role == "maniac")
-                or (game.winner == "suicide" and p.role == "suicide")
-                or (game.winner == "arsonist" and p.role == "arsonist")
-                or (game.winner == "snitch" and p.role == "snitch")
-                or (game.winner == "mage" and p.role == "mage")
-                or (game.winner == "crook" and p.role == "crook")
-            )
+            won = player_won(game, p)
+            await self.store.adjust_fair_play(p.user_id, p.seat in afk_seats, FAIR_AFK_PENALTY, FAIR_GAME_BONUS)
             totals = await self.store.bump_stat(p.user_id, p.first_name, won, p.alive)
             await self.store.bump_season(time.strftime("%Y-%m"), game.chat_id, p.user_id, p.first_name, won)
             await self.store.bump_week(week_key(), p.user_id, p.first_name, won, tour_points(won))
@@ -1047,6 +1045,9 @@ async def cmd_mafia(message: Message) -> None:
                 await message.answer(t(lang, "mafia.busy", phase=phase_label(lang, existing.phase)))
             return
         user = message.from_user
+        if await app.store.is_banned(message.chat.id, user.id):
+            await message.answer(t(await _lang(message.chat.id), "mod.you_banned"))
+            return
         await app.open_lobby(message.chat.id, user.id, user.first_name, user.username)
 
 
@@ -1058,6 +1059,9 @@ async def cmd_join(message: Message) -> None:
         game = await app.store.active_in_chat(message.chat.id)
         if not game or game.phase != Phase.LOBBY:
             await message.answer(t(await _lang(message.chat.id), "extend.no_lobby"))
+            return
+        if await app.store.is_banned(message.chat.id, message.from_user.id):
+            await message.answer(t(await _lang(message.chat.id), "mod.you_banned"))
             return
         ok, reason = join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
         await _wear_badge(game, message.from_user.id)
@@ -1271,6 +1275,7 @@ async def cmd_profile(message: Message) -> None:
             badge=acc.get("badge", ""),
             xp=acc.get("xp", 0),
             achievements=await app.store.achievement_count(message.from_user.id),
+            fair=await app.store.fair_play(message.from_user.id),
             lang=await _lang(message.chat.id),
         )
     )
@@ -1691,6 +1696,97 @@ async def cmd_tournament(message: Message) -> None:
     await message.answer("\n".join(lines))
 
 
+async def _mod_target(message: Message, command: CommandObject, game: Game | None) -> tuple[int, str] | None:
+    """Target of a moderation command: the replied-to user, a seat number, or a numeric user id."""
+    reply = message.reply_to_message
+    if reply and reply.from_user and not reply.from_user.is_bot:
+        return reply.from_user.id, reply.from_user.first_name
+    arg = (command.args or "").strip()
+    seat = _seat(arg)
+    if game and seat:
+        p = game.by_seat(seat)
+        return (p.user_id, p.first_name) if p else None
+    if arg.isdigit() and len(arg) > 3:
+        return int(arg), arg
+    return None
+
+
+async def _remove_from_game(game: Game, user_id: int) -> bool:
+    """Kick from the lobby or the running game; finishes the game if that decides it. Caller holds the lock."""
+    done, winner = kick(game, user_id)
+    if not done:
+        return False
+    if game.phase == Phase.LOBBY:
+        await app.persist(game)
+        await app.refresh_lobby(game)
+    elif winner:
+        await app.finish(game)
+    else:
+        await app.persist(game)
+    return True
+
+
+async def _mod_prelude(message: Message, command: CommandObject) -> tuple[str, Game | None, tuple[int, str]] | None:
+    if not message.from_user or not _is_group(message):
+        return None
+    lang = await _lang(message.chat.id)
+    if not await _is_admin(message.chat.id, message.from_user.id):
+        await message.answer(t(lang, "config.admin_only"))
+        return None
+    game = await app.store.active_in_chat(message.chat.id)
+    target = await _mod_target(message, command, game)
+    if not target:
+        await message.answer(t(lang, "mod.usage"))
+        return None
+    return lang, game, target
+
+
+@router.message(Command("kick"))
+async def cmd_kick(message: Message, command: CommandObject) -> None:
+    async with app.locks(message.chat.id):
+        ready = await _mod_prelude(message, command)
+        if not ready:
+            return
+        lang, game, (uid, name) = ready
+        if not game or not await _remove_from_game(game, uid):
+            await message.answer(t(lang, "mod.not_found"))
+            return
+        await message.answer(t(lang, "mod.kicked", name=escape(name)))
+
+
+@router.message(Command("ban"))
+async def cmd_ban(message: Message, command: CommandObject) -> None:
+    async with app.locks(message.chat.id):
+        ready = await _mod_prelude(message, command)
+        if not ready:
+            return
+        lang, game, (uid, name) = ready
+        await app.store.ban(message.chat.id, uid, message.from_user.id if message.from_user else 0)
+        if game and game.phase != Phase.FINISHED:
+            await _remove_from_game(game, uid)
+        await message.answer(t(lang, "mod.banned", name=escape(name)))
+
+
+@router.message(Command("unban"))
+async def cmd_unban(message: Message, command: CommandObject) -> None:
+    ready = await _mod_prelude(message, command)
+    if not ready:
+        return
+    lang, _game, (uid, name) = ready
+    await app.store.unban(message.chat.id, uid)
+    await message.answer(t(lang, "mod.unbanned", name=escape(name)))
+
+
+@router.message(Command("groupstats"))
+async def cmd_groupstats(message: Message) -> None:
+    lang = await _lang(message.chat.id)
+    if not _is_group(message):
+        await message.answer(t(lang, "mafia.group_only"))
+        return
+    season = time.strftime("%Y-%m")
+    await message.answer(texts.group_stats_text(await app.store.group_stats(message.chat.id, season), season, lang))
+
+
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message) -> None:
     lang = await _lang(message.chat.id)
@@ -1865,6 +1961,9 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         if game.phase == Phase.LOBBY and not game.by_user(message.from_user.id):
             if not await _in_chat(game.chat_id, message.from_user.id):
                 await message.answer(t(lang, "start.not_member"))
+                return
+            if await app.store.is_banned(game.chat_id, message.from_user.id):
+                await message.answer(t(lang, "mod.you_banned"))
                 return
             join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
             await _wear_badge(game, message.from_user.id)
@@ -2414,6 +2513,10 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="config", description=cmd(lang, "config")),
         BotCommand(command="history", description=cmd(lang, "history")),
         BotCommand(command="schedule", description=cmd(lang, "schedule")),
+        BotCommand(command="groupstats", description=cmd(lang, "groupstats")),
+        BotCommand(command="kick", description=cmd(lang, "kick")),
+        BotCommand(command="ban", description=cmd(lang, "ban")),
+        BotCommand(command="unban", description=cmd(lang, "unban")),
         BotCommand(command="help", description=cmd(lang, "help")),
     ]
     private = [
@@ -2443,7 +2546,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule", "clan", "tournament",
+        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()
