@@ -268,5 +268,9 @@
   "delete.cancelled": "Bekor qilindi, hech narsa o‘chirilmadi.",
   "btn.delete_yes": "Ha, o‘chirish",
   "btn.delete_no": "Yo‘q",
-  "dm.only": "Bu buyruq faqat botning shaxsiy chatida ishlaydi."
+  "dm.only": "Bu buyruq faqat botning shaxsiy chatida ishlaydi.",
+  "btn.my_role": "Rolim",
+  "role.not_playing": "Siz bu o‘yinda ishtirok etmayapsiz.",
+  "group.welcome": "Salom! Men TezMafia — guruhingiz uchun Mafiya hakami.\nYangi o‘yin: /game\nQoidalar: /help",
+  "group.need_admin": "To‘liq ishlashim uchun meni admin qiling: tunda chatni yopish, o‘lganlarni jim qilish va lobbini pin qilish uchun huquq kerak."
 }

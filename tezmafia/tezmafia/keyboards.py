@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aiogram.types import CopyTextButton, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import CopyTextButton, DisabledButton, InlineKeyboardButton, InlineKeyboardMarkup
 
 from tezmafia.emoji import icon
 from tezmafia.engine import Game
@@ -46,6 +46,28 @@ def roles_kb(lang: str = "uz") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+def _start_button(game: Game, lang: str) -> InlineKeyboardButton:
+    """Greyed out (Bot API 10.3 disabled button) until enough players sit at the table."""
+    from tezmafia.i18n import t
+
+    label = t(lang, "btn.start")
+    if len(game.players) < game.min_players:
+        eid = icon("bolt")
+        extra = {"icon_custom_emoji_id": eid} if eid else {}
+        return InlineKeyboardButton(
+            text=f"{label} {len(game.players)}/{game.min_players}", disabled=DisabledButton(), **extra
+        )
+    return _btn(label, callback_data=f"s:{game.id}", style="success", emoji="bolt")
+
+
+def my_role_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[_btn(t(lang, "btn.my_role"), callback_data=f"me:{game.id}", emoji="lock")]]
+    )
+
+
 def lobby_kb(game: Game, bot_username: str, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
 
@@ -55,7 +77,7 @@ def lobby_kb(game: Game, bot_username: str, lang: str = "uz") -> InlineKeyboardM
         inline_keyboard=[
             [_btn(t(lang, "btn.join_dm"), url=deep, style="primary", emoji="door")],
             [
-                _btn(t(lang, "btn.start"), callback_data=f"s:{game.id}", style="success", emoji="bolt"),
+                _start_button(game, lang),
                 _btn(t(lang, "btn.leave"), callback_data=f"l:{game.id}", style="danger", emoji="cancel"),
             ],
             [

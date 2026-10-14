@@ -268,5 +268,9 @@
   "delete.cancelled": "Cancelled, nothing was deleted.",
   "btn.delete_yes": "Yes, delete",
   "btn.delete_no": "No",
-  "dm.only": "This command works only in a private chat with the bot."
+  "dm.only": "This command works only in a private chat with the bot.",
+  "btn.my_role": "My role",
+  "role.not_playing": "You are not playing in this game.",
+  "group.welcome": "Hi! I'm TezMafia, the Mafia game master for your group.\nNew game: /game\nRules: /help",
+  "group.need_admin": "Make me an admin for the full game: I need rights to close the chat at night, mute the dead and pin the lobby."
 }

@@ -22,6 +22,8 @@ from aiogram.types import (
     BotCommandScopeDefault,
     CallbackQuery,
     ChatAdministratorRights,
+    ChatMemberUpdated,
+    EphemeralMessageParameters,
     ErrorEvent,
     FSInputFile,
     InputProfilePhotoStatic,
@@ -67,12 +69,14 @@ from tezmafia.keyboards import (
     lobby_kb,
     lynch_kb,
     menu_kb,
+    my_role_kb,
     night_kb,
     roles_kb,
     shop_kb,
     vote_kb,
 )
 from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
+from tezmafia.services.analytics import ActivityMiddleware
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
 from tezmafia.services.runtime import Alerter, ChatLocks, InstanceLock, RetryAfterMiddleware
 from tezmafia.shop import ROLE_TICKET_COST, resolve_item, resolve_role
@@ -391,7 +395,10 @@ class App:
         await self.persist(game)
         self.schedule(game.id, self.settings.night_action_seconds, lambda: self._timed_resolve_night(game.id))
         await apply_phase_mutes(self.bot, game, night=True, enabled=self.settings.mute_night)
-        night = await self.safe_photo(game.chat_id, media("night"), texts.night_group(game, await self.lang(game.chat_id)))
+        group_lang = await self.lang(game.chat_id)
+        night = await self.safe_photo(
+            game.chat_id, media("night"), texts.night_group(game, group_lang), reply_markup=my_role_kb(game, group_lang)
+        )
         if night:
             await self.react(game.chat_id, night.message_id, "🌙")
         for p in game.alive_players():
@@ -419,7 +426,7 @@ class App:
             else texts.day_group(game, False, day_lang)
         )
         banner_name = media("dawn_death") if game.last_death_seat else media("dawn")
-        day = await self.safe_photo(game.chat_id, banner_name, caption)
+        day = await self.safe_photo(game.chat_id, banner_name, caption, reply_markup=my_role_kb(game, day_lang))
         if day:
             await self.react(game.chat_id, day.message_id, "☀️")
 
@@ -467,11 +474,21 @@ class App:
                 log.warning("game-over photo missing game=%s file=%s", game.id, name)
         except Exception:
             log.exception("game-over photo failed game=%s", game.id)
-        await self.safe_group(game, over)
+        await self.send_summary(game, over)
         try:
             await asyncio.wait_for(unmute_all(self.bot, game), timeout=8)
         except Exception:
             log.warning("unmute after finish failed", exc_info=True)
+
+    async def send_summary(self, game: Game, fallback: str) -> None:
+        """Final roles as a rich-message table; the classic text if the client API rejects it."""
+        try:
+            await self.bot.send_rich_message(
+                game.chat_id, InputRichMessage(html=texts.game_over_rich(game, await self.lang(game.chat_id)))
+            )
+        except (TelegramAPIError, AttributeError):
+            log.info("rich summary unavailable, sending text game=%s", game.id, exc_info=True)
+            await self.safe_group(game, fallback)
 
     async def _timed_resolve_night(self, game_id: str) -> None:
         async with self.game_lock(game_id):
@@ -642,10 +659,17 @@ class App:
     async def daily_report(self) -> str:
         r = await self.store.report_since(time.time() - 86400)
         pruned = await self.store.prune_finished(self.settings.retention_days)
+        await self.store.prune_activity()
+        yesterday = time.strftime("%Y-%m-%d", time.localtime(time.time() - 86400))
+        month = time.strftime("%Y-%m-%d", time.localtime(time.time() - 30 * 86400))
+        dau = await self.store.active_users(yesterday)
+        mau = await self.store.active_users(month)
+        mau_dm = await self.store.active_users(month, "dm")
         return (
             "📊 TezMafia, oxirgi 24 soat\n"
             f"O'yinlar: {r['games']} (bekor: {r['cancelled']}), guruhlar: {r['chats']}\n"
             f"O'yinchilar: {r['players']}, yangi: {r['new_users']}, jami: {r['users']}\n"
+            f"Faol: kun {dau} · 30 kun {mau} (DM orqali {mau_dm})\n"
             f"Hozir ochiq stollar: {r['live']}\n"
             f"Tozalangan eski o'yinlar: {pruned}"
         )
@@ -1360,6 +1384,63 @@ async def cb_vote_clear(query: CallbackQuery) -> None:
         await query.answer(texts.action_reason("cleared", lang))
 
 
+@router.callback_query(F.data.startswith("me:"))
+async def cb_my_role(query: CallbackQuery) -> None:
+    """Role reminder in the group, seen only by the presser (ephemeral message, Bot API 10.2)."""
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not query.message:
+        await query.answer()
+        return
+    lang = await _lang(query.from_user.id)
+    game = await app.store.load(parts[1])
+    player = game.by_user(query.from_user.id) if game else None
+    if not game or not player or not player.role:
+        await query.answer(t(lang, "role.not_playing"), show_alert=True)
+        return
+    try:
+        await app.bot.send_message(
+            query.message.chat.id,
+            texts.role_dm(game, query.from_user.id, lang),
+            ephemeral_message_parameters=EphemeralMessageParameters(
+                receiver_user_id=query.from_user.id, callback_query_id=query.id
+            ),
+            link_preview_options=NO_PREVIEW,
+        )
+        await query.answer()
+    except TelegramAPIError:
+        # Older clients or a rejected ephemeral: a private alert carries the role title instead.
+        from tezmafia.i18n import role_title
+
+        await query.answer(f"🔒 {role_title(lang, player.role)}", show_alert=True)
+
+
+@router.my_chat_member()
+async def on_my_member(update: ChatMemberUpdated) -> None:
+    """Greets a group when the bot is added; cancels its table when the bot is removed."""
+    if update.chat.type not in {ChatType.GROUP, ChatType.SUPERGROUP}:
+        return
+    old, new = update.old_chat_member.status, update.new_chat_member.status
+    gone = {ChatMemberStatus.LEFT, ChatMemberStatus.KICKED}
+    lang = await _lang(update.chat.id)
+    if new in gone:
+        async with app.locks(update.chat.id):
+            game = await app.store.active_in_chat(update.chat.id)
+            if game:
+                app.cancel_timer(game.id)
+                cancel(game)
+                await app.persist(game)
+        log.info("bot removed from chat=%s", update.chat.id)
+        return
+    if old in gone:
+        text = t(lang, "group.welcome")
+        if new != ChatMemberStatus.ADMINISTRATOR:
+            text += "\n\n" + t(lang, "group.need_admin")
+        try:
+            await app.bot.send_message(update.chat.id, text, link_preview_options=NO_PREVIEW)
+        except TelegramAPIError:
+            log.info("welcome not sent chat=%s", update.chat.id, exc_info=True)
+
+
 @router.callback_query(F.data.startswith("ly:"))
 async def cb_lynch(query: CallbackQuery) -> None:
     if not query.from_user or not query.data:
@@ -1680,6 +1761,7 @@ async def run() -> None:
     bot.session.middleware(RetryAfterMiddleware())
     app = App(settings, store, bot)
     dp = Dispatcher()
+    dp.update.outer_middleware(ActivityMiddleware(store))
     dp.include_router(router)
     try:
         await setup_bot_profile(bot)

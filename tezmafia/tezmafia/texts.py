@@ -6,6 +6,16 @@ from tezmafia.i18n import item_desc, item_title, lang_label, role_card_body, rol
 from tezmafia.roles import Role, bag_for
 
 
+def countdown(deadline: float | None) -> str:
+    """"⏳ in 45 seconds" style relative time; the inner text is the fallback for old clients."""
+    if not deadline:
+        return ""
+    import time
+
+    left = max(0, int(deadline - time.time()))
+    return f'⏳ <tg-time unix="{int(deadline)}" format="r">{left}s</tg-time>'
+
+
 def lobby_text(game: Game, bot_username: str, lang: str = "uz") -> str:
     lines = [
         f"{ce('pin')} <b>{t(lang, 'lobby.title')}</b>",
@@ -24,6 +34,8 @@ def lobby_text(game: Game, bot_username: str, lang: str = "uz") -> str:
     else:
         lines.append("")
         lines.append(f"{ce('bolt')} {t(lang, 'lobby.ready')}")
+    if game.deadline:
+        lines.append(countdown(game.deadline))
     return "\n".join(lines)
 
 
@@ -76,7 +88,8 @@ def night_prompt(game: Game, user_id: int, has_action: bool, lang: str = "uz") -
 
 
 def night_group(game: Game, lang: str = "uz") -> str:
-    return f"{ce('night')} {t(lang, 'night.group', n=game.round)}"
+    text = f"{ce('night')} {t(lang, 'night.group', n=game.round)}"
+    return f"{text}\n{countdown(game.deadline)}" if game.deadline else text
 
 
 def last_words(game: Game, seats: list[int] | None = None, lang: str = "uz") -> str:
@@ -112,10 +125,11 @@ def day_group(game: Game, reveal: bool, lang: str = "uz") -> str:
     if words:
         body = f"{body}\n{words}"
     alive = ", ".join(p.html_label() for p in game.alive_players())
-    return (
+    text = (
         f"{ce('day')} <b>{t(lang, 'day.title', n=game.round)}</b>\n{body}\n\n"
         f"{ce('group')} {t(lang, 'day.alive', alive=alive)}"
     )
+    return f"{text}\n{countdown(game.deadline)}" if game.deadline else text
 
 
 def vote_group(game: Game, lang: str = "uz") -> str:
@@ -421,3 +435,19 @@ def privacy_text(lang: str = "uz", days: int = 90) -> str:
 
 def terms_text(lang: str = "uz") -> str:
     return f"{ce('book')} {t(lang, 'legal.terms', url=_legal_url('terms', lang))}"
+
+
+def game_over_rich(game: Game, lang: str = "uz") -> str:
+    """Final roles as a rich-message table (Bot API 10.1); plain emoji only, no custom emoji tags."""
+    from html import escape
+
+    plain = {"mafia": "🔪", "maniac": "🩸", "suicide": "🎭", "arsonist": "🔥", "snitch": "🔎", "mage": "✨", "crook": "🃏"}
+    win_key = {k: f"go.{k}" for k in plain}.get(game.winner or "", "go.town")
+    head = f"<h3>🏆 {escape(t(lang, 'go.header'))}</h3><p><b>{plain.get(game.winner or '', '🏙')} {escape(t(lang, win_key))}</b></p>"
+    rows = "".join(
+        f"<tr><td>{p.seat}</td><td>{escape(p.first_name)}</td>"
+        f"<td>{escape(role_title(lang, p.role) if p.role else '?')}</td>"
+        f"<td>{'✅ ' + escape(t(lang, 'alive')) if p.alive else '💀 ' + escape(t(lang, 'dead'))}</td></tr>"
+        for p in game.players
+    )
+    return f"{head}<table bordered striped><tr><th>#</th><th></th><th>{escape(t(lang, 'go.roles'))}</th><th></th></tr>{rows}</table>"

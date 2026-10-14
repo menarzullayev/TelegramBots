@@ -268,5 +268,9 @@
   "delete.cancelled": "Cancelado, nada foi apagado.",
   "btn.delete_yes": "Sim, apagar",
   "btn.delete_no": "Não",
-  "dm.only": "Este comando funciona só no chat privado com o bot."
+  "dm.only": "Este comando funciona só no chat privado com o bot.",
+  "btn.my_role": "Meu papel",
+  "role.not_playing": "Você não está jogando esta partida.",
+  "group.welcome": "Olá! Eu sou o TezMafia, o mestre do jogo Máfia do seu grupo.\nNovo jogo: /game\nRegras: /help",
+  "group.need_admin": "Me torne admin para o jogo completo: preciso de permissão para fechar o chat à noite, silenciar os mortos e fixar o lobby."
 }
