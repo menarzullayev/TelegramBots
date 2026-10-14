@@ -352,5 +352,14 @@
   "app.tab_ach": "Pencapaian",
   "app.tab_top": "Peringkat",
   "app.paid": "Pembayaran diterima",
-  "app.error": "Aplikasi gagal dibuka. Buka lagi dari bot."
+  "app.error": "Aplikasi gagal dibuka. Buka lagi dari bot.",
+  "btn.cfg_roles": "Peran",
+  "btn.cfg_anon": "Voting anonim",
+  "btn.back": "Kembali",
+  "config.roles_title": "Peran khusus mana yang dimainkan? Peran yang dimatikan diganti warga biasa.",
+  "config.extra": "Voting anonim: {anon} · Peran dimatikan: {off}",
+  "vote.anon": "Sudah memilih: {n}/{m}. Hasil dibuka saat voting ditutup.",
+  "dead.joined": "Kini kamu di ruang orang mati: yang kamu tulis di sini hanya sampai ke pemain mati lain.",
+  "btn.rematch": "Main lagi",
+  "rematch.invite": "{host} membuka meja baru. Gabung: {link}"
 }

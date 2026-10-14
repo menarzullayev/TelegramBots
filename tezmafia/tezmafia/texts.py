@@ -42,7 +42,7 @@ def lobby_text(game: Game, bot_username: str, lang: str = "uz") -> str:
 
 
 def roles_public(game: Game, lang: str = "uz") -> str:
-    if game.mode == "chaos":
+    if game.mode == "chaos" or game.disabled_roles:
         # Chaos deals a random set: count what was actually dealt, not the classic table.
         from collections import Counter
 
@@ -149,6 +149,10 @@ def vote_tally(game: Game, lang: str = "uz") -> str:
     head = vote_group(game, lang)
     lines = [head, ""]
     votes = [(p.html_label(), p.vote) for p in game.alive_players() if p.vote]
+    if game.anon_vote:
+        # Anonymous mode: only how many voted; the split stays hidden until the vote closes.
+        lines.append(f"{ce('timer')} {t(lang, 'vote.anon', n=len(votes), m=len(game.alive_players()))}")
+        return "\n".join(lines)
     if not votes:
         lines.append(f"{ce('hourglass')} {t(lang, 'vote.none')}")
         return "\n".join(lines)
@@ -515,7 +519,8 @@ def config_text(cfg: dict, lang: str = "uz") -> str:
         day=cfg["day"],
         night=cfg["night"],
     )
-    return f"⚙️ <b>{t(lang, 'config.title')}</b>\n{body}"
+    extra = t(lang, "config.extra", anon=flag(cfg.get("anon", False)), off=len(cfg.get("off", [])))
+    return f"⚙️ <b>{t(lang, 'config.title')}</b>\n{body}\n{extra}"
 
 
 def progress_dm(new_keys: list[str], level_up: int | None, lang: str = "uz") -> str:

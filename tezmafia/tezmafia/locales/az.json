@@ -352,5 +352,14 @@
   "app.tab_ach": "Nailiyyətlər",
   "app.tab_top": "Reytinq",
   "app.paid": "Ödəniş qəbul olundu",
-  "app.error": "Tətbiqi açmaq olmadı. Botdan yenidən açın."
+  "app.error": "Tətbiqi açmaq olmadı. Botdan yenidən açın.",
+  "btn.cfg_roles": "Rollar",
+  "btn.cfg_anon": "Anonim səsvermə",
+  "btn.back": "Geri",
+  "config.roles_title": "Hansı xüsusi rollar oynansın? Söndürülmüş rolun yerinə dinc sakin düşür.",
+  "config.extra": "Anonim səsvermə: {anon} · Söndürülmüş rollar: {off}",
+  "vote.anon": "Səs verənlər: {n}/{m}. Nəticə səsvermə bağlananda açılır.",
+  "dead.joined": "İndi ölülər otağındasınız: bura yazdığınız yalnız digər ölən oyunçulara gedir.",
+  "btn.rematch": "Yenə oyna",
+  "rematch.invite": "{host} yeni masa açdı. Qoşul: {link}"
 }
