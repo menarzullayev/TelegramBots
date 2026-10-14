@@ -226,10 +226,11 @@ def shop_kb(lang: str = "uz") -> InlineKeyboardMarkup:
 
 def gems_kb(owned: list[str], worn: str, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
-    from tezmafia.shop import BADGES
+    from tezmafia.shop import BADGES, SPECIAL_BADGES
 
     rows = []
-    for key, (emoji, cost) in BADGES.items():
+    shown = {**BADGES, **{k: v for k, v in SPECIAL_BADGES.items() if k in owned}}
+    for key, (emoji, cost) in shown.items():
         label = t(lang, "btn.badge_wear", icon=emoji) if key in owned else t(lang, "btn.badge_buy", icon=emoji, cost=cost)
         rows.append([_btn(label, callback_data=f"gb:{key}", style="success" if emoji == worn else None)])
     if worn:
@@ -360,3 +361,23 @@ def invite_kb(link: str, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
 
     return InlineKeyboardMarkup(inline_keyboard=[[_btn(t(lang, "btn.link"), copy_text=link, emoji="pin")]])
+
+
+def share_kb(lang: str = "uz") -> InlineKeyboardMarkup:
+    """Opens the chat picker with the bot's inline mode pre-filled with "card"."""
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=t(lang, "btn.share"), switch_inline_query="card")]]
+    )
+
+
+def invite_inline_kb(bot_username: str, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [_btn(t(lang, "btn.add_group"), url=add_group_url(bot_username), emoji="robot")],
+            [_btn(t(lang, "app.open"), url=f"https://t.me/{bot_username}?start=app", emoji="door")],
+        ]
+    )

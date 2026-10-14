@@ -21,6 +21,7 @@ from aiogram.types import (
     BotCommandScopeAllGroupChats,
     BotCommandScopeAllPrivateChats,
     BotCommandScopeDefault,
+    BufferedInputFile,
     CallbackQuery,
     ChatAdministratorRights,
     ChatMemberUpdated,
@@ -29,8 +30,12 @@ from aiogram.types import (
     FSInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    InlineQuery,
+    InlineQueryResultArticle,
+    InlineQueryResultCachedPhoto,
     InputProfilePhotoStatic,
     InputRichMessage,
+    InputTextMessageContent,
     LabeledPrice,
     LinkPreviewOptions,
     MenuButtonWebApp,
@@ -75,6 +80,7 @@ from tezmafia.keyboards import (
     delete_kb,
     gems_kb,
     host_kb,
+    invite_inline_kb,
     invite_kb,
     lang_kb,
     link_kb,
@@ -86,6 +92,7 @@ from tezmafia.keyboards import (
     rematch_kb,
     remind_kb,
     roles_kb,
+    share_kb,
     shop_kb,
     top_kb,
     vote_kb,
@@ -94,7 +101,16 @@ from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, SPECIALS, Role
 from tezmafia.services.analytics import ActivityMiddleware
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
 from tezmafia.services.runtime import Alerter, ChatLocks, InstanceLock, RetryAfterMiddleware
-from tezmafia.shop import BADGES, ROLE_TICKET_COST, STAR_PACKS, VIP_PERIOD, VIP_STARS, resolve_item, resolve_role
+from tezmafia.shop import (
+    BADGES,
+    ROLE_TICKET_COST,
+    SPECIAL_BADGES,
+    STAR_PACKS,
+    VIP_PERIOD,
+    VIP_STARS,
+    resolve_item,
+    resolve_role,
+)
 
 log = logging.getLogger("tezmafia")
 router = Router(name="tezmafia")
@@ -532,9 +548,12 @@ class App:
     async def record_stats(self, game: Game) -> None:
         from tezmafia.progress import Outcome, earned, level_of, xp_for
         from tezmafia.retention import QUEST_COINS, QUEST_XP, quest_increments, todays_quests
+        from tezmafia.social import points as tour_points
+        from tezmafia.social import week_key
 
         notes: list[tuple[int, list[str], int | None]] = []
         quest_notes: dict[int, list[str]] = {}
+        card_jobs: list[tuple[Any, bool, dict[str, int]]] = []
         for p in game.players:
             won = (
                 (game.winner == "mafia" and p.faction == "mafia")
@@ -548,6 +567,8 @@ class App:
             )
             totals = await self.store.bump_stat(p.user_id, p.first_name, won, p.alive)
             await self.store.bump_season(time.strftime("%Y-%m"), game.chat_id, p.user_id, p.first_name, won)
+            await self.store.bump_week(week_key(), p.user_id, p.first_name, won, tour_points(won))
+            card_jobs.append((p, won, totals))
             outcome = Outcome(
                 role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
             )
@@ -570,6 +591,66 @@ class App:
             lang = await self.lang(user_id)
             lines = [texts.progress_dm(fresh, level_up, lang), *texts.quest_lines(quest_notes.get(user_id, []), lang)]
             await self.dm(user_id, "\n".join(line for line in lines if line))
+        for p, won, totals in card_jobs:
+            await self.send_card(game, p, won, totals)
+
+    async def send_card(self, game: Game, player: Any, won: bool, totals: dict[str, int]) -> None:
+        """Shareable result card in the player's DM; its file id is kept for inline sharing."""
+        from tezmafia.cards import result_card
+        from tezmafia.i18n import role_title
+        from tezmafia.progress import level_of
+
+        lang = await self.lang(player.user_id)
+        result = t(lang, "card.win" if won else "card.loss")
+        winner = t(lang, f"go.short.{game.winner}") if game.winner else ""
+        line = f"{result} — {winner}".rstrip(" —.")
+        footer = t(lang, "card.footer", level=level_of(totals["xp"]), games=totals["games"])
+        try:
+            data = await asyncio.to_thread(
+                result_card, player.first_name, player.role or "citizen", role_title(lang, player.role or "citizen"),
+                won, line, f"{footer} · @{self.settings.bot_username}",
+            )
+            msg = await self.bot.send_photo(
+                player.user_id, BufferedInputFile(data, "tezmafia.jpg"), caption=escape(line),
+                reply_markup=share_kb(lang),
+            )
+        except (TelegramAPIError, OSError):
+            log.info("result card not sent user=%s", player.user_id, exc_info=True)
+            return
+        photos = getattr(msg, "photo", None)
+        if photos:
+            await self.store.save_card(player.user_id, photos[-1].file_id, line)
+
+    async def tournament_loop(self) -> None:
+        """Every Monday 10:00 local time: pay last week's top three."""
+        while True:
+            now = time.localtime()
+            days = (7 - now.tm_wday) % 7
+            target = time.mktime((now.tm_year, now.tm_mon, now.tm_mday + days, 10, 0, 0, 0, 0, -1))
+            if target <= time.time():
+                target += 7 * 86400
+            await asyncio.sleep(target - time.time())
+            try:
+                await self.award_tournament()
+            except Exception:
+                log.exception("tournament awards failed")
+
+    async def award_tournament(self, week: str | None = None) -> list[int]:
+        from tezmafia.social import TOUR_GEMS
+        from tezmafia.social import week_key as wk
+
+        week = week or wk(time.time() - 3 * 86400)  # Monday 10:00 minus 3 days lands in last week
+        if not await self.store.claim_tournament(week):
+            return []
+        winners = await self.store.week_top(week, limit=len(TOUR_GEMS))
+        emoji = SPECIAL_BADGES["trophy"][0]
+        for place, ((uid, name, _pts), gems) in enumerate(zip(winners, TOUR_GEMS, strict=False), start=1):
+            await self.store.credit_wallet(uid, name, gems=gems)
+            await self.store.grant_badge(uid, "trophy", emoji)
+            await self.dm(uid, "🏆 " + t(await self.lang(uid), "tour.won", place=place, gems=gems))
+        if winners:
+            await self.alerts.send(f"tour:{week}", f"🏆 Turnir {week}: " + ", ".join(n for _, n, _ in winners))
+        return [uid for uid, _, _ in winners]
 
     async def reward_referral(self, user_id: int, name: str) -> None:
         """A referred player's first finished game pays both sides once."""
@@ -1518,6 +1599,98 @@ async def cb_subscribe(query: CallbackQuery) -> None:
     await query.answer(t(lang, "sched.subscribed") if ok else t(lang, "sched.off"), show_alert=not ok)
 
 
+@router.inline_query()
+async def on_inline(query: InlineQuery) -> None:
+    """Inline mode: the player's latest result card (query "card") and an invite card for any chat."""
+    lang = await _lang(query.from_user.id)
+    results: list[Any] = []
+    card = await app.store.last_card(query.from_user.id)
+    if card:
+        results.append(
+            InlineQueryResultCachedPhoto(
+                id="card", photo_file_id=card.file_id, title=t(lang, "inline.card_title"), caption=escape(card.caption),
+                reply_markup=invite_inline_kb(app.settings.bot_username, lang),
+            )
+        )
+    results.append(
+        InlineQueryResultArticle(
+            id="invite",
+            title=t(lang, "inline.invite_title"),
+            description=t(lang, "inline.invite_desc"),
+            input_message_content=InputTextMessageContent(message_text=t(lang, "inline.invite_text")),
+            reply_markup=invite_inline_kb(app.settings.bot_username, lang),
+        )
+    )
+    if query.query.strip().lower() != "card":
+        results.reverse()  # plain mention: the invite first
+    await query.answer(results, cache_time=0, is_personal=True)
+
+
+@router.message(Command("clan"))
+async def cmd_clan(message: Message, command: CommandObject) -> None:
+    from tezmafia.social import CLAN_COST, CLAN_MAX, clean_clan_name
+
+    if not message.from_user:
+        return
+    user = message.from_user
+    lang = await _lang(message.chat.id)
+    action, _, rest = (command.args or "").strip().partition(" ")
+    action = action.lower()
+    season = time.strftime("%Y-%m")
+
+    async def fail(why: str) -> None:
+        await message.answer(t(lang, "clan.error", why=t(lang, f"clan.why.{why}")))
+
+    if action == "create":
+        name = clean_clan_name(rest)
+        if not name:
+            await fail("name")
+            return
+        result = await app.store.create_clan(user.id, user.first_name, name, CLAN_COST)
+        if result != "ok":
+            await fail(result)
+            return
+        await message.answer("🛡 " + t(lang, "clan.created", name=escape(name)))
+    elif action == "join":
+        name = clean_clan_name(rest)
+        result, clan = await app.store.join_clan(user.id, name or rest, CLAN_MAX) if name else ("none", None)
+        if result != "ok" or not clan:
+            await fail(result)
+            return
+        await message.answer("🛡 " + t(lang, "clan.joined", name=escape(clan.name)))
+    elif action == "leave":
+        if not await app.store.leave_clan(user.id):
+            await fail("no_clan")
+            return
+        await message.answer(t(lang, "clan.left"))
+    elif action == "top":
+        rows = await app.store.clan_top(season)
+        lines = [f"🛡 <b>{t(lang, 'clan.top', season=season)}</b>"]
+        lines += [f"{i}. {escape(n)} — {w} · 👥{m}" for i, (n, m, w) in enumerate(rows, start=1)]
+        await message.answer("\n".join(lines) if rows else t(lang, "top.empty"))
+    else:
+        clan = await app.store.clan_of(user.id)
+        text = t(lang, "clan.help", cost=CLAN_COST)
+        if clan:
+            members, wins = await app.store.clan_stats(clan.id, season)
+            text = "🛡 " + t(lang, "clan.info", name=escape(clan.name), n=members, max=CLAN_MAX, wins=wins) + "\n\n" + text
+        await message.answer(text)
+
+
+@router.message(Command("tournament"))
+async def cmd_tournament(message: Message) -> None:
+    from tezmafia.social import TOUR_GEMS, week_key
+
+    lang = await _lang(message.chat.id)
+    week = week_key()
+    rows = await app.store.week_top(week)
+    lines = [f"🏆 <b>{t(lang, 'tour.title', week=week)}</b>", t(lang, "tour.rules", g1=TOUR_GEMS[0], g2=TOUR_GEMS[1], g3=TOUR_GEMS[2]), ""]
+    lines += [t(lang, "tour.row", i=i, name=escape(n), points=p) for i, (_, n, p) in enumerate(rows, start=1)]
+    if not rows:
+        lines.append(t(lang, "top.empty"))
+    await message.answer("\n".join(lines))
+
+
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message) -> None:
     lang = await _lang(message.chat.id)
@@ -2143,8 +2316,11 @@ async def cb_badge(query: CallbackQuery) -> None:
     if parts[1] == "off":
         await app.store.take_off_badge(user.id)
         note = t(lang, "gems.removed")
-    elif parts[1] in BADGES:
+    elif parts[1] in BADGES or parts[1] in SPECIAL_BADGES:
         result = await app.store.buy_badge(user.id, user.first_name, parts[1])
+        if result == "no_item":
+            await query.answer()
+            return
         note = t(lang, {"bought": "gems.bought", "owned": "gems.equipped", "no_gems": "gems.no_gems"}[result])
     else:
         await query.answer()
@@ -2252,6 +2428,8 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="daily", description=cmd(lang, "daily")),
         BotCommand(command="quests", description=cmd(lang, "quests")),
         BotCommand(command="invite", description=cmd(lang, "invite")),
+        BotCommand(command="clan", description=cmd(lang, "clan")),
+        BotCommand(command="tournament", description=cmd(lang, "tournament")),
         BotCommand(command="paysupport", description=cmd(lang, "paysupport")),
         BotCommand(command="terms", description=cmd(lang, "terms")),
         BotCommand(command="privacy", description=cmd(lang, "privacy")),
@@ -2265,7 +2443,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule",
+        "daily", "quests", "invite", "schedule", "clan", "tournament",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()
@@ -2421,6 +2599,7 @@ async def run() -> None:
         asyncio.create_task(app.daily_report_loop()),
         asyncio.create_task(app.scheduler_loop()),
         asyncio.create_task(app.streak_reminder_loop()),
+        asyncio.create_task(app.tournament_loop()),
     ]
     web_runner = None
     if settings.webapp_port:
