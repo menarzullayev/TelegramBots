@@ -55,6 +55,7 @@ from tezmafia.engine import (
     start,
 )
 from tezmafia.emoji import FX
+from tezmafia.brand import ASSETS, media, win_media
 from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import chats_kb, host_kb, lang_kb, lobby_kb, lynch_kb, menu_kb, night_kb, roles_kb, shop_kb, vote_kb
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
@@ -63,7 +64,6 @@ from tezmafia import texts
 log = logging.getLogger("tezmafia")
 router = Router(name="tezmafia")
 
-ASSETS = Path(__file__).resolve().parent.parent / "assets"
 NO_PREVIEW = LinkPreviewOptions(is_disabled=True)
 RECOVER_GRACE = 30.0
 
@@ -269,7 +269,7 @@ class App:
         pending = await self.apply_role_tickets(game)
         await self.persist(game)
         group_lang = await self.lang(game.chat_id)
-        banner = await self.safe_photo(game.chat_id, "day.png", texts.roles_public(game, group_lang))
+        banner = await self.safe_photo(game.chat_id, media("roles_dealt"), texts.roles_public(game, group_lang))
         if banner:
             await self.react(game.chat_id, banner.message_id, "🔒")
         for p in game.players:
@@ -299,7 +299,7 @@ class App:
         begin_night(game, time.time(), self.settings.night_action_seconds)
         await self.persist(game)
         await apply_phase_mutes(self.bot, game, night=True, enabled=self.settings.mute_night)
-        night = await self.safe_photo(game.chat_id, "night.png", texts.night_group(game, await self.lang(game.chat_id)))
+        night = await self.safe_photo(game.chat_id, media("night"), texts.night_group(game, await self.lang(game.chat_id)))
         if night:
             await self.react(game.chat_id, night.message_id, "🌙")
         for p in game.alive_players():
@@ -330,7 +330,7 @@ class App:
             if from_night
             else texts.day_group(game, False, day_lang)
         )
-        banner_name = "death.png" if game.last_death_seat else "day.png"
+        banner_name = media("dawn_death") if game.last_death_seat else media("dawn")
         day = await self.safe_photo(game.chat_id, banner_name, caption)
         if day:
             await self.react(game.chat_id, day.message_id, "☀️")
@@ -377,16 +377,7 @@ class App:
         except Exception:
             log.warning("stats failed", exc_info=True)
         over = texts.game_over(game, await self.lang(game.chat_id))
-        name = {
-            "mafia": "mafia-win.png",
-            "town": "town-win.png",
-            "maniac": "death.png",
-            "suicide": "death.png",
-            "arsonist": "death.png",
-            "snitch": "death.png",
-            "mage": "death.png",
-            "crook": "death.png",
-        }.get(game.winner or "", "town-win.png")
+        name = win_media(game.winner)
         short = texts.game_over_short(game, await self.lang(game.chat_id))
         try:
             photo_msg = await asyncio.wait_for(
@@ -1314,7 +1305,7 @@ async def setup_bot_profile(bot: Bot) -> None:
             can_manage_topics=False,
         )
     )
-    pic = _photo("avatar.jpg") or _photo("avatar.png")
+    pic = _photo(media("avatar"))
     if pic:
         try:
             await bot.set_my_profile_photo(photo=InputProfilePhotoStatic(photo=pic))
