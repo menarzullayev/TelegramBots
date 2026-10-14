@@ -202,7 +202,18 @@ SPECIALS = (
 )
 
 
-def chaos_bag(n: int, rng=None) -> RoleBag:
+def without(bag: RoleBag, disabled: set[str] | list[str]) -> RoleBag:
+    """The same table with the group's switched-off special roles replaced by citizens."""
+    import dataclasses
+
+    off = {k for k in disabled if k in SPECIALS and getattr(bag, k)}
+    if not off:
+        return bag
+    freed = sum(getattr(bag, k) for k in off)
+    return dataclasses.replace(bag, citizen=bag.citizen + freed, **{k: 0 for k in off})
+
+
+def chaos_bag(n: int, rng=None, disabled: set[str] | list[str] = ()) -> RoleBag:
     """Chaos mode: the classic mafia/detective/doctor core, but the special roles are drawn at random.
 
     At least one special from six players up, never more than the citizens can give.
@@ -215,7 +226,7 @@ def chaos_bag(n: int, rng=None) -> RoleBag:
     citizens = base.citizen + taken
     count = min(citizens, max(taken, 1 if n >= 6 else 0))
     # Small tables stay winnable for the town: no extra mafia-side specials below ten players.
-    pool = [k for k in SPECIALS if n >= 10 or k not in {"lawyer", "journalist", "killer"}]
+    pool = [k for k in SPECIALS if (n >= 10 or k not in {"lawyer", "journalist", "killer"}) and k not in disabled]
     picks = (rng or random).sample(pool, min(count, len(pool)))
     count = len(picks)
     cleared = {k: 0 for k in SPECIALS}

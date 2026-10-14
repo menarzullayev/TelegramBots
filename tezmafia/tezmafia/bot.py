@@ -7,6 +7,7 @@ import logging
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -70,6 +71,7 @@ from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import (
     chats_kb,
     config_kb,
+    config_roles_kb,
     delete_kb,
     gems_kb,
     host_kb,
@@ -80,12 +82,13 @@ from tezmafia.keyboards import (
     menu_kb,
     my_role_kb,
     night_kb,
+    rematch_kb,
     roles_kb,
     shop_kb,
     top_kb,
     vote_kb,
 )
-from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, Role
+from tezmafia.roles import NIGHT_ROLES, ROLE_FACTION, SPECIALS, Role
 from tezmafia.services.analytics import ActivityMiddleware
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
 from tezmafia.services.runtime import Alerter, ChatLocks, InstanceLock, RetryAfterMiddleware
@@ -152,6 +155,8 @@ class App:
             "mute": bool(raw.get("mute", s.mute_night)),
             "day": int(raw.get("day", s.discussion_seconds)),
             "night": int(raw.get("night", s.night_action_seconds)),
+            "anon": bool(raw.get("anon", False)),
+            "off": [r for r in raw.get("off", []) if r in SPECIALS],
         }
 
     async def game_cfg(self, chat_id: int) -> dict[str, Any]:
@@ -166,6 +171,8 @@ class App:
             "reveal_on_death": c["reveal"] and c["mode"] != "secret",
             "mode": c["mode"],
             "timers": timers,
+            "disabled_roles": c["off"],
+            "anon_vote": c["anon"],
         }
 
     def timer(self, game: Game, key: str) -> int:
@@ -401,6 +408,19 @@ class App:
             if action == "refund" and taken:
                 await self.store.credit_wallet(user_id, first_name, coins=ROLE_TICKET_COST)
 
+    async def open_lobby(self, chat_id: int, user_id: int, first_name: str, username: str | None) -> Game:
+        """New table with the caller seated as host; the caller holds the chat lock."""
+        game = new_game(chat_id, user_id, **(await self.game_cfg(chat_id)))
+        join(game, user_id, first_name, username)
+        player = game.by_user(user_id)
+        if player:
+            player.badge = await self.store.shown_badge(user_id)
+        game.deadline = time.time() + self.settings.lobby_seconds
+        await self.persist(game)
+        await self.refresh_lobby(game)
+        self.schedule(game.id, self.settings.lobby_seconds, lambda gid=game.id: self._timed_lobby_expire(gid))
+        return game
+
     async def invite_last_words(self, game: Game, seats: list[int]) -> None:
         for seat in seats:
             player = game.by_seat(seat)
@@ -408,7 +428,8 @@ class App:
                 continue
             self.pending_words[player.user_id] = (game.chat_id, player.html_label(), time.time() + WORDS_SECONDS)
             lang = await self.lang(player.user_id)
-            await self.dm(player.user_id, t(lang, "words.prompt", sec=WORDS_SECONDS))
+            text = t(lang, "words.prompt", sec=WORDS_SECONDS) + "\n\n💀 " + t(lang, "dead.joined")
+            await self.dm(player.user_id, text)
 
     async def send_role_dms(self, game: Game) -> bool:
         """Role card to every player; False when at least one DM is closed."""
@@ -545,7 +566,7 @@ class App:
         short = texts.game_over_short(game, await self.lang(game.chat_id))
         try:
             photo_msg = await asyncio.wait_for(
-                self.safe_photo(game.chat_id, name, short),
+                self.safe_photo(game.chat_id, name, short, reply_markup=rematch_kb(game, await self.lang(game.chat_id))),
                 timeout=20,
             )
             if photo_msg is None:
@@ -872,17 +893,8 @@ async def cmd_mafia(message: Message) -> None:
                 lang = await _lang(message.chat.id)
                 await message.answer(t(lang, "mafia.busy", phase=phase_label(lang, existing.phase)))
             return
-        game = new_game(message.chat.id, message.from_user.id, **(await app.game_cfg(message.chat.id)))
-        join(game, message.from_user.id, message.from_user.first_name, message.from_user.username)
-        await _wear_badge(game, message.from_user.id)
-        game.deadline = time.time() + app.settings.lobby_seconds
-        await app.persist(game)
-        await app.refresh_lobby(game)
-        app.schedule(
-            game.id,
-            app.settings.lobby_seconds,
-            lambda gid=game.id: app._timed_lobby_expire(gid),
-        )
+        user = message.from_user
+        await app.open_lobby(message.chat.id, user.id, user.first_name, user.username)
 
 
 @router.message(Command("join"))
@@ -1245,8 +1257,17 @@ async def cb_config(query: CallbackQuery) -> None:
     key = parts[1]
     if key == "mode" and len(parts) == 3 and parts[2] in MODES:
         await app.store.set_chat_setting(chat_id, "mode", parts[2])
-    elif key in ("reveal", "mute"):
+    elif key in ("reveal", "mute", "anon"):
         await app.store.set_chat_setting(chat_id, key, not cfg[key])
+    elif key == "roles":
+        await query.answer()
+        try:
+            await query.message.edit_text(t(lang, "config.roles_title"), reply_markup=config_roles_kb(cfg["off"], lang))
+        except TelegramAPIError:
+            pass
+        return
+    elif key == "back":
+        pass
     elif key in ("day", "night"):
         choices = DAY_CHOICES if key == "day" else NIGHT_CHOICES
         nxt = choices[(choices.index(cfg[key]) + 1) % len(choices)] if cfg[key] in choices else choices[0]
@@ -1284,6 +1305,55 @@ async def _send_app(message: Message, lang: str) -> None:
 @router.message(Command("app"))
 async def cmd_app(message: Message) -> None:
     await _send_app(message, await _lang(message.chat.id))
+
+
+@router.callback_query(F.data.startswith("cfr:"))
+async def cb_config_role(query: CallbackQuery) -> None:
+    """Switch one special role on or off for the group's next tables."""
+    parts = _cb_parts(query.data, 2)
+    if not parts or parts[1] not in SPECIALS or not query.from_user or not query.message:
+        await query.answer()
+        return
+    chat_id = query.message.chat.id
+    lang = await _lang(chat_id)
+    if not await _is_admin(chat_id, query.from_user.id):
+        await query.answer(t(lang, "config.admin_only"), show_alert=True)
+        return
+    off = (await app.chat_cfg(chat_id))["off"]
+    off = [r for r in off if r != parts[1]] if parts[1] in off else [*off, parts[1]]
+    await app.store.set_chat_setting(chat_id, "off", off)
+    await query.answer(t(lang, "config.saved"))
+    try:
+        await query.message.edit_reply_markup(reply_markup=config_roles_kb(off, lang))
+    except TelegramAPIError:
+        pass
+
+
+@router.callback_query(F.data.startswith("rm:"))
+async def cb_rematch(query: CallbackQuery) -> None:
+    """One tap after a game: a new lobby in the same group, and the previous players get a DM invite."""
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not query.message:
+        await query.answer()
+        return
+    old = await app.store.load(parts[1])
+    chat_id = query.message.chat.id
+    lang = await _lang(chat_id)
+    if not old or old.chat_id != chat_id:
+        await query.answer()
+        return
+    user = query.from_user
+    async with app.locks(chat_id):
+        existing = await app.store.active_in_chat(chat_id)
+        if existing:
+            await query.answer(t(lang, "mafia.busy", phase=phase_label(lang, existing.phase)), show_alert=True)
+            return
+        game = await app.open_lobby(chat_id, user.id, user.first_name, user.username)
+    await query.answer()
+    link = f"https://t.me/{app.settings.bot_username}?start=g_{game.id}"
+    for p in old.players:
+        if p.user_id != user.id:
+            await app.dm(p.user_id, t(await app.lang(p.user_id), "rematch.invite", host=escape(user.first_name), link=link))
 
 
 @router.message(Command("privacy"))
@@ -1926,13 +1996,10 @@ async def on_last_words(message: Message) -> None:
     if not message.from_user or not message.text:
         return
     pending = app.pending_words.pop(message.from_user.id, None)
-    if not pending:
+    if not pending or time.time() > pending[2]:
+        await _relay_dead(message)
         return
     chat_id, label, expires = pending
-    if time.time() > expires:
-        return
-    from html import escape
-
     group_lang = await _lang(chat_id)
     text = escape(message.text.strip()[:300])
     try:
@@ -1941,6 +2008,22 @@ async def on_last_words(message: Message) -> None:
         log.info("last words not delivered chat=%s", chat_id, exc_info=True)
         return
     await message.answer(t(await _lang(message.from_user.id), "words.sent"))
+
+
+async def _relay_dead(message: Message) -> None:
+    """Room of the dead: a dead player's DM goes to the other dead players of the same live game."""
+    if not message.from_user or not message.text:
+        return
+    game = await app.store.by_user_lobby_or_live(message.from_user.id)
+    if not game or game.phase in (Phase.LOBBY, Phase.FINISHED):
+        return
+    me = game.by_user(message.from_user.id)
+    if not me or me.alive:
+        return
+    text = f"💀 {me.html_label()}: {escape(message.text.strip()[:300])}"
+    for p in game.players:
+        if not p.alive and p.user_id != me.user_id:
+            await app.dm(p.user_id, text)
 
 
 @router.message(F.chat.type.in_({ChatType.GROUP, ChatType.SUPERGROUP}))

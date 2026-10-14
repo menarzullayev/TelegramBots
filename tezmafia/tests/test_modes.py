@@ -133,7 +133,7 @@ async def test_admin_edits_mode_toggles_and_timers(app: App) -> None:
     for data in ("cfg:mode:chaos", "cfg:reveal", "cfg:mute", "cfg:day", "cfg:night"):
         await botmod.cb_config(_cfg_query(data))  # type: ignore[arg-type]
     cfg = await app.chat_cfg(-77)
-    assert cfg == {"mode": "chaos", "reveal": False, "mute": False, "day": 120, "night": 60}
+    assert cfg == {"mode": "chaos", "reveal": False, "mute": False, "day": 120, "night": 60, "anon": False, "off": []}
     await botmod.cb_config(_cfg_query("cfg:day"))  # type: ignore[arg-type]
     assert (await app.chat_cfg(-77))["day"] == 60  # cycles back
     bad = _cfg_query("cfg:mode:turbo")

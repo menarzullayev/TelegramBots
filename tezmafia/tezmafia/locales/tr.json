@@ -352,5 +352,14 @@
   "app.tab_ach": "Başarımlar",
   "app.tab_top": "Sıralama",
   "app.paid": "Ödeme alındı",
-  "app.error": "Uygulama açılamadı. Bottan tekrar açın."
+  "app.error": "Uygulama açılamadı. Bottan tekrar açın.",
+  "btn.cfg_roles": "Roller",
+  "btn.cfg_anon": "Anonim oylama",
+  "btn.back": "Geri",
+  "config.roles_title": "Hangi özel roller oynansın? Kapatılan rolün yerine sivil gelir.",
+  "config.extra": "Anonim oylama: {anon} · Kapatılan roller: {off}",
+  "vote.anon": "Oy verenler: {n}/{m}. Sonuç oylama kapanınca açıklanır.",
+  "dead.joined": "Artık ölüler odasındasınız: buraya yazdıklarınız yalnızca diğer ölü oyunculara gider.",
+  "btn.rematch": "Tekrar oyna",
+  "rematch.invite": "{host} yeni bir masa açtı. Katıl: {link}"
 }

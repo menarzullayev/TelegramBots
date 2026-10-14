@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass, field
 from enum import StrEnum
 from typing import Any
 
-from tezmafia.roles import HELPER_ROLES, NIGHT_ROLES, ROLE_FACTION, Faction, Role, RoleBag, bag_for, chaos_bag
+from tezmafia.roles import HELPER_ROLES, NIGHT_ROLES, ROLE_FACTION, Faction, Role, RoleBag, bag_for, chaos_bag, without
 
 
 class Phase(StrEnum):
@@ -117,6 +117,8 @@ class Game:
     # Group settings frozen at /game time (see /config): classic | chaos | secret | fast.
     mode: str = "classic"
     timers: dict[str, int] = field(default_factory=dict)
+    disabled_roles: list[str] = field(default_factory=list)
+    anon_vote: bool = False
 
     def by_user(self, user_id: int) -> Player | None:
         return next((p for p in self.players if p.user_id == user_id), None)
@@ -219,7 +221,8 @@ def start(game: Game, rng: Any = None) -> RoleBag:
         raise RuntimeError(reason)
     import random
 
-    bag = chaos_bag(len(game.players), rng) if game.mode == "chaos" else bag_for(len(game.players))
+    n = len(game.players)
+    bag = chaos_bag(n, rng, game.disabled_roles) if game.mode == "chaos" else without(bag_for(n), game.disabled_roles)
     roles = bag.as_list()
     (rng or random).shuffle(roles)
     for player, role in zip(game.players, roles, strict=True):
@@ -835,4 +838,6 @@ def from_dict(data: dict[str, Any]) -> Game:
     raw.setdefault("night_no", 0)
     raw.setdefault("mode", "classic")
     raw.setdefault("timers", {})
+    raw.setdefault("disabled_roles", [])
+    raw.setdefault("anon_vote", False)
     return Game(**raw)

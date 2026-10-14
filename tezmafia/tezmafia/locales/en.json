@@ -352,5 +352,14 @@
   "app.tab_ach": "Achievements",
   "app.tab_top": "Ranking",
   "app.paid": "Payment received",
-  "app.error": "Could not open the app. Open it again from the bot."
+  "app.error": "Could not open the app. Open it again from the bot.",
+  "btn.cfg_roles": "Roles",
+  "btn.cfg_anon": "Anonymous vote",
+  "btn.back": "Back",
+  "config.roles_title": "Which special roles are in play? A switched-off role is replaced by a citizen.",
+  "config.extra": "Anonymous vote: {anon} · Roles switched off: {off}",
+  "vote.anon": "Voted: {n}/{m}. The result is revealed when voting closes.",
+  "dead.joined": "You are now in the room of the dead: what you write here goes only to other dead players.",
+  "btn.rematch": "Play again",
+  "rematch.invite": "{host} opened a new table. Join: {link}"
 }

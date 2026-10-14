@@ -306,7 +306,31 @@ def config_kb(cfg: dict, lang: str = "uz") -> InlineKeyboardMarkup:
                 _btn(t(lang, "btn.cfg_day", n=cfg["day"]), callback_data="cfg:day", emoji="day"),
                 _btn(t(lang, "btn.cfg_night", n=cfg["night"]), callback_data="cfg:night", emoji="night"),
             ],
+            [
+                toggle(t(lang, "btn.cfg_anon"), cfg.get("anon", False), "anon"),
+                _btn(f"🎭 {t(lang, 'btn.cfg_roles')}", callback_data="cfg:roles"),
+            ],
         ]
+    )
+
+
+def config_roles_kb(off: list[str], lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import role_title, t
+    from tezmafia.roles import SPECIALS
+
+    buttons = [
+        _btn(f"{'❌' if key in off else '✅'} {role_title(lang, key)}", callback_data=f"cfr:{key}") for key in SPECIALS
+    ]
+    rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
+    rows.append([_btn(t(lang, "btn.back"), callback_data="cfg:back", emoji="cancel")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def rematch_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[_btn(t(lang, "btn.rematch"), callback_data=f"rm:{game.id}", style="success", emoji="bolt")]]
     )
 
 
