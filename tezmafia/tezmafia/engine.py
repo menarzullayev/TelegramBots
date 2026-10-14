@@ -119,6 +119,8 @@ class Game:
     timers: dict[str, int] = field(default_factory=dict)
     disabled_roles: list[str] = field(default_factory=list)
     anon_vote: bool = False
+    # Deaths in order, for the after-game chronicle: {"n": night_no, "seat": int, "cause": str}.
+    chronicle: list[dict[str, Any]] = field(default_factory=list)
 
     def by_user(self, user_id: int) -> Player | None:
         return next((p for p in self.players if p.user_id == user_id), None)
@@ -359,6 +361,10 @@ def _promote_sergeant(game: Game) -> None:
         sgt.role = Role.DETECTIVE.value
 
 
+def _log_death(game: Game, player: Player, cause: str) -> None:
+    game.chronicle.append({"n": game.night_no, "seat": player.seat, "cause": cause})
+
+
 def _try_kill(
     game: Game,
     player: Player | None,
@@ -370,6 +376,7 @@ def _try_kill(
     if player.role == Role.MAGE and cause == "night":
         if killer and killer.alive and killer.user_id != player.user_id:
             killer.alive = False
+            _log_death(game, killer, "mage")
             game.night_deaths.append(killer.seat)
             game.last_death_seat = killer.seat
             game.last_death_cause = "mage"
@@ -398,6 +405,7 @@ def _try_kill(
         player.shop_killer_shield = False
         return False
     player.alive = False
+    _log_death(game, player, cause)
     game.last_death_seat = player.seat
     game.last_death_cause = cause
     hide = player.shop_mask or not game.reveal_on_death
@@ -411,6 +419,7 @@ def _try_kill(
         boom = killer if killer and killer.alive else next(iter(game.alive_mafia()), None)
         if boom:
             boom.alive = False
+            _log_death(game, boom, "kamikaze")
             game.night_deaths.append(boom.seat)
     return True
 
@@ -657,6 +666,7 @@ def _after_elim(game: Game, eliminated: Player | None) -> str | None:
         extra = next((p for p in game.alive_players() if p.vote == eliminated.seat), None)
         if extra:
             extra.alive = False
+            _log_death(game, extra, "kamikaze")
     return win_check(game)
 
 
@@ -793,6 +803,35 @@ def win_check(game: Game) -> str | None:
     return None
 
 
+def player_won(game: Game, p: Player) -> bool:
+    w = game.winner
+    if w in ("mafia", "town"):
+        return p.faction == w
+    return bool(w) and p.role == w  # solo winners: maniac, suicide, arsonist, snitch, mage, crook
+
+
+def kick(game: Game, user_id: int) -> tuple[bool, str | None]:
+    """Admin removal: leaves the lobby, or dies mid-game (logged as "kick"); returns (done, winner)."""
+    player = game.by_user(user_id)
+    if not player:
+        return False, None
+    if game.phase == Phase.LOBBY:
+        return leave(game, user_id), None
+    if game.phase == Phase.FINISHED or not player.alive:
+        return False, None
+    player.alive = False
+    player.night_action = None
+    player.vote = None
+    _log_death(game, player, "kick")
+    for p in game.players:
+        if p.vote == player.seat:
+            p.vote = None
+    _promote_sergeant(game)
+    winner = win_check(game)
+    game.version += 1
+    return True, winner
+
+
 def cancel(game: Game) -> None:
     game.phase = Phase.FINISHED
     game.deadline = None
@@ -836,6 +875,7 @@ def from_dict(data: dict[str, Any]) -> Game:
     raw.setdefault("afk_deaths", [])
     raw.setdefault("masked_deaths", [])
     raw.setdefault("night_no", 0)
+    raw.setdefault("chronicle", [])
     raw.setdefault("mode", "classic")
     raw.setdefault("timers", {})
     raw.setdefault("disabled_roles", [])

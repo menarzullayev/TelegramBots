@@ -42,6 +42,9 @@
   .buy.alt { background: var(--card); color: var(--text); }
   .buy.worn { outline: 2px solid var(--gold); }
   .err { color: var(--red); text-align: center; margin-top: 40px; }
+  .card.won { box-shadow: inset 3px 0 0 var(--gold); }
+  .chr { margin: 8px 0 0; padding-left: 0; list-style: none; font-size: 14px; }
+  .chr li { padding: 3px 0; border-top: 1px solid rgba(127,127,127,.15); }
 </style>
 </head>
 <body>
@@ -70,7 +73,7 @@ async function api(path, body) {
 }
 
 function tabs() {
-  const names = [["profile", S.strings["btn.profile"]], ["ach", S.strings["app.tab_ach"]], ["top", S.strings["app.tab_top"]], ["shop", S.strings["btn.shop"]]];
+  const names = [["profile", S.strings["btn.profile"]], ["ach", S.strings["app.tab_ach"]], ["top", S.strings["app.tab_top"]], ["games", S.strings["app.tab_games"]], ["shop", S.strings["btn.shop"]]];
   const nav = document.getElementById("tabs"); nav.replaceChildren();
   for (const [id, label] of names) nav.append(el("button", { role: "tab", "data-id": id, onclick: () => show(id) }, label));
 }
@@ -89,7 +92,7 @@ function render(active = "profile") {
       el("p", { class: "name" }, (p.badge ? p.badge + " " : "") + p.name),
       el("div", {}, L.level), el("div", { class: "bar" }, el("i", { style: `width:${pct}%` })),
       el("p", { class: "muted" }, `${p.xp} / ${p.level_to} XP`)),
-    el("div", { class: "card" }, el("div", {}, L.games), el("div", {}, L.wins), el("div", {}, L.wallet), el("div", {}, L.ach)));
+    el("div", { class: "card" }, el("div", {}, L.games), el("div", {}, L.wins), el("div", {}, L.wallet), el("div", {}, L.ach), el("div", {}, L.fair)));
 
   const ach = el("section", { id: "ach" }, el("div", { class: "grid" },
     ...S.achievements.map(a => el("div", { class: "ach" + (a.unlocked ? "" : " off") }, a.title))));
@@ -106,6 +109,16 @@ function render(active = "profile") {
   drawTop();
   const top = el("section", { id: "top" }, seg, topBox);
 
+  const pad = n => String(n).padStart(2, "0");
+  const fmt = ts => { const d = new Date(ts * 1000); return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  const games = el("section", { id: "games" },
+    ...(S.games.length ? S.games.map(g => el("div", { class: "card" + (g.won ? " won" : "") },
+      el("p", { class: "muted" }, `${fmt(g.at)} · 👥 ${g.players}`),
+      el("p", { class: "name" }, g.result),
+      g.you ? el("p", {}, g.you) : "",
+      el("ul", { class: "chr" }, ...g.events.map(e => el("li", {}, e)))))
+      : [el("div", { class: "card muted" }, S.strings["chr.empty"])]));
+
   const shop = el("section", { id: "shop" },
     el("div", { class: "card" },
       ...S.shop.packs.map(x => el("button", { class: "buy", onclick: () => buy(x.key) }, x.label)),
@@ -118,7 +131,7 @@ function render(active = "profile") {
         (b.worn ? "✓ " : "") + b.label)),
       p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""));
 
-  document.getElementById("root").replaceChildren(profile, ach, top, shop);
+  document.getElementById("root").replaceChildren(profile, ach, top, games, shop);
   tabs(); show(active);
 }
 

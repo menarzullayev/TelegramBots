@@ -10,6 +10,8 @@ CLAN_MAX = 30
 TOUR_GEMS = (5, 3, 2)
 TOUR_WIN_POINTS = 3
 TOUR_GAME_POINTS = 1
+FAIR_AFK_PENALTY = 15
+FAIR_GAME_BONUS = 3
 _NAME = re.compile(r"^[^\W_](?:[\w ]{1,18})[^\W_]$")
 
 
