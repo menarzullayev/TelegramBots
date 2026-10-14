@@ -481,5 +481,17 @@
   "skins.worn": "Услуб татбиқ шуд.",
   "skins.removed": "Услуби аслӣ баргашт.",
   "cmd.skins": "Услубҳои корти нақш",
-  "app.tab_skins": "Услубҳо"
+  "app.tab_skins": "Услубҳо",
+  "premium.title": "⭐ Премиуми гурӯҳ",
+  "premium.active": "То {date} фаъол.",
+  "premium.pitch": "Моҳе {stars} ⭐ — ҳар узв пардохта метавонад:\n• таймерҳои дароз: рӯз то 180 с, шаб то 120 с\n• номи гурӯҳ дар корти натиҷа\n• /groupstats — 3 моҳи охир",
+  "btn.premium_buy": "⭐ {stars} — 30 рӯз",
+  "premium.inv_desc": "{title}: премиуми гурӯҳ барои 30 рӯз (худкор тамдид мешавад).",
+  "premium.link_sent": "Пайванди пардохт ба паёми шахсиатон фиристода шуд.",
+  "premium.link_dm": "Премиум барои {title} — бо ин тугма пардохт кунед:",
+  "premium.paid": "⭐ {name} премиуми гурӯҳро то {date} фаъол кард. Ташаккур!",
+  "premium.only": "Ин танзим бо премиуми гурӯҳ кушода мешавад: /premium",
+  "gs.months": "📅 Аз рӯи моҳҳо:",
+  "gs.month_row": "{month}: {players} бозингар · ҷойи 1 {name} ({wins})",
+  "cmd.premium": "Премиуми гурӯҳ"
 }

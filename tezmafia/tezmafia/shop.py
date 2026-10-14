@@ -80,6 +80,10 @@ SPECIAL_BADGES: dict[str, tuple[str, int]] = {
 # Role-card styles (DECISION-17): pre-rendered by scripts/make_skins.py, bought with gems.
 SKINS: dict[str, str] = {"noir": "🖤", "gold": "🟨", "neon": "💜"}
 SKIN_COST = 20
+# Group premium (DECISION-17): a Stars subscription any member can pay for a group.
+GROUP_PREMIUM_STARS = 199
+PREMIUM_DAY_CHOICES = (60, 90, 120, 150, 180)
+PREMIUM_NIGHT_CHOICES = (30, 45, 60, 90, 120)
 PLAY_COINS = 10
 WIN_COINS = 25
 WIN_GEMS = 1

@@ -481,5 +481,17 @@
   "skins.worn": "Uslub kiyildi.",
   "skins.removed": "Asl uslub qaytdi.",
   "cmd.skins": "Rol kartasi uslublari",
-  "app.tab_skins": "Uslublar"
+  "app.tab_skins": "Uslublar",
+  "premium.title": "⭐ Guruh premium",
+  "premium.active": "Faol: {date} gacha.",
+  "premium.pitch": "Oyiga {stars} ⭐ — guruhning istalgan a‘zosi to‘lashi mumkin:\n• uzun taymerlar: kun 180 s, tun 120 s gacha\n• natija kartasida guruh nomi\n• /groupstats — oxirgi 3 oy bo‘yicha",
+  "btn.premium_buy": "⭐ {stars} — 30 kun",
+  "premium.inv_desc": "{title}: 30 kunlik guruh premium (avtomatik yangilanadi).",
+  "premium.link_sent": "To‘lov havolasi shaxsiy xabaringizga yuborildi.",
+  "premium.link_dm": "{title} uchun premium — shu tugma orqali to‘lang:",
+  "premium.paid": "⭐ {name} guruh premiumini faollashtirdi: {date} gacha. Rahmat!",
+  "premium.only": "Bu sozlama guruh premiumida ochiladi: /premium",
+  "gs.months": "📅 Oylar bo‘yicha:",
+  "gs.month_row": "{month}: {players} o‘yinchi · 1-o‘rin {name} ({wins})",
+  "cmd.premium": "Guruh premium"
 }

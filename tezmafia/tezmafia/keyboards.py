@@ -364,6 +364,14 @@ def invite_kb(link: str, lang: str = "uz") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[_btn(t(lang, "btn.link"), copy_text=link, emoji="pin")]])
 
 
+def premium_kb(chat_id: int, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+    from tezmafia.shop import GROUP_PREMIUM_STARS
+
+    label = t(lang, "btn.premium_buy", stars=GROUP_PREMIUM_STARS)
+    return InlineKeyboardMarkup(inline_keyboard=[[_btn(label, callback_data=f"gp:{chat_id}", style="success")]])
+
+
 def skins_kb(owned: list[str], worn: str, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
     from tezmafia.shop import SKIN_COST, SKINS
