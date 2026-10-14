@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
 from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -237,7 +240,8 @@ def _sqlite_pragmas(dbapi_conn, _record) -> None:
     # busy_timeout makes a writer wait for another chat's write instead of failing with "database is locked".
     # No WAL: the file is shared between Windows and Linux boots on NTFS, and a plain file copy must stay a backup.
     cur = dbapi_conn.cursor()
-    for pragma in ("busy_timeout=5000", "foreign_keys=ON"):
+    # 30 s: a burst of game-end writes from many groups must queue, not fail (load test: 5 s lost stats at 100 groups).
+    for pragma in ("busy_timeout=30000", "foreign_keys=ON"):
         cur.execute(f"PRAGMA {pragma}")
     cur.close()
 
@@ -250,6 +254,9 @@ class Store:
         if url.startswith("sqlite"):
             event.listen(self.engine.sync_engine, "connect", _sqlite_pragmas)
         self.session = async_sessionmaker(self.engine, expire_on_commit=False)
+        # Read-through cache for rankings; 0 disables it (tests), the running bot sets 60 s.
+        self.cache_ttl = 0.0
+        self._cache: dict[Any, tuple[float, Any]] = {}
 
     async def init(self) -> None:
         async with self.engine.begin() as conn:
@@ -269,6 +276,20 @@ class Store:
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
+                # Load test (1M users, 1M games): these turn full scans of the big tables into index lookups.
+                "CREATE INDEX IF NOT EXISTS ix_games_active ON games (chat_id, version) WHERE status != 'finished'",
+                "CREATE INDEX IF NOT EXISTS ix_stats_top ON stats (wins DESC, games DESC)",
+                "CREATE INDEX IF NOT EXISTS ix_stats_daily ON stats (daily_last, daily_streak)",
+                "CREATE INDEX IF NOT EXISTS ix_stats_first_seen ON stats (first_seen)",
+                "CREATE INDEX IF NOT EXISTS ix_season_rank ON season_stats (season, chat_id, wins DESC, games DESC)",
+                "CREATE INDEX IF NOT EXISTS ix_season_user ON season_stats (user_id)",
+                "CREATE INDEX IF NOT EXISTS ix_weekly_rank ON weekly_stats (week, points DESC, wins DESC, games)",
+                "CREATE INDEX IF NOT EXISTS ix_weekly_user ON weekly_stats (user_id)",
+                "CREATE INDEX IF NOT EXISTS ix_activity_user ON activity (user_id)",
+                "CREATE INDEX IF NOT EXISTS ix_quest_user ON quest_progress (user_id)",
+                # games saved before updated_at existed predate game_players: link them once (index lookup, cheap)
+                "INSERT OR IGNORE INTO game_players (game_id, user_id, at) SELECT g.id, json_extract(j.value, '$.user_id'), 0"
+                " FROM games g, json_each(g.payload, '$.players') j WHERE g.updated_at IS NULL AND g.status = 'finished'",
             ):
                 try:
                     await conn.execute(text(ddl))
@@ -295,7 +316,36 @@ class Store:
                 row.payload = payload
                 row.version = game.version
                 row.updated_at = time.time()
+            if game.phase == "finished" and game.players:
+                await s.execute(
+                    text("INSERT OR IGNORE INTO game_players (game_id, user_id, at) VALUES (:g, :u, :t)"),
+                    [{"g": game.id, "u": p.user_id, "t": time.time()} for p in game.players],
+                )
             await s.commit()
+
+    async def cached(self, key: Any, fn: Callable[[], Awaitable[Any]]) -> Any:
+        if self.cache_ttl <= 0:
+            return await fn()
+        now = time.monotonic()
+        hit = self._cache.get(key)
+        if hit and now - hit[0] < self.cache_ttl:
+            return hit[1]
+        value = await fn()
+        if len(self._cache) > 5000:
+            self._cache.clear()
+        self._cache[key] = (now, value)
+        return value
+
+    async def retry(self, fn: Callable[[], Awaitable[Any]], attempts: int = 3) -> Any:
+        """Run one transaction again if SQLite was locked; a locked transaction has committed nothing."""
+        for attempt in range(attempts):
+            try:
+                return await fn()
+            except OperationalError as e:
+                if "locked" not in str(e) or attempt == attempts - 1:
+                    raise
+                await asyncio.sleep(0.5 * (attempt + 1))
+        return None
 
     async def prune_activity(self, keep_days: int = 400) -> None:
         cutoff = time.strftime("%Y-%m-%d", time.localtime(time.time() - keep_days * 86400))
@@ -306,12 +356,23 @@ class Store:
     async def prune_finished(self, older_than_days: float) -> int:
         """Delete finished games last touched before the cutoff (rows without a timestamp are kept)."""
         cutoff = time.time() - older_than_days * 86400
-        async with self.session() as s:
-            res = await s.execute(
-                delete(GameRow).where(GameRow.status == "finished", GameRow.updated_at.is_not(None), GameRow.updated_at < cutoff)
-            )
-            await s.commit()
-            return res.rowcount or 0
+        total = 0
+        while True:  # small batches, so a big prune never holds the write lock for long
+            async with self.session() as s:
+                ids = (
+                    await s.execute(
+                        select(GameRow.id)
+                        .where(GameRow.status == "finished", GameRow.updated_at.is_not(None), GameRow.updated_at < cutoff)
+                        .limit(2000)
+                    )
+                ).scalars().all()
+                if not ids:
+                    return total
+                await s.execute(delete(GamePlayer).where(GamePlayer.game_id.in_(ids)))
+                await s.execute(delete(GameRow).where(GameRow.id.in_(ids)))
+                await s.commit()
+            total += len(ids)
+            await asyncio.sleep(0.05)
 
     async def delete_user(self, user_id: int) -> dict[str, int]:
         """Erase a user's data: stats/wallet row, private-chat language, and their name in finished games.
@@ -327,23 +388,28 @@ class Store:
             await s.execute(delete(QuestProgress).where(QuestProgress.user_id == user_id))
             await s.execute(delete(WeeklyStat).where(WeeklyStat.user_id == user_id))
             await s.execute(delete(LastCard).where(LastCard.user_id == user_id))
+            game_ids = (await s.execute(select(GamePlayer.game_id).where(GamePlayer.user_id == user_id))).scalars().all()
             await s.execute(delete(GamePlayer).where(GamePlayer.user_id == user_id))
             await s.execute(delete(FairPlay).where(FairPlay.user_id == user_id))
             # chat_bans stay: a moderation record must not be erasable by the banned user.
             await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
-            rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
-            for row in rows:
-                data = json.loads(row.payload)
-                touched = False
-                for player in data.get("players", []):
-                    if player.get("user_id") == user_id and (player.get("first_name") != "—" or player.get("username")):
-                        player["first_name"] = "—"
-                        player["username"] = None
-                        touched = True
-                if touched:
-                    row.payload = json.dumps(data, ensure_ascii=False)
-                    scrubbed += 1
+            # Only the user's own games (game_players), 200 at a time: memory stays flat at any database size.
+            for i in range(0, len(game_ids), 200):
+                rows = (
+                    await s.execute(select(GameRow).where(GameRow.id.in_(game_ids[i : i + 200]), GameRow.status == "finished"))
+                ).scalars().all()
+                for row in rows:
+                    data = json.loads(row.payload)
+                    touched = False
+                    for player in data.get("players", []):
+                        if player.get("user_id") == user_id and (player.get("first_name") != "—" or player.get("username")):
+                            player["first_name"] = "—"
+                            player["username"] = None
+                            touched = True
+                    if touched:
+                        row.payload = json.dumps(data, ensure_ascii=False)
+                        scrubbed += 1
             await s.commit()
         return {"stats": stats.rowcount or 0, "prefs": prefs.rowcount or 0, "games": scrubbed}
 
@@ -365,27 +431,32 @@ class Store:
 
     async def report_since(self, since: float) -> dict[str, int]:
         """Counters for the owner's daily report."""
+        recent = (GameRow.status == "finished", GameRow.updated_at >= since)
         async with self.session() as s:
-            finished = (
-                await s.execute(select(GameRow.payload).where(GameRow.status == "finished", GameRow.updated_at >= since))
-            ).scalars().all()
+            total, played, chats = (
+                await s.execute(
+                    select(
+                        func.count(),
+                        func.count(func.json_extract(GameRow.payload, "$.winner")),
+                        func.count(func.distinct(GameRow.chat_id)),
+                    ).where(*recent)
+                )
+            ).one()
+            players = (
+                await s.execute(
+                    select(func.count(func.distinct(GamePlayer.user_id)))
+                    .join(GameRow, GameRow.id == GamePlayer.game_id)
+                    .where(*recent)
+                )
+            ).scalar_one()
             live = (await s.execute(select(func.count()).select_from(GameRow).where(GameRow.status != "finished"))).scalar_one()
             new_users = (await s.execute(select(func.count()).select_from(UserStat).where(UserStat.first_seen >= since))).scalar_one()
             users = (await s.execute(select(func.count()).select_from(UserStat))).scalar_one()
-        players: set[int] = set()
-        chats: set[int] = set()
-        played = 0
-        for payload in finished:
-            game = from_dict(json.loads(payload))
-            if game.winner:
-                played += 1
-            chats.add(game.chat_id)
-            players.update(p.user_id for p in game.players)
         return {
             "games": played,
-            "cancelled": len(finished) - played,
-            "chats": len(chats),
-            "players": len(players),
+            "cancelled": total - played,
+            "chats": chats,
+            "players": players,
             "new_users": new_users,
             "users": users,
             "live": live,
@@ -456,6 +527,75 @@ class Store:
             ).one()
             await s.commit()
         return {"games": row[0], "wins": row[1], "xp": row[2] or 0}
+
+    async def record_game(
+        self,
+        game_id: str,
+        chat_id: int,
+        rows: list[tuple[int, str, bool, bool, bool]],
+        season: str,
+        week: str,
+        fair: tuple[int, int],
+    ) -> dict[int, dict[str, int]]:
+        """Every per-player row a finished game writes, in one transaction (safe to retry as a whole).
+
+        rows: (user_id, name, won, alive, afk). Same effects as bump_stat + bump_season + bump_week +
+        adjust_fair_play + link_game; returns each player's totals after the game.
+        """
+        from tezmafia.progress import xp_for
+
+        penalty, bonus = fair
+        now = time.time()
+        totals: dict[int, dict[str, int]] = {}
+        async with self.session() as s:
+            for uid, name, won, alive, afk in rows:
+                await self._ensure(s, uid, name)
+                coins = PLAY_COINS + (WIN_COINS if won else 0)
+                vip_until = (await s.execute(select(UserStat.vip_until).where(UserStat.user_id == uid))).scalar()
+                if vip_until and vip_until > now:
+                    coins += int(coins * VIP_COIN_BONUS)
+                w = 1 if won else 0
+                p = {"u": uid, "n": name[:128], "w": w}
+                await s.execute(
+                    text(
+                        "UPDATE stats SET name = :n, games = games + 1, wins = wins + :w, coins = COALESCE(coins, 0) + :c,"
+                        " gems = COALESCE(gems, 0) + :g, xp = COALESCE(xp, 0) + :x WHERE user_id = :u"
+                    ),
+                    {**p, "c": coins, "g": WIN_GEMS if won else 0, "x": xp_for(won, alive)},
+                )
+                for scope in {0, chat_id}:
+                    await s.execute(
+                        text(
+                            "INSERT INTO season_stats (season, chat_id, user_id, name, games, wins) VALUES (:s, :c, :u, :n, 1, :w)"
+                            " ON CONFLICT(season, chat_id, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :w"
+                        ),
+                        {**p, "s": season, "c": scope},
+                    )
+                await s.execute(
+                    text(
+                        "INSERT INTO weekly_stats (week, user_id, name, games, wins, points) VALUES (:k, :u, :n, 1, :w, :pt)"
+                        " ON CONFLICT(week, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :w,"
+                        " points = points + :pt"
+                    ),
+                    {**p, "k": week, "pt": 1 + 3 * w},
+                )
+                delta = -penalty if afk else bonus
+                await s.execute(
+                    text(
+                        "INSERT INTO fair_play (user_id, score, afk) VALUES (:u, MAX(0, MIN(100, 100 + :d)), :a)"
+                        " ON CONFLICT(user_id) DO UPDATE SET score = MAX(0, MIN(100, COALESCE(score, 100) + :d)),"
+                        " afk = COALESCE(afk, 0) + :a"
+                    ),
+                    {"u": uid, "d": delta, "a": 1 if afk else 0},
+                )
+                await s.execute(
+                    text("INSERT OR IGNORE INTO game_players (game_id, user_id, at) VALUES (:g, :u, :t)"),
+                    {"g": game_id, "u": uid, "t": now},
+                )
+                row = (await s.execute(select(UserStat.games, UserStat.wins, UserStat.xp).where(UserStat.user_id == uid))).one()
+                totals[uid] = {"games": row[0], "wins": row[1], "xp": row[2] or 0}
+            await s.commit()
+        return totals
 
     # --- retention: daily bonus, quests, referrals, schedules -------------------------------
 

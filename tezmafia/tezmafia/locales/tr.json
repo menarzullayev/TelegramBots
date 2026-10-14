@@ -444,5 +444,8 @@
   "cmd.groupstats": "Grup istatistikleri",
   "cmd.kick": "Oyuncuyu çıkar (yönetici)",
   "cmd.ban": "Oyunlardan men et (yönetici)",
-  "cmd.unban": "Yasağı kaldır (yönetici)"
+  "cmd.unban": "Yasağı kaldır (yönetici)",
+  "go.draw": "Kasabada kimse kalmadı. Berabere — kazanan yok.",
+  "go.short.draw": "berabere — kimse kalmadı.",
+  "card.draw": "Berabere"
 }

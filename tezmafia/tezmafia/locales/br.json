@@ -444,5 +444,8 @@
   "cmd.groupstats": "Estatísticas do grupo",
   "cmd.kick": "Remover jogador (admin)",
   "cmd.ban": "Banir dos jogos (admin)",
-  "cmd.unban": "Remover banimento (admin)"
+  "cmd.unban": "Remover banimento (admin)",
+  "go.draw": "Não sobrou ninguém na cidade. Empate — sem vencedor.",
+  "go.short.draw": "empate — não sobrou ninguém.",
+  "card.draw": "Empate"
 }

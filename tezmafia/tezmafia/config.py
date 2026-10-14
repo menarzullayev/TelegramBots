@@ -26,6 +26,8 @@ class Settings(BaseSettings):
         return value
     min_players: int = 5
     max_players: int = 23
+    # Lobby and vote-board edits within this many seconds are merged into one Telegram call (0 = edit at once).
+    edit_debounce: float = 1.5
     discussion_seconds: int = 90
     night_action_seconds: int = 45
     voting_seconds: int = 45

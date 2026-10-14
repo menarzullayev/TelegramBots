@@ -255,6 +255,7 @@ def game_over(game: Game, lang: str = "uz") -> str:
         "snitch": "go.snitch",
         "mage": "go.mage",
         "crook": "go.crook",
+        "draw": "go.draw",
     }.get(game.winner or "", "go.town")
     icon = {
         "go.mafia": "mafia",
@@ -264,6 +265,7 @@ def game_over(game: Game, lang: str = "uz") -> str:
         "go.snitch": "search",
         "go.mage": "bolt",
         "go.crook": "info",
+        "go.draw": "info",
         "go.town": "town",
     }[win_key]
     title = f"{ce(icon)} <b>{t(lang, win_key)}</b>"
@@ -289,6 +291,7 @@ def game_over_short(game: Game, lang: str = "uz") -> str:
         "snitch": "go.short.snitch",
         "mage": "go.short.mage",
         "crook": "go.short.crook",
+        "draw": "go.short.draw",
     }.get(game.winner or "", "go.short.town")
     icon = {
         "go.short.mafia": "mafia",
@@ -298,6 +301,7 @@ def game_over_short(game: Game, lang: str = "uz") -> str:
         "go.short.snitch": "search",
         "go.short.mage": "bolt",
         "go.short.crook": "info",
+        "go.short.draw": "info",
         "go.short.town": "town",
     }[key]
     return f"{ce(icon)} <b>{t(lang, 'go.header')}</b> — {t(lang, key)}"
@@ -527,7 +531,7 @@ def game_over_rich(game: Game, lang: str = "uz") -> str:
     """Final roles as a rich-message table (Bot API 10.1); plain emoji only, no custom emoji tags."""
     from html import escape
 
-    plain = {"mafia": "🔪", "maniac": "🩸", "suicide": "🎭", "arsonist": "🔥", "snitch": "🔎", "mage": "✨", "crook": "🃏"}
+    plain = {"mafia": "🔪", "maniac": "🩸", "suicide": "🎭", "arsonist": "🔥", "snitch": "🔎", "mage": "✨", "crook": "🃏", "draw": "🤝"}
     win_key = {k: f"go.{k}" for k in plain}.get(game.winner or "", "go.town")
     head = f"<h3>🏆 {escape(t(lang, 'go.header'))}</h3><p><b>{plain.get(game.winner or '', '🏙')} {escape(t(lang, win_key))}</b></p>"
     rows = "".join(

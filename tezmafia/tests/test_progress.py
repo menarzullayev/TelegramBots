@@ -70,14 +70,19 @@ async def test_game_end_awards_once_and_dms_only_news(app: App) -> None:
         return True
 
     app.dm = dm  # type: ignore[method-assign]
+
+    def captions() -> dict[int, str]:
+        return {c[1][0]: c[2].get("caption", "") for c in app.bot.calls if c[0] == "send_photo"}
+
     await app.record_stats(g)
-    assert {uid for uid, _ in dms} == {p.user_id for p in g.players}
-    assert all(t("uz", "ach.first_game") in text for _, text in dms)
+    assert dms == []  # the news rides on the result card, not a second message
+    assert set(captions()) == {p.user_id for p in g.players}
+    assert all(t("uz", "ach.first_game") in text for text in captions().values())
     assert await app.store.achievement_count(g.players[0].user_id) >= 1
 
-    dms.clear()
+    app.bot.calls.clear()
     await app.record_stats(g)  # second game: first_game is not news any more
-    assert all(t("uz", "ach.first_game") not in text for _, text in dms)
+    assert all(t("uz", "ach.first_game") not in text for text in captions().values())
 
 
 @pytest.mark.asyncio

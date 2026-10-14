@@ -427,8 +427,18 @@ async def qa_24(tmp, mp):
     app = await _app(tmp, mp)
     g = _mafia_vote_game()
     g.vote_message_id = 7
+    app.settings.edit_debounce = 0
     await app.refresh_vote(g)
     assert any(c[0] == "edit" for c in app.bot.calls)
+    # with debouncing, a burst of votes becomes a single edit of the latest board
+    app.bot.calls.clear()
+    app.settings.edit_debounce = 0.05
+    await app.persist(g)
+    for _ in range(5):
+        await app.refresh_vote(g)
+    assert not any(c[0] == "edit" for c in app.bot.calls)
+    await asyncio.sleep(0.2)
+    assert sum(c[0] == "edit" for c in app.bot.calls) == 1
 
 
 async def qa_25(tmp, mp):

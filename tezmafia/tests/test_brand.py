@@ -25,7 +25,8 @@ def test_win_media_covers_every_winner() -> None:
     assert brand.win_media(Winner.MAFIA) == brand.MEDIA["win_mafia"]
     assert brand.win_media(Winner.TOWN) == brand.MEDIA["win_town"]
     assert brand.win_media(None) == brand.MEDIA["win_town"]
-    solo = [w for w in Winner if w not in (Winner.MAFIA, Winner.TOWN)]
+    assert brand.win_media(Winner.DRAW) == brand.MEDIA["night"]  # a draw is nobody's victory scene
+    solo = [w for w in Winner if w not in (Winner.MAFIA, Winner.TOWN, Winner.DRAW)]
     assert solo
     for w in solo:
         assert brand.win_media(w) == brand.MEDIA[f"win_{w.value}"], w

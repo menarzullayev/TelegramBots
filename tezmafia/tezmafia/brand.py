@@ -68,6 +68,8 @@ def win_media(winner: str | None) -> str:
     """Victory image: every winner with its own scene gets it; anything else shares win_solo."""
     if not winner:
         return media("win_town")
+    if winner == "draw":
+        return media("night")  # an empty town, not anybody's victory
     return MEDIA.get(f"win_{winner}", MEDIA["win_solo"])
 
 
