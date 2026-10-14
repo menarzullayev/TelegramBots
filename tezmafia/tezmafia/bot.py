@@ -956,6 +956,7 @@ class App:
     async def daily_report(self) -> str:
         r = await self.store.report_since(time.time() - 86400)
         pruned = await self.store.prune_finished(self.settings.retention_days)
+        await self.store.optimize()
         await self.store.prune_activity()
         yesterday = time.strftime("%Y-%m-%d", time.localtime(time.time() - 86400))
         month = time.strftime("%Y-%m-%d", time.localtime(time.time() - 30 * 86400))
