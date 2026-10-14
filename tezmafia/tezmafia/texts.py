@@ -339,6 +339,8 @@ def profile_text(
     lang: str = "uz",
     vip_until: float | None = None,
     badge: str = "",
+    xp: int = 0,
+    achievements: int = 0,
 ) -> str:
     from html import escape
 
@@ -353,6 +355,11 @@ def profile_text(
     ]
     if vip_until:
         lines.append(f"💎 {t(lang, 'profile.vip', date=date_tag(vip_until))}")
+    if xp or achievements:
+        from tezmafia.progress import ACHIEVEMENTS, level_of
+
+        lines.append(f"⭐ {t(lang, 'profile.level', level=level_of(xp), xp=xp)}")
+        lines.append(f"🏅 {t(lang, 'profile.ach', n=achievements, total=len(ACHIEVEMENTS))}")
     bag = []
     for key, n in (inventory or {}).items():
         title = item_title(lang, key) if key in ITEMS else key
@@ -497,3 +504,10 @@ def config_text(cfg: dict, lang: str = "uz") -> str:
         night=cfg["night"],
     )
     return f"⚙️ <b>{t(lang, 'config.title')}</b>\n{body}"
+
+
+def progress_dm(new_keys: list[str], level_up: int | None, lang: str = "uz") -> str:
+    lines = [f"🏅 <b>{t(lang, 'ach.unlocked')}</b>: {t(lang, f'ach.{k}')}" for k in new_keys]
+    if level_up:
+        lines.append(f"⭐ <b>{t(lang, 'lvl.up', level=level_up)}</b>")
+    return "\n".join(lines)

@@ -490,6 +490,9 @@ class App:
             await self.persist(game)
 
     async def record_stats(self, game: Game) -> None:
+        from tezmafia.progress import Outcome, earned, level_of, xp_for
+
+        notes: list[tuple[int, list[str], int | None]] = []
         for p in game.players:
             won = (
                 (game.winner == "mafia" and p.faction == "mafia")
@@ -501,7 +504,16 @@ class App:
                 or (game.winner == "mage" and p.role == "mage")
                 or (game.winner == "crook" and p.role == "crook")
             )
-            await self.store.bump_stat(p.user_id, p.first_name, won)
+            totals = await self.store.bump_stat(p.user_id, p.first_name, won, p.alive)
+            outcome = Outcome(
+                role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
+            )
+            fresh = await self.store.award(p.user_id, earned(outcome))
+            before, after = level_of(totals["xp"] - xp_for(won, p.alive)), level_of(totals["xp"])
+            if fresh or after > before:
+                notes.append((p.user_id, fresh, after if after > before else None))
+        for user_id, fresh, level_up in notes:
+            await self.dm(user_id, texts.progress_dm(fresh, level_up, await self.lang(user_id)))
 
     async def finish(self, game: Game) -> None:
         self.cancel_timer(game.id)
@@ -1030,6 +1042,8 @@ async def cmd_profile(message: Message) -> None:
             acc.get("next_role", ""),
             vip_until=acc.get("vip_until"),
             badge=acc.get("badge", ""),
+            xp=acc.get("xp", 0),
+            achievements=await app.store.achievement_count(message.from_user.id),
             lang=await _lang(message.chat.id),
         )
     )
@@ -1081,6 +1095,8 @@ async def cmd_buy(message: Message, command: CommandObject) -> None:
                     acc.get("next_role", ""),
                     vip_until=acc.get("vip_until"),
                     badge=acc.get("badge", ""),
+                    xp=acc.get("xp", 0),
+                    achievements=await app.store.achievement_count(message.from_user.id),
                     lang=lang,
                 )
             )
@@ -1609,6 +1625,8 @@ async def cb_menu(query: CallbackQuery) -> None:
                 acc.get("next_role", ""),
                 vip_until=acc.get("vip_until"),
                 badge=acc.get("badge", ""),
+                xp=acc.get("xp", 0),
+                achievements=await app.store.achievement_count(query.from_user.id),
                 lang=lang,
             )
         )

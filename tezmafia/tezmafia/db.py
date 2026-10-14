@@ -53,6 +53,15 @@ class UserStat(Base):
     vip_until: Mapped[float | None] = mapped_column(Float, nullable=True)
     badge: Mapped[str] = mapped_column(String(16), default="")
     badges: Mapped[str] = mapped_column(Text, default="[]")
+    xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    key: Mapped[str] = mapped_column(String(32), primary_key=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
 
 
 class Payment(Base):
@@ -125,6 +134,7 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN vip_until FLOAT",
                 "ALTER TABLE stats ADD COLUMN badge VARCHAR(16) DEFAULT ''",
                 "ALTER TABLE stats ADD COLUMN badges TEXT DEFAULT '[]'",
+                "ALTER TABLE stats ADD COLUMN xp INTEGER DEFAULT 0",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
@@ -182,6 +192,7 @@ class Store:
             stats = await s.execute(delete(UserStat).where(UserStat.user_id == user_id))
             prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
             await s.execute(delete(Activity).where(Activity.user_id == user_id))
+            await s.execute(delete(Achievement).where(Achievement.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
             for row in rows:
                 data = json.loads(row.payload)
@@ -278,12 +289,15 @@ class Store:
         await s.execute(
             text(
                 "INSERT OR IGNORE INTO stats (user_id, name, games, wins, coins, gems, inventory, next_role, first_seen,"
-                " badge, badges) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]')"
+                " badge, badges, xp) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]', 0)"
             ),
             {"u": user_id, "n": name[:128], "t": time.time()},
         )
 
-    async def bump_stat(self, user_id: int, name: str, won: bool) -> None:
+    async def bump_stat(self, user_id: int, name: str, won: bool, alive: bool = False) -> dict[str, int]:
+        """Record one finished game; returns the totals after it (games, wins, xp)."""
+        from tezmafia.progress import xp_for
+
         coins = PLAY_COINS + (WIN_COINS if won else 0)
         gems = WIN_GEMS if won else 0
         async with self.session() as s:
@@ -294,11 +308,35 @@ class Store:
             await s.execute(
                 text(
                     "UPDATE stats SET name = :n, games = games + 1, wins = wins + :w, coins = COALESCE(coins, 0) + :c,"
-                    " gems = COALESCE(gems, 0) + :g WHERE user_id = :u"
+                    " gems = COALESCE(gems, 0) + :g, xp = COALESCE(xp, 0) + :x WHERE user_id = :u"
                 ),
-                {"n": name[:128], "w": 1 if won else 0, "c": coins, "g": gems, "u": user_id},
+                {"n": name[:128], "w": 1 if won else 0, "c": coins, "g": gems, "x": xp_for(won, alive), "u": user_id},
             )
+            row = (
+                await s.execute(select(UserStat.games, UserStat.wins, UserStat.xp).where(UserStat.user_id == user_id))
+            ).one()
             await s.commit()
+        return {"games": row[0], "wins": row[1], "xp": row[2] or 0}
+
+    async def award(self, user_id: int, keys: set[str]) -> list[str]:
+        """Grant achievements; returns only the ones the user did not have yet."""
+        fresh: list[str] = []
+        async with self.session() as s:
+            for key in sorted(keys):
+                res = await s.execute(
+                    text("INSERT OR IGNORE INTO achievements (user_id, key, at) VALUES (:u, :k, :t)"),
+                    {"u": user_id, "k": key, "t": time.time()},
+                )
+                if res.rowcount:
+                    fresh.append(key)
+            await s.commit()
+        return fresh
+
+    async def achievement_count(self, user_id: int) -> int:
+        async with self.session() as s:
+            return (
+                await s.execute(select(func.count()).select_from(Achievement).where(Achievement.user_id == user_id))
+            ).scalar_one()
 
     async def get_stat(self, user_id: int) -> tuple[str, int, int]:
         acc = await self.get_account(user_id)
@@ -318,6 +356,7 @@ class Store:
                     "next_role": "",
                     "vip_until": None,
                     "badge": "",
+                    "xp": 0,
                 }
             try:
                 inv = json.loads(row.inventory or "{}")
@@ -335,6 +374,7 @@ class Store:
                 "next_role": row.next_role or "",
                 "vip_until": row.vip_until if row.vip_until and row.vip_until > time.time() else None,
                 "badge": row.badge or "",
+                "xp": row.xp or 0,
             }
 
     async def credit_wallet(self, user_id: int, name: str, coins: int = 0, gems: int = 0) -> None:
