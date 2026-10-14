@@ -268,5 +268,9 @@
   "delete.cancelled": "İptal edildi, hiçbir şey silinmedi.",
   "btn.delete_yes": "Evet, sil",
   "btn.delete_no": "Hayır",
-  "dm.only": "Bu komut yalnızca botla özel sohbette çalışır."
+  "dm.only": "Bu komut yalnızca botla özel sohbette çalışır.",
+  "btn.my_role": "Rolüm",
+  "role.not_playing": "Bu oyunda oynamıyorsunuz.",
+  "group.welcome": "Merhaba! Ben TezMafia, grubunuzun Mafya oyun yöneticisiyim.\nYeni oyun: /game\nKurallar: /help",
+  "group.need_admin": "Tam oyun için beni yönetici yapın: gece sohbeti kapatmak, ölenleri susturmak ve lobiyi sabitlemek için yetki gerekiyor."
 }

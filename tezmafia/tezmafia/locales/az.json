@@ -268,5 +268,9 @@
   "delete.cancelled": "Ləğv edildi, heç nə silinmədi.",
   "btn.delete_yes": "Bəli, sil",
   "btn.delete_no": "Xeyr",
-  "dm.only": "Bu əmr yalnız botla şəxsi çatda işləyir."
+  "dm.only": "Bu əmr yalnız botla şəxsi çatda işləyir.",
+  "btn.my_role": "Rolum",
+  "role.not_playing": "Siz bu oyunda iştirak etmirsiniz.",
+  "group.welcome": "Salam! Mən TezMafia — qrupunuz üçün Mafiya aparıcısıyam.\nYeni oyun: /game\nQaydalar: /help",
+  "group.need_admin": "Tam işləməyim üçün məni admin edin: gecə çatı bağlamaq, ölənləri susdurmaq və lobbini sancmaq üçün hüquq lazımdır."
 }

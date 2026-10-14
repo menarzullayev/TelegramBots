@@ -549,6 +549,9 @@ async def test_run_recovers_and_polls(tmp_path, monkeypatch) -> None:
             return SimpleNamespace(url="")
 
     class DummyDP:
+        def __init__(self) -> None:
+            self.update = SimpleNamespace(outer_middleware=lambda _m: None)
+
         def include_router(self, _r):
             return None
 

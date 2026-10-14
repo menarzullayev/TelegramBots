@@ -268,5 +268,9 @@
   "delete.cancelled": "Dibatalkan, tidak ada yang dihapus.",
   "btn.delete_yes": "Ya, hapus",
   "btn.delete_no": "Tidak",
-  "dm.only": "Perintah ini hanya berfungsi di chat pribadi dengan bot."
+  "dm.only": "Perintah ini hanya berfungsi di chat pribadi dengan bot.",
+  "btn.my_role": "Peranku",
+  "role.not_playing": "Kamu tidak ikut dalam game ini.",
+  "group.welcome": "Halo! Aku TezMafia, pemandu game Mafia untuk grupmu.\nGame baru: /game\nAturan: /help",
+  "group.need_admin": "Jadikan aku admin untuk game lengkap: aku butuh hak menutup chat saat malam, membisukan pemain mati, dan menyematkan lobi."
 }
