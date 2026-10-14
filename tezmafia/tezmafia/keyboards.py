@@ -84,6 +84,7 @@ def lobby_kb(game: Game, bot_username: str, lang: str = "uz") -> InlineKeyboardM
                 _btn(t(lang, "btn.link"), copy_text=deep, emoji="pin"),
                 _btn(t(lang, "btn.add_group"), url=add, emoji="robot"),
             ],
+            [_btn(t(lang, "btn.add_bot"), callback_data=f"ab:{game.id}", emoji="robot")],
         ]
     )
 

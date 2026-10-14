@@ -815,6 +815,64 @@ def win_check(game: Game) -> str | None:
     return None
 
 
+def is_bot(user_id: int) -> bool:
+    """Bot players (DECISION-17) have negative ids: no Telegram account, no DMs, no stats."""
+    return user_id < 0
+
+
+def humans(game: Game) -> list[Player]:
+    return [p for p in game.players if not is_bot(p.user_id)]
+
+
+def add_bot(game: Game, name: str = "Robot") -> tuple[bool, str]:
+    """Seat a bot in the lobby (ids -1, -2, ...); it is ready at once (no DM to open)."""
+    if game.phase != Phase.LOBBY:
+        return False, "not_lobby"
+    if len(game.players) >= game.max_players:
+        return False, "full"
+    k = 1 + sum(1 for p in game.players if is_bot(p.user_id))
+    while game.by_user(-k):
+        k += 1
+    ok, reason = join(game, -k, f"🤖 {name}-{k}", None)
+    if ok:
+        mark_dm_ok(game, -k)
+    return ok, reason
+
+
+def _bot_target(game: Game, actor: Player, rng: Any) -> int | None:
+    others = [p for p in game.alive_players() if p.user_id != actor.user_id]
+    if actor.faction == Faction.MAFIA:
+        others = [p for p in others if p.faction != Faction.MAFIA] or others
+    return rng.choice(others).seat if others else None
+
+
+def bot_night_moves(game: Game, rng: Any) -> None:
+    """Plain, people-like night choices for every living bot with a night role."""
+    for p in game.alive_players():
+        if not is_bot(p.user_id) or not p.role or Role(p.role) not in NIGHT_ROLES:
+            continue
+        seat = _bot_target(game, p, rng)
+        if seat:
+            kind = "shoot" if p.role == Role.DETECTIVE and game.night_no > 1 and rng.random() < 0.3 else ""
+            set_night_action(game, p.user_id, seat, kind)
+
+
+def bot_votes(game: Game, rng: Any) -> None:
+    for p in game.alive_players():
+        if is_bot(p.user_id):
+            seat = _bot_target(game, p, rng)
+            if seat:
+                set_vote(game, p.user_id, seat)
+
+
+def bot_lynch_votes(game: Game, rng: Any) -> None:
+    target = game.by_seat(game.lynch_seat or -1)
+    for p in game.alive_players():
+        if is_bot(p.user_id) and target and p.user_id != target.user_id:
+            protect = p.faction == Faction.MAFIA and target.faction == Faction.MAFIA
+            set_lynch_vote(game, p.user_id, False if protect else rng.random() < 0.6)
+
+
 STALEMATE_ROUNDS = 3
 STALEMATE_MAX_ALIVE = 4
 

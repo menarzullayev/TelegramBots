@@ -464,5 +464,9 @@
   "funnel.finished": "Tugagan o‘yinlar",
   "funnel.repeat": "Qayta o‘ynagan guruhlar (2+)",
   "app.tab_admin": "Admin",
-  "cmd.weekly": "Haftalik dayjest (egasi)"
+  "cmd.weekly": "Haftalik dayjest (egasi)",
+  "btn.add_bot": "Bot qo‘shish",
+  "bot.name": "Robot",
+  "cmd.addbot": "Bo‘sh o‘ringa bot qo‘shish (xost)",
+  "bot.reward_note": "🤖 Botli o‘yin: odamlar {humans} ta — mukofot kamaytirilgan."
 }

@@ -64,6 +64,8 @@ async def apply_phase_mutes(bot: Bot, game: Game, night: bool, enabled: bool) ->
         return
     speak: ChatPermissions | None = None
     for p in game.players:
+        if p.user_id < 0:  # bot players have no Telegram account
+            continue
         if not p.alive or night:
             await mute_user(bot, game, p.user_id)
         else:
@@ -74,4 +76,5 @@ async def apply_phase_mutes(bot: Bot, game: Game, night: bool, enabled: bool) ->
 async def unmute_all(bot: Bot, game: Game) -> None:
     speak = await _speak(bot, game.chat_id)
     for p in game.players:
-        await unmute_user(bot, game, p.user_id, speak)
+        if p.user_id >= 0:
+            await unmute_user(bot, game, p.user_id, speak)
