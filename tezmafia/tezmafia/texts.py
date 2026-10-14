@@ -312,6 +312,13 @@ def lynch_text(game: Game, lang: str = "uz") -> str:
     return f"{ce('vote')} <b>{t(lang, 'lynch.title')}</b>\n{t(lang, 'lynch.body', name=name)}"
 
 
+def date_tag(ts: float) -> str:
+    """A date shown in the reader's own locale (date_time entity, short date)."""
+    import time
+
+    return f'<tg-time unix="{int(ts)}" format="d">{time.strftime("%Y-%m-%d", time.localtime(ts))}</tg-time>'
+
+
 def profile_text(
     name: str,
     games: int,
@@ -321,15 +328,22 @@ def profile_text(
     inventory: dict | None = None,
     next_role: str = "",
     lang: str = "uz",
+    vip_until: float | None = None,
+    badge: str = "",
 ) -> str:
+    from html import escape
+
     from tezmafia.shop import ITEMS
 
+    shown = f"{escape(badge)} {name}" if badge else name
     lines = [
-        f"{ce('search')} <b>{name}</b>",
+        f"{ce('search')} <b>{shown}</b>",
         f"{ce('group')} {t(lang, 'profile.games', n=games)}",
         f"{ce('party')} {t(lang, 'profile.wins', n=wins)}",
         f"{ce('star')} {t(lang, 'profile.wallet', coins=coins, gems=gems)}",
     ]
+    if vip_until:
+        lines.append(f"💎 {t(lang, 'profile.vip', date=date_tag(vip_until))}")
     bag = []
     for key, n in (inventory or {}).items():
         title = item_title(lang, key) if key in ITEMS else key
@@ -362,7 +376,12 @@ def shop_text(coins: int, gems: int, inventory: dict | None = None, lang: str = 
         lines.append(
             f"• <b>{item_title(lang, key)}</b> — ${item['cost']}{own}\n  {item_desc(lang, key)}"
         )
+    lines += ["", f"💎 {t(lang, 'stars.vip_desc')}", f"<i>{t(lang, 'stars.note')}</i>"]
     return "\n".join(lines)
+
+
+def gems_text(gems: int, lang: str = "uz") -> str:
+    return f"{ce('party')} <b>{t(lang, 'gems.title')}</b>\n{t(lang, 'gems.body', gems=gems)}"
 
 
 def top_text(rows: list[tuple[str, int, int]], lang: str = "uz") -> str:

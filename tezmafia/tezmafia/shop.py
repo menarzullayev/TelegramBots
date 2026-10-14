@@ -51,6 +51,27 @@ ALIASES = {
 }
 
 ROLE_TICKET_COST = 35
+
+# Telegram Stars products (currency XTR). Key -> (stars, coins). Bigger packs carry a bonus.
+STAR_PACKS: dict[str, tuple[int, int]] = {
+    "c100": (25, 100),
+    "c450": (100, 450),
+    "c1200": (250, 1200),
+    "c2600": (500, 2600),
+}
+VIP_STARS = 150
+VIP_PERIOD = 30 * 24 * 3600  # Telegram subscriptions are always 30 days
+VIP_COIN_BONUS = 0.5
+VIP_BADGE = "💎"
+
+# Gem cosmetics: key -> (emoji, gems). Pure decoration, no gameplay effect.
+BADGES: dict[str, tuple[str, int]] = {
+    "star": ("⭐", 3),
+    "rose": ("🌹", 5),
+    "skull": ("💀", 5),
+    "fire": ("🔥", 8),
+    "crown": ("👑", 12),
+}
 PLAY_COINS = 10
 WIN_COINS = 25
 WIN_GEMS = 1

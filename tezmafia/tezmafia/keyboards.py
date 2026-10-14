@@ -207,14 +207,38 @@ def menu_kb(lang: str = "uz") -> InlineKeyboardMarkup:
 
 
 def shop_kb(lang: str = "uz") -> InlineKeyboardMarkup:
-    from tezmafia.i18n import item_title
-    from tezmafia.shop import ITEMS
+    from tezmafia.i18n import item_title, t
+    from tezmafia.shop import ITEMS, STAR_PACKS, VIP_STARS
 
     rows = [
         [_btn(f"{item_title(lang, key)} — ${item['cost']}", callback_data=f"buy:{key}", emoji="star")]
         for key, item in ITEMS.items()
     ]
+    packs = [
+        _btn(t(lang, "btn.stars_pack", coins=coins, stars=stars), callback_data=f"st:{key}", style="primary")
+        for key, (stars, coins) in STAR_PACKS.items()
+    ]
+    rows += [packs[i : i + 2] for i in range(0, len(packs), 2)]
+    rows.append([_btn(t(lang, "btn.vip", stars=VIP_STARS), callback_data="st:vip", style="success", emoji="star")])
+    rows.append([_btn(t(lang, "btn.gems_shop"), callback_data="m:gems", emoji="party")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def gems_kb(owned: list[str], worn: str, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+    from tezmafia.shop import BADGES
+
+    rows = []
+    for key, (emoji, cost) in BADGES.items():
+        label = t(lang, "btn.badge_wear", icon=emoji) if key in owned else t(lang, "btn.badge_buy", icon=emoji, cost=cost)
+        rows.append([_btn(label, callback_data=f"gb:{key}", style="success" if emoji == worn else None)])
+    if worn:
+        rows.append([_btn(t(lang, "btn.badge_off"), callback_data="gb:off", emoji="cancel")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
+
+
+def link_kb(text: str, url: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[_btn(text, url=url, style="success", emoji="star")]])
 
 
 def lynch_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
