@@ -74,6 +74,7 @@ async function api(path, body) {
 
 function tabs() {
   const names = [["profile", S.strings["btn.profile"]], ["ach", S.strings["app.tab_ach"]], ["top", S.strings["app.tab_top"]], ["games", S.strings["app.tab_games"]], ["shop", S.strings["btn.shop"]]];
+  if (S.admin) names.push(["admin", S.admin.tab]);
   const nav = document.getElementById("tabs"); nav.replaceChildren();
   for (const [id, label] of names) nav.append(el("button", { role: "tab", "data-id": id, onclick: () => show(id) }, label));
 }
@@ -131,7 +132,9 @@ function render(active = "profile") {
         (b.worn ? "✓ " : "") + b.label)),
       p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""));
 
-  document.getElementById("root").replaceChildren(profile, ach, top, games, shop);
+  document.getElementById("root").replaceChildren(profile, ach, top, games, shop,
+    S.admin ? el("section", { id: "admin" }, el("div", { class: "card" }, el("p", { class: "name" }, S.admin.title),
+      ...S.admin.lines.map(x => el("div", {}, x)))) : "");
   tabs(); show(active);
 }
 

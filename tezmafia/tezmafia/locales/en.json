@@ -450,5 +450,19 @@
   "card.draw": "Draw",
   "go.stalemate": "Three nights and days without a death — the town is exhausted. A draw.",
   "go.short.stalemate": "a draw — nobody died for three rounds.",
-  "mod.admin_only": "This command is for group admins only."
+  "mod.admin_only": "This command is for group admins only.",
+  "founder.reward": "🎖 Thank you! The group you added played its first full game: +{coins} coins, +{gems} gems and the Founder badge.",
+  "news.title": "🗞 Qorashahar weekly — {week}",
+  "news.stats": "This week: {games} games, {players} players.",
+  "news.tour": "🏆 Tournament winners:",
+  "news.clans": "🛡 Clan ranking:",
+  "news.cta": "Play in your group — the host is free.",
+  "funnel.title": "📈 Funnel, last 7 days",
+  "funnel.added": "Groups that added the bot",
+  "funnel.lobbies": "Lobbies opened",
+  "funnel.started": "Games started",
+  "funnel.finished": "Games finished",
+  "funnel.repeat": "Groups that played again (2+)",
+  "app.tab_admin": "Admin",
+  "cmd.weekly": "Weekly digest (owner)"
 }

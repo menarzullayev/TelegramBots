@@ -450,5 +450,19 @@
   "card.draw": "Seri",
   "go.stalemate": "Tiga malam dan siang tanpa kematian — kota kelelahan. Seri.",
   "go.short.stalemate": "seri — tiga putaran tanpa kematian.",
-  "mod.admin_only": "Perintah ini khusus admin grup."
+  "mod.admin_only": "Perintah ini khusus admin grup.",
+  "founder.reward": "🎖 Terima kasih! Grup yang kamu tambahkan memainkan permainan penuh pertamanya: +{coins} koin, +{gems} permata dan lencana Pendiri.",
+  "news.title": "🗞 Mingguan Qorashahar — {week}",
+  "news.stats": "Minggu ini: {games} permainan, {players} pemain.",
+  "news.tour": "🏆 Pemenang turnamen:",
+  "news.clans": "🛡 Peringkat klan:",
+  "news.cta": "Main di grupmu — pemandunya gratis.",
+  "funnel.title": "📈 Corong, 7 hari terakhir",
+  "funnel.added": "Grup yang menambah bot",
+  "funnel.lobbies": "Lobi dibuka",
+  "funnel.started": "Permainan dimulai",
+  "funnel.finished": "Permainan selesai",
+  "funnel.repeat": "Grup yang main lagi (2+)",
+  "app.tab_admin": "Admin",
+  "cmd.weekly": "Ringkasan mingguan (pemilik)"
 }
