@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import random
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
@@ -53,13 +54,19 @@ from tezmafia.emoji import FX
 from tezmafia.engine import (
     Game,
     Phase,
+    add_bot,
     begin_lynch,
     begin_night,
     begin_voting,
+    bot_lynch_votes,
+    bot_night_moves,
+    bot_votes,
     can_start,
     cancel,
     end_if_stalemate,
     extend_lobby,
+    humans,
+    is_bot,
     join,
     kick,
     leave,
@@ -298,6 +305,8 @@ class App:
             return None
 
     async def dm(self, user_id: int, text: str, **kwargs: Any) -> bool:
+        if is_bot(user_id):
+            return True
         try:
             await self.bot.send_message(
                 user_id,
@@ -323,6 +332,8 @@ class App:
 
     async def dm_photo(self, user_id: int, name: str | None, text: str, **kwargs: Any) -> bool:
         """DM with a picture; any failure other than a closed DM falls back to the plain text DM."""
+        if is_bot(user_id):
+            return True
         photo = _photo(name) if name else None
         if not photo:
             return await self.dm(user_id, text, **kwargs)
@@ -547,6 +558,7 @@ class App:
             await self.finish(game)
             return
         begin_night(game, time.time(), self.timer(game, "night"))
+        bot_night_moves(game, random.Random())
         await self.persist(game)
         self.schedule(game.id, self.timer(game, "night"), lambda: self._timed_resolve_night(game.id))
         await apply_phase_mutes(self.bot, game, night=True, enabled=self.mute_on(game))
@@ -583,6 +595,7 @@ class App:
 
     async def enter_vote(self, game: Game) -> None:
         begin_voting(game, time.time(), self.timer(game, "vote"))
+        bot_votes(game, random.Random())
         await self.persist(game)
         self.schedule(game.id, self.timer(game, "vote"), lambda: self._timed_resolve_vote(game.id))
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.mute_on(game))
@@ -596,21 +609,26 @@ class App:
         from tezmafia.engine import player_won
         from tezmafia.progress import Outcome, earned, level_of, xp_for
         from tezmafia.retention import QUEST_COINS, QUEST_XP, quest_increments, todays_quests
-        from tezmafia.social import FAIR_AFK_PENALTY, FAIR_GAME_BONUS, week_key
+        from tezmafia.social import FAIR_AFK_PENALTY, FAIR_GAME_BONUS, reward_tier, week_key
 
         notes: dict[int, str] = {}
         quest_notes: dict[int, list[str]] = {}
         card_jobs: list[tuple[Any, bool, dict[str, int]]] = []
         retry = self.store.retry
         afk_seats = {ev.get("seat") for ev in game.chronicle if ev.get("cause") == "afk"}
-        rows = [(p.user_id, p.first_name, player_won(game, p), p.alive, p.seat in afk_seats) for p in game.players]
+        people = humans(game)
+        tier = reward_tier(len(people), len(game.players))
+        rows = [(p.user_id, p.first_name, player_won(game, p), p.alive, p.seat in afk_seats) for p in people]
         all_totals = await retry(lambda: self.store.record_game(
-            game.id, game.chat_id, rows, time.strftime("%Y-%m"), week_key(), (FAIR_AFK_PENALTY, FAIR_GAME_BONUS)
+            game.id, game.chat_id, rows, time.strftime("%Y-%m"), week_key(), (FAIR_AFK_PENALTY, FAIR_GAME_BONUS), tier
         ))
-        for p in game.players:
+        for p in people:
             won = player_won(game, p)
             totals = all_totals[p.user_id]
             card_jobs.append((p, won, totals))
+            if tier != "full":  # with bots at the table: no quests, achievements or referral payouts (no farming)
+                notes[p.user_id] = t(await self.lang(p.user_id), "bot.reward_note", humans=len(people))
+                continue
             outcome = Outcome(
                 role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
             )
@@ -713,7 +731,7 @@ class App:
         """The admin who added the bot is paid once when the group plays its first full game."""
         from tezmafia.social import FOUNDER_COINS, FOUNDER_GEMS, FOUNDER_MAX_GROUPS, FOUNDER_MIN_PLAYERS
 
-        if not game.winner or len(game.players) < FOUNDER_MIN_PLAYERS:
+        if not game.winner or len(humans(game)) < FOUNDER_MIN_PLAYERS:
             return
         uid = await self.store.claim_founder_reward(game.chat_id, FOUNDER_MAX_GROUPS)
         if uid is None:
@@ -742,7 +760,7 @@ class App:
             except TelegramAPIError:
                 log.warning("weekly channel post failed", exc_info=True)
         report = "\n".join([f"<b>{t('uz', 'funnel.title')}</b>", *texts.funnel_lines(f, "uz")])
-        if self.settings.owner_id:
+        if post and self.settings.owner_id:
             await self.dm(self.settings.owner_id, report)
         return text + "\n\n" + report
 
@@ -882,6 +900,7 @@ class App:
 
     async def enter_lynch(self, game: Game, seat: int) -> None:
         begin_lynch(game, seat, time.time(), self.timer(game, "lynch"))
+        bot_lynch_votes(game, random.Random())
         await self.persist(game)
         self.schedule(game.id, self.timer(game, "lynch"), lambda: self._timed_resolve_lynch(game.id))
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.mute_on(game))
@@ -1888,6 +1907,53 @@ async def cmd_groupstats(message: Message) -> None:
     await message.answer(texts.group_stats_text(stats, season, lang))
 
 
+async def _seat_bots(game: Game, user_id: int, count: int, lang: str) -> str | None:
+    """Host (or owner) fills seats with bots; returns a refusal text or None."""
+    if user_id not in {game.host_id, app.settings.owner_id}:
+        return t(lang, "next.host_only")
+    for _ in range(max(1, min(count, 22))):
+        ok, reason = add_bot(game, t(lang, "bot.name"))
+        if not ok:
+            if reason == "full":
+                break
+            return t(lang, "extend.no_lobby")
+    await app.persist(game)
+    await app.refresh_lobby(game)
+    return None
+
+
+@router.message(Command("addbot"))
+async def cmd_addbot(message: Message, command: CommandObject) -> None:
+    if not message.from_user or not _is_group(message):
+        return
+    lang = await _lang(message.chat.id)
+    arg = (command.args or "").strip()
+    async with app.locks(message.chat.id):
+        game = await app.store.active_in_chat(message.chat.id)
+        if not game or game.phase != Phase.LOBBY:
+            await message.answer(t(lang, "extend.no_lobby"))
+            return
+        refusal = await _seat_bots(game, message.from_user.id, int(arg) if arg.isdigit() else 1, lang)
+    if refusal:
+        await message.answer(refusal)
+
+
+@router.callback_query(F.data.startswith("ab:"))
+async def cb_addbot(query: CallbackQuery) -> None:
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user:
+        await query.answer()
+        return
+    lang = await _lang(query.from_user.id)
+    async with app.game_lock(parts[1]):
+        game = await app.store.load(parts[1])
+        if not game or game.phase != Phase.LOBBY:
+            await query.answer(t(lang, "extend.no_lobby"), show_alert=True)
+            return
+        refusal = await _seat_bots(game, query.from_user.id, 1, lang)
+    await query.answer(refusal or "🤖", show_alert=bool(refusal))
+
+
 @router.message(Command("weekly"))
 async def cmd_weekly(message: Message, command: CommandObject) -> None:
     """Owner only: /weekly shows the digest and the funnel; /weekly post also posts it to the channel."""
@@ -2628,6 +2694,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="config", description=cmd(lang, "config")),
         BotCommand(command="history", description=cmd(lang, "history")),
         BotCommand(command="schedule", description=cmd(lang, "schedule")),
+        BotCommand(command="addbot", description=cmd(lang, "addbot")),
         BotCommand(command="groupstats", description=cmd(lang, "groupstats")),
         BotCommand(command="kick", description=cmd(lang, "kick")),
         BotCommand(command="ban", description=cmd(lang, "ban")),
@@ -2661,7 +2728,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban",
+        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

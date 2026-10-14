@@ -464,5 +464,9 @@
   "funnel.finished": "Permainan selesai",
   "funnel.repeat": "Grup yang main lagi (2+)",
   "app.tab_admin": "Admin",
-  "cmd.weekly": "Ringkasan mingguan (pemilik)"
+  "cmd.weekly": "Ringkasan mingguan (pemilik)",
+  "btn.add_bot": "Tambah bot",
+  "bot.name": "Robot",
+  "cmd.addbot": "Isi kursi dengan bot (host)",
+  "bot.reward_note": "🤖 Permainan dengan bot: {humans} orang — hadiah dikurangi."
 }

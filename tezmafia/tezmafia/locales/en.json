@@ -464,5 +464,9 @@
   "funnel.finished": "Games finished",
   "funnel.repeat": "Groups that played again (2+)",
   "app.tab_admin": "Admin",
-  "cmd.weekly": "Weekly digest (owner)"
+  "cmd.weekly": "Weekly digest (owner)",
+  "btn.add_bot": "Add a bot",
+  "bot.name": "Robot",
+  "cmd.addbot": "Fill a seat with a bot (host)",
+  "bot.reward_note": "🤖 Game with bots: {humans} people — reduced rewards."
 }

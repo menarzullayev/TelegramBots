@@ -464,5 +464,9 @@
   "funnel.finished": "Bitən oyunlar",
   "funnel.repeat": "Yenidən oynayan qruplar (2+)",
   "app.tab_admin": "Admin",
-  "cmd.weekly": "Həftəlik icmal (sahib)"
+  "cmd.weekly": "Həftəlik icmal (sahib)",
+  "btn.add_bot": "Bot əlavə et",
+  "bot.name": "Robot",
+  "cmd.addbot": "Boş yerə bot əlavə et (aparıcı)",
+  "bot.reward_note": "🤖 Botlu oyun: {humans} insan — mükafat azaldılıb."
 }

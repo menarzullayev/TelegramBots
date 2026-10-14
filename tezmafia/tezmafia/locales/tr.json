@@ -464,5 +464,9 @@
   "funnel.finished": "Biten oyunlar",
   "funnel.repeat": "Yeniden oynayan gruplar (2+)",
   "app.tab_admin": "Yönetici",
-  "cmd.weekly": "Haftalık özet (sahip)"
+  "cmd.weekly": "Haftalık özet (sahip)",
+  "btn.add_bot": "Bot ekle",
+  "bot.name": "Robot",
+  "cmd.addbot": "Boş yere bot ekle (sunucu)",
+  "bot.reward_note": "🤖 Botlu oyun: {humans} kişi — ödüller azaltıldı."
 }
