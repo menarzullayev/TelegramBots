@@ -493,5 +493,19 @@
   "premium.only": "Bu sozlama guruh premiumida ochiladi: /premium",
   "gs.months": "📅 Oylar bo‘yicha:",
   "gs.month_row": "{month}: {players} o‘yinchi · 1-o‘rin {name} ({wins})",
-  "cmd.premium": "Guruh premium"
+  "cmd.premium": "Guruh premium",
+  "pass.title": "🎟 Qorashahar pass — {season}",
+  "pass.soon": "Mavsumiy pass {season} dan boshlanadi.",
+  "pass.progress": "Bosqich {tier}/{tiers} · {xp} XP (keyingisigacha {left} XP)",
+  "pass.tracks": "Bepul yo‘lak: har bosqich coin, har 5-bosqich olmos.\nPullik yo‘lak: olmos, coin, 10-bosqichda skin, 20-bosqichda 🎟 belgisi.",
+  "pass.premium_on": "⭐ Pullik yo‘lak ochiq.",
+  "btn.pass_claim": "🎁 Olish ({n})",
+  "btn.pass_buy": "⭐ {stars} — pullik yo‘lak",
+  "pass.claimed": "Olindi: +{coins} coin, +{gems} olmos{extra}",
+  "pass.extra_skin": ", yangi skin: {name}",
+  "pass.extra_badge": ", 🎟 belgisi",
+  "pass.nothing": "Hozircha olinadigan mukofot yo‘q — o‘ynashda davom eting.",
+  "pass.inv_desc": "{season} mavsumining pullik yo‘lagi: olmos, coin, skin va 🎟 belgisi.",
+  "pass.paid": "⭐ Pullik yo‘lak ochildi ({season}). /pass — mukofotlarni oling.",
+  "cmd.pass": "Mavsumiy pass"
 }

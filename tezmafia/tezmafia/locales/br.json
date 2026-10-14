@@ -493,5 +493,19 @@
   "premium.only": "Esta opção vem com o premium do grupo: /premium",
   "gs.months": "📅 Por mês:",
   "gs.month_row": "{month}: {players} jogadores · 1º {name} ({wins})",
-  "cmd.premium": "Premium do grupo"
+  "cmd.premium": "Premium do grupo",
+  "pass.title": "🎟 Passe Qorashahar — {season}",
+  "pass.soon": "O passe começa em {season}.",
+  "pass.progress": "Nível {tier}/{tiers} · {xp} XP ({left} XP para o próximo)",
+  "pass.tracks": "Trilha grátis: moedas a cada nível, gema a cada 5º.\nPaga: gemas, moedas, skin no 10, selo 🎟 no 20.",
+  "pass.premium_on": "⭐ Trilha paga liberada.",
+  "btn.pass_claim": "🎁 Resgatar ({n})",
+  "btn.pass_buy": "⭐ {stars} — trilha paga",
+  "pass.claimed": "Resgatado: +{coins} moedas, +{gems} gemas{extra}",
+  "pass.extra_skin": ", nova skin: {name}",
+  "pass.extra_badge": ", o selo 🎟",
+  "pass.nothing": "Nada para resgatar ainda — continue jogando.",
+  "pass.inv_desc": "Trilha paga da temporada {season}: gemas, moedas, skin e selo 🎟.",
+  "pass.paid": "⭐ Trilha paga liberada ({season}). /pass para resgatar.",
+  "cmd.pass": "Passe da temporada"
 }
