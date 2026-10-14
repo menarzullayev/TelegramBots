@@ -346,3 +346,17 @@ def top_kb(view: str, in_group: bool, lang: str = "uz") -> InlineKeyboardMarkup:
             ]
         ]
     )
+
+
+def remind_kb(schedule_id: int, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[_btn(t(lang, "btn.remind"), callback_data=f"sub:{schedule_id}", style="primary", emoji="timer")]]
+    )
+
+
+def invite_kb(link: str, lang: str = "uz") -> InlineKeyboardMarkup:
+    from tezmafia.i18n import t
+
+    return InlineKeyboardMarkup(inline_keyboard=[[_btn(t(lang, "btn.link"), copy_text=link, emoji="pin")]])

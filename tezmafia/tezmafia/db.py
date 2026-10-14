@@ -54,6 +54,45 @@ class UserStat(Base):
     badge: Mapped[str] = mapped_column(String(16), default="")
     badges: Mapped[str] = mapped_column(Text, default="[]")
     xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    daily_last: Mapped[str] = mapped_column(String(10), default="", server_default="")
+    daily_streak: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class QuestProgress(Base):
+    __tablename__ = "quest_progress"
+
+    day: Mapped[str] = mapped_column(String(10), primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    key: Mapped[str] = mapped_column(String(32), primary_key=True)
+    progress: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    done: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class Referral(Base):
+    __tablename__ = "referrals"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    referrer_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
+    rewarded: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class Schedule(Base):
+    __tablename__ = "schedules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    at: Mapped[float] = mapped_column(Float)
+    created_by: Mapped[int] = mapped_column(BigInteger)
+    creator_name: Mapped[str] = mapped_column(String(128), default="")
+    state: Mapped[str] = mapped_column(String(12), default="pending", server_default="pending")
+
+
+class ScheduleSub(Base):
+    __tablename__ = "schedule_subs"
+
+    schedule_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
 
 
 class SeasonStat(Base):
@@ -148,6 +187,8 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN badge VARCHAR(16) DEFAULT ''",
                 "ALTER TABLE stats ADD COLUMN badges TEXT DEFAULT '[]'",
                 "ALTER TABLE stats ADD COLUMN xp INTEGER DEFAULT 0",
+                "ALTER TABLE stats ADD COLUMN daily_last VARCHAR(10) DEFAULT ''",
+                "ALTER TABLE stats ADD COLUMN daily_streak INTEGER DEFAULT 0",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
@@ -206,6 +247,8 @@ class Store:
             prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
             await s.execute(delete(Activity).where(Activity.user_id == user_id))
             await s.execute(delete(Achievement).where(Achievement.user_id == user_id))
+            await s.execute(delete(QuestProgress).where(QuestProgress.user_id == user_id))
+            await s.execute(delete(ScheduleSub).where(ScheduleSub.user_id == user_id))
             await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
             for row in rows:
@@ -303,7 +346,7 @@ class Store:
         await s.execute(
             text(
                 "INSERT OR IGNORE INTO stats (user_id, name, games, wins, coins, gems, inventory, next_role, first_seen,"
-                " badge, badges, xp) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]', 0)"
+                " badge, badges, xp, daily_last, daily_streak) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]', 0, '', 0)"
             ),
             {"u": user_id, "n": name[:128], "t": time.time()},
         )
@@ -331,6 +374,148 @@ class Store:
             ).one()
             await s.commit()
         return {"games": row[0], "wins": row[1], "xp": row[2] or 0}
+
+    # --- retention: daily bonus, quests, referrals, schedules -------------------------------
+
+    async def add_xp(self, user_id: int, xp: int) -> None:
+        async with self.session() as s:
+            await s.execute(text("UPDATE stats SET xp = COALESCE(xp, 0) + :x WHERE user_id = :u"), {"x": xp, "u": user_id})
+            await s.commit()
+
+    async def claim_daily(self, user_id: int, name: str, today: str, yesterday: str) -> dict[str, int] | None:
+        """Give today's bonus once; None if it was already taken."""
+        from tezmafia.retention import daily_reward, next_streak
+
+        async with self.session() as s:
+            await self._ensure(s, user_id, name)
+            row = await s.get(UserStat, user_id)
+            streak = next_streak(row.daily_last or "", today, yesterday, row.daily_streak or 0)
+            if streak is None:
+                return None
+            coins, gems = daily_reward(streak)
+            res = await s.execute(
+                text(
+                    "UPDATE stats SET daily_last = :d, daily_streak = :k, coins = COALESCE(coins, 0) + :c,"
+                    " gems = COALESCE(gems, 0) + :g WHERE user_id = :u AND COALESCE(daily_last, '') != :d"
+                ),
+                {"d": today, "k": streak, "c": coins, "g": gems, "u": user_id},
+            )
+            await s.commit()
+            if not res.rowcount:
+                return None  # a parallel claim won
+        return {"streak": streak, "coins": coins, "gems": gems}
+
+    async def streaks_at_risk(self, yesterday: str, min_streak: int = 2) -> list[tuple[int, int]]:
+        """Users who claimed yesterday (streak >= min) and not yet today."""
+        async with self.session() as s:
+            q = await s.execute(
+                select(UserStat.user_id, UserStat.daily_streak).where(
+                    UserStat.daily_last == yesterday, UserStat.daily_streak >= min_streak
+                )
+            )
+            return [(r[0], r[1]) for r in q.all()]
+
+    async def quest_advance(self, day: str, user_id: int, steps: dict[str, int]) -> list[str]:
+        """Add progress; returns quests that became complete with this call."""
+        from tezmafia.retention import QUESTS
+
+        finished: list[str] = []
+        async with self.session() as s:
+            for key, inc in steps.items():
+                target = QUESTS[key][0]
+                row = await s.get(QuestProgress, (day, user_id, key))
+                if row is None:
+                    row = QuestProgress(day=day, user_id=user_id, key=key, progress=0, done=0)
+                    s.add(row)
+                if row.done:
+                    continue
+                row.progress = min(target, (row.progress or 0) + inc)
+                if row.progress >= target:
+                    row.done = 1
+                    finished.append(key)
+            await s.commit()
+        return finished
+
+    async def quest_state(self, day: str, user_id: int) -> dict[str, tuple[int, bool]]:
+        async with self.session() as s:
+            q = await s.execute(select(QuestProgress).where(QuestProgress.day == day, QuestProgress.user_id == user_id))
+            return {r.key: (r.progress or 0, bool(r.done)) for r in q.scalars()}
+
+    async def add_referral(self, user_id: int, referrer_id: int) -> bool:
+        """Only brand-new users (no stats row, never referred) can be referred, and not by themselves."""
+        if user_id == referrer_id:
+            return False
+        async with self.session() as s:
+            if await s.get(UserStat, user_id) is not None or await s.get(Referral, user_id) is not None:
+                return False
+            s.add(Referral(user_id=user_id, referrer_id=referrer_id, at=time.time(), rewarded=0))
+            await s.commit()
+        return True
+
+    async def take_referral(self, user_id: int) -> int | None:
+        """Referrer id the first time this referred user is rewarded; None otherwise."""
+        async with self.session() as s:
+            res = await s.execute(
+                text("UPDATE referrals SET rewarded = 1 WHERE user_id = :u AND rewarded = 0"), {"u": user_id}
+            )
+            if not res.rowcount:
+                return None
+            ref = await s.get(Referral, user_id)
+            await s.commit()
+            return ref.referrer_id if ref else None
+
+    async def referral_count(self, referrer_id: int) -> int:
+        async with self.session() as s:
+            return (
+                await s.execute(select(func.count()).select_from(Referral).where(Referral.referrer_id == referrer_id))
+            ).scalar_one()
+
+    async def create_schedule(self, chat_id: int, at: float, created_by: int, name: str) -> int:
+        async with self.session() as s:
+            await s.execute(
+                text("UPDATE schedules SET state = 'cancelled' WHERE chat_id = :c AND state IN ('pending', 'notified')"),
+                {"c": chat_id},
+            )
+            row = Schedule(chat_id=chat_id, at=at, created_by=created_by, creator_name=name[:128], state="pending")
+            s.add(row)
+            await s.commit()
+            return row.id
+
+    async def cancel_schedule(self, chat_id: int) -> bool:
+        async with self.session() as s:
+            res = await s.execute(
+                text("UPDATE schedules SET state = 'cancelled' WHERE chat_id = :c AND state IN ('pending', 'notified')"),
+                {"c": chat_id},
+            )
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def subscribe(self, schedule_id: int, user_id: int) -> bool:
+        async with self.session() as s:
+            row = await s.get(Schedule, schedule_id)
+            if not row or row.state not in ("pending", "notified"):
+                return False
+            await s.execute(
+                text("INSERT OR IGNORE INTO schedule_subs (schedule_id, user_id) VALUES (:s, :u)"),
+                {"s": schedule_id, "u": user_id},
+            )
+            await s.commit()
+        return True
+
+    async def open_schedules(self) -> list[Schedule]:
+        async with self.session() as s:
+            q = await s.execute(select(Schedule).where(Schedule.state.in_(("pending", "notified"))))
+            return list(q.scalars())
+
+    async def set_schedule_state(self, schedule_id: int, state: str) -> None:
+        async with self.session() as s:
+            await s.execute(text("UPDATE schedules SET state = :st WHERE id = :i"), {"st": state, "i": schedule_id})
+            await s.commit()
+
+    async def schedule_subscribers(self, schedule_id: int) -> list[int]:
+        async with self.session() as s:
+            q = await s.execute(select(ScheduleSub.user_id).where(ScheduleSub.schedule_id == schedule_id))
+            return list(q.scalars())
 
     async def award(self, user_id: int, keys: set[str]) -> list[str]:
         """Grant achievements; returns only the ones the user did not have yet."""
@@ -400,7 +585,7 @@ class Store:
             await self._ensure(s, user_id, name)
             await s.execute(
                 text(
-                    "UPDATE stats SET name = :n, coins = MAX(0, COALESCE(coins, 0) + :c),"
+                    "UPDATE stats SET name = CASE WHEN :n != '' THEN :n ELSE name END, coins = MAX(0, COALESCE(coins, 0) + :c),"
                     " gems = MAX(0, COALESCE(gems, 0) + :g) WHERE user_id = :u"
                 ),
                 {"n": name[:128], "c": coins, "g": gems, "u": user_id},

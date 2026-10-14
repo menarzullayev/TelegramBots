@@ -528,3 +528,21 @@ def progress_dm(new_keys: list[str], level_up: int | None, lang: str = "uz") -> 
     if level_up:
         lines.append(f"⭐ <b>{t(lang, 'lvl.up', level=level_up)}</b>")
     return "\n".join(lines)
+
+
+def quests_text(day: str, state: dict[str, tuple[int, bool]], lang: str = "uz") -> str:
+    from tezmafia.retention import QUEST_COINS, QUEST_XP, QUESTS, todays_quests
+
+    lines = [f"{ce('check')} <b>{t(lang, 'quests.title')}</b>"]
+    for key in todays_quests(day):
+        target = QUESTS[key][0]
+        progress, done = state.get(key, (0, False))
+        mark = "✅" if done else "▫️"
+        lines.append(f"{mark} {t(lang, 'q.' + key)} — {min(progress, target)}/{target}")
+    lines.append("")
+    lines.append(f"<i>{t(lang, 'quests.reward', coins=QUEST_COINS, xp=QUEST_XP)}</i>")
+    return "\n".join(lines)
+
+
+def quest_lines(keys: list[str], lang: str = "uz") -> list[str]:
+    return [f"✅ {t(lang, 'quests.done', quest=t(lang, 'q.' + k))}" for k in keys]

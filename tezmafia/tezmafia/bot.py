@@ -75,6 +75,7 @@ from tezmafia.keyboards import (
     delete_kb,
     gems_kb,
     host_kb,
+    invite_kb,
     lang_kb,
     link_kb,
     lobby_kb,
@@ -83,6 +84,7 @@ from tezmafia.keyboards import (
     my_role_kb,
     night_kb,
     rematch_kb,
+    remind_kb,
     roles_kb,
     shop_kb,
     top_kb,
@@ -529,8 +531,10 @@ class App:
 
     async def record_stats(self, game: Game) -> None:
         from tezmafia.progress import Outcome, earned, level_of, xp_for
+        from tezmafia.retention import QUEST_COINS, QUEST_XP, quest_increments, todays_quests
 
         notes: list[tuple[int, list[str], int | None]] = []
+        quest_notes: dict[int, list[str]] = {}
         for p in game.players:
             won = (
                 (game.winner == "mafia" and p.faction == "mafia")
@@ -547,12 +551,80 @@ class App:
             outcome = Outcome(
                 role=p.role or "", faction=p.faction or "", winner=game.winner or "", won=won, alive=p.alive, **totals
             )
+            day = time.strftime("%Y-%m-%d")
+            done_quests = await self.store.quest_advance(day, p.user_id, quest_increments(day, outcome))
+            if done_quests:
+                await self.store.credit_wallet(p.user_id, p.first_name, coins=QUEST_COINS * len(done_quests))
+                await self.store.add_xp(p.user_id, QUEST_XP * len(done_quests))
+                state = await self.store.quest_state(day, p.user_id)
+                if all(state.get(k, (0, False))[1] for k in todays_quests(day)):
+                    await self.store.credit_wallet(p.user_id, p.first_name, gems=1)
+                quest_notes[p.user_id] = done_quests
+            if totals["games"] == 1:
+                await self.reward_referral(p.user_id, p.first_name)
             fresh = await self.store.award(p.user_id, earned(outcome))
             before, after = level_of(totals["xp"] - xp_for(won, p.alive)), level_of(totals["xp"])
-            if fresh or after > before:
+            if fresh or after > before or p.user_id in quest_notes:
                 notes.append((p.user_id, fresh, after if after > before else None))
         for user_id, fresh, level_up in notes:
-            await self.dm(user_id, texts.progress_dm(fresh, level_up, await self.lang(user_id)))
+            lang = await self.lang(user_id)
+            lines = [texts.progress_dm(fresh, level_up, lang), *texts.quest_lines(quest_notes.get(user_id, []), lang)]
+            await self.dm(user_id, "\n".join(line for line in lines if line))
+
+    async def reward_referral(self, user_id: int, name: str) -> None:
+        """A referred player's first finished game pays both sides once."""
+        from tezmafia.retention import REF_INVITER_COINS, REF_NEW_COINS
+
+        referrer = await self.store.take_referral(user_id)
+        if not referrer:
+            return
+        await self.store.credit_wallet(user_id, name, coins=REF_NEW_COINS)
+        await self.store.credit_wallet(referrer, "", coins=REF_INVITER_COINS)
+        await self.dm(
+            referrer, t(await self.lang(referrer), "invite.reward", name=escape(name), coins=REF_INVITER_COINS)
+        )
+
+    async def scheduler_loop(self, interval: float = 30.0) -> None:
+        while True:
+            await asyncio.sleep(interval)
+            try:
+                await self.scheduler_pass()
+            except Exception:
+                log.exception("scheduler pass failed")
+
+    async def scheduler_pass(self, now: float | None = None, lead: float = 900.0) -> None:
+        """Remind subscribers ~15 minutes ahead, then open the lobby on time."""
+        now = now or time.time()
+        for sch in await self.store.open_schedules():
+            lang = await self.lang(sch.chat_id)
+            when = f'<tg-time unix="{int(sch.at)}" format="t">{time.strftime("%H:%M", time.localtime(sch.at))}</tg-time>'
+            if sch.state == "pending" and now >= sch.at - lead:
+                await self.store.set_schedule_state(sch.id, "notified")
+                for uid in await self.store.schedule_subscribers(sch.id):
+                    await self.dm(uid, t(await self.lang(uid), "sched.soon", when=when))
+                try:
+                    await self.bot.send_message(sch.chat_id, "⏰ " + t(lang, "sched.soon", when=when))
+                except TelegramAPIError:
+                    log.info("schedule notice failed chat=%s", sch.chat_id, exc_info=True)
+            if now >= sch.at:
+                await self.store.set_schedule_state(sch.id, "started")
+                async with self.locks(sch.chat_id):
+                    if not await self.store.active_in_chat(sch.chat_id):
+                        await self.open_lobby(sch.chat_id, sch.created_by, sch.creator_name or "Host", None)
+
+    async def streak_reminder_loop(self, hour: int = 19) -> None:
+        while True:
+            now = time.localtime()
+            target = time.mktime((*now[:3], hour, 0, 0, 0, 0, -1))
+            if target <= time.time():
+                target += 86400
+            await asyncio.sleep(target - time.time())
+            try:
+                yesterday = time.strftime("%Y-%m-%d", time.localtime(time.time() - 86400))
+                for uid, streak in await self.store.streaks_at_risk(yesterday):
+                    await self.dm(uid, t(await self.lang(uid), "daily.remind", streak=streak))
+            except Exception:
+                log.exception("streak reminders failed")
 
     async def finish(self, game: Game) -> None:
         self.cancel_timer(game.id)
@@ -1356,6 +1428,96 @@ async def cb_rematch(query: CallbackQuery) -> None:
             await app.dm(p.user_id, t(await app.lang(p.user_id), "rematch.invite", host=escape(user.first_name), link=link))
 
 
+@router.message(Command("daily"))
+async def cmd_daily(message: Message) -> None:
+    if not message.from_user:
+        return
+    lang = await _lang(message.chat.id)
+    today = time.strftime("%Y-%m-%d")
+    yesterday = time.strftime("%Y-%m-%d", time.localtime(time.time() - 86400))
+    got = await app.store.claim_daily(message.from_user.id, message.from_user.first_name, today, yesterday)
+    if got is None:
+        midnight = time.mktime((*time.localtime()[:3], 0, 0, 0, 0, 0, -1)) + 86400
+        when = f'<tg-time unix="{int(midnight)}" format="r">00:00</tg-time>'
+        await message.answer(t(lang, "daily.already", when=when))
+        return
+    gem = t(lang, "daily.gem") if got["gems"] else ""
+    await message.answer("🎁 " + t(lang, "daily.got", coins=got["coins"], gem=gem, streak=got["streak"]))
+
+
+@router.message(Command("quests"))
+async def cmd_quests(message: Message) -> None:
+    if not message.from_user:
+        return
+    lang = await _lang(message.chat.id)
+    day = time.strftime("%Y-%m-%d")
+    await message.answer(texts.quests_text(day, await app.store.quest_state(day, message.from_user.id), lang))
+
+
+@router.message(Command("invite"))
+async def cmd_invite(message: Message) -> None:
+    if not message.from_user:
+        return
+    from tezmafia.retention import REF_INVITER_COINS, REF_NEW_COINS
+
+    lang = await _lang(message.chat.id)
+    link = f"https://t.me/{app.settings.bot_username}?start=ref_{message.from_user.id}"
+    n = await app.store.referral_count(message.from_user.id)
+    await message.answer(
+        t(lang, "invite.text", you=REF_INVITER_COINS, them=REF_NEW_COINS, n=n, link=link),
+        reply_markup=invite_kb(link, lang),
+        link_preview_options=NO_PREVIEW,
+    )
+
+
+@router.message(Command("schedule"))
+async def cmd_schedule(message: Message, command: CommandObject) -> None:
+    lang = await _lang(message.chat.id)
+    if not message.from_user or not _is_group(message):
+        await message.answer(t(lang, "mafia.group_only"))
+        return
+    if not await _is_admin(message.chat.id, message.from_user.id):
+        await message.answer(t(lang, "config.admin_only"))
+        return
+    arg = (command.args or "").strip().lower()
+    if arg in ("off", "stop", "cancel"):
+        await app.store.cancel_schedule(message.chat.id)
+        await message.answer(t(lang, "sched.off"))
+        return
+    at = _parse_hhmm(arg)
+    if at is None:
+        await message.answer(t(lang, "sched.usage"))
+        return
+    sid = await app.store.create_schedule(message.chat.id, at, message.from_user.id, message.from_user.first_name)
+    when = f'<tg-time unix="{int(at)}" format="wDT">{time.strftime("%d.%m %H:%M", time.localtime(at))}</tg-time>'
+    await message.answer("📅 " + t(lang, "sched.set", when=when), reply_markup=remind_kb(sid, lang))
+
+
+def _parse_hhmm(raw: str, now: float | None = None) -> float | None:
+    """Next local occurrence of HH:MM (today if still ahead, else tomorrow)."""
+    parts = raw.replace(".", ":").split(":")
+    if len(parts) != 2 or not all(p.isdigit() for p in parts):
+        return None
+    hh, mm = int(parts[0]), int(parts[1])
+    if not (0 <= hh < 24 and 0 <= mm < 60):
+        return None
+    now = now or time.time()
+    lt = time.localtime(now)
+    at = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, hh, mm, 0, 0, 0, -1))
+    return at if at > now + 60 else at + 86400
+
+
+@router.callback_query(F.data.startswith("sub:"))
+async def cb_subscribe(query: CallbackQuery) -> None:
+    parts = _cb_parts(query.data, 2)
+    if not parts or not parts[1].isdigit() or not query.from_user:
+        await query.answer()
+        return
+    lang = await _lang(query.from_user.id)
+    ok = await app.store.subscribe(int(parts[1]), query.from_user.id)
+    await query.answer(t(lang, "sched.subscribed") if ok else t(lang, "sched.off"), show_alert=not ok)
+
+
 @router.message(Command("privacy"))
 async def cmd_privacy(message: Message) -> None:
     lang = await _lang(message.chat.id)
@@ -1504,6 +1666,12 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         await cmd_mafia(message)
         return
     lang = await _lang(message.chat.id)
+    if payload.startswith("ref_") and payload[4:].isdigit():
+        from tezmafia.retention import REF_NEW_COINS
+
+        if await app.store.add_referral(message.from_user.id, int(payload[4:])):
+            await message.answer(t(lang, "invite.welcome", coins=REF_NEW_COINS))
+        payload = ""
     if payload == "app":
         await _send_app(message, lang)
         return
@@ -2069,6 +2237,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="stop", description=cmd(lang, "stop")),
         BotCommand(command="config", description=cmd(lang, "config")),
         BotCommand(command="history", description=cmd(lang, "history")),
+        BotCommand(command="schedule", description=cmd(lang, "schedule")),
         BotCommand(command="help", description=cmd(lang, "help")),
     ]
     private = [
@@ -2080,6 +2249,9 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="roles", description=cmd(lang, "roles")),
         BotCommand(command="status", description=cmd(lang, "status_dm")),
         BotCommand(command="app", description=cmd(lang, "app")),
+        BotCommand(command="daily", description=cmd(lang, "daily")),
+        BotCommand(command="quests", description=cmd(lang, "quests")),
+        BotCommand(command="invite", description=cmd(lang, "invite")),
         BotCommand(command="paysupport", description=cmd(lang, "paysupport")),
         BotCommand(command="terms", description=cmd(lang, "terms")),
         BotCommand(command="privacy", description=cmd(lang, "privacy")),
@@ -2093,6 +2265,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
+        "daily", "quests", "invite", "schedule",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()
@@ -2243,7 +2416,12 @@ async def run() -> None:
         log.exception("setup_bot_profile failed; continuing to poll")
     await app.recover()
     await assert_polling_contract(bot)
-    background = [asyncio.create_task(app.watchdog()), asyncio.create_task(app.daily_report_loop())]
+    background = [
+        asyncio.create_task(app.watchdog()),
+        asyncio.create_task(app.daily_report_loop()),
+        asyncio.create_task(app.scheduler_loop()),
+        asyncio.create_task(app.streak_reminder_loop()),
+    ]
     web_runner = None
     if settings.webapp_port:
         from tezmafia.webapp.server import start_server
