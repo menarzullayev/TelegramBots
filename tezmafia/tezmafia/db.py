@@ -53,6 +53,28 @@ class UserStat(Base):
     vip_until: Mapped[float | None] = mapped_column(Float, nullable=True)
     badge: Mapped[str] = mapped_column(String(16), default="")
     badges: Mapped[str] = mapped_column(Text, default="[]")
+    xp: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class SeasonStat(Base):
+    """Monthly ranking rows; chat_id 0 is the global ladder, other ids are per-group ladders."""
+
+    __tablename__ = "season_stats"
+
+    season: Mapped[str] = mapped_column(String(7), primary_key=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    name: Mapped[str] = mapped_column(String(128), default="")
+    games: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    wins: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    key: Mapped[str] = mapped_column(String(32), primary_key=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
 
 
 class Payment(Base):
@@ -77,6 +99,15 @@ class Activity(Base):
     day: Mapped[str] = mapped_column(String(10), primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     channel: Mapped[str] = mapped_column(String(8), primary_key=True)
+
+
+class ChatSettings(Base):
+    """Per-group /config choices as JSON; missing keys fall back to the bot-wide defaults."""
+
+    __tablename__ = "chat_settings"
+
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    data: Mapped[str] = mapped_column(Text, default="{}")
 
 
 class ChatPref(Base):
@@ -116,6 +147,7 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN vip_until FLOAT",
                 "ALTER TABLE stats ADD COLUMN badge VARCHAR(16) DEFAULT ''",
                 "ALTER TABLE stats ADD COLUMN badges TEXT DEFAULT '[]'",
+                "ALTER TABLE stats ADD COLUMN xp INTEGER DEFAULT 0",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
@@ -173,6 +205,8 @@ class Store:
             stats = await s.execute(delete(UserStat).where(UserStat.user_id == user_id))
             prefs = await s.execute(delete(ChatPref).where(ChatPref.chat_id == user_id))
             await s.execute(delete(Activity).where(Activity.user_id == user_id))
+            await s.execute(delete(Achievement).where(Achievement.user_id == user_id))
+            await s.execute(delete(SeasonStat).where(SeasonStat.user_id == user_id))
             rows = (await s.execute(select(GameRow).where(GameRow.status == "finished"))).scalars().all()
             for row in rows:
                 data = json.loads(row.payload)
@@ -269,12 +303,15 @@ class Store:
         await s.execute(
             text(
                 "INSERT OR IGNORE INTO stats (user_id, name, games, wins, coins, gems, inventory, next_role, first_seen,"
-                " badge, badges) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]')"
+                " badge, badges, xp) VALUES (:u, :n, 0, 0, 0, 0, '{}', '', :t, '', '[]', 0)"
             ),
             {"u": user_id, "n": name[:128], "t": time.time()},
         )
 
-    async def bump_stat(self, user_id: int, name: str, won: bool) -> None:
+    async def bump_stat(self, user_id: int, name: str, won: bool, alive: bool = False) -> dict[str, int]:
+        """Record one finished game; returns the totals after it (games, wins, xp)."""
+        from tezmafia.progress import xp_for
+
         coins = PLAY_COINS + (WIN_COINS if won else 0)
         gems = WIN_GEMS if won else 0
         async with self.session() as s:
@@ -285,11 +322,35 @@ class Store:
             await s.execute(
                 text(
                     "UPDATE stats SET name = :n, games = games + 1, wins = wins + :w, coins = COALESCE(coins, 0) + :c,"
-                    " gems = COALESCE(gems, 0) + :g WHERE user_id = :u"
+                    " gems = COALESCE(gems, 0) + :g, xp = COALESCE(xp, 0) + :x WHERE user_id = :u"
                 ),
-                {"n": name[:128], "w": 1 if won else 0, "c": coins, "g": gems, "u": user_id},
+                {"n": name[:128], "w": 1 if won else 0, "c": coins, "g": gems, "x": xp_for(won, alive), "u": user_id},
             )
+            row = (
+                await s.execute(select(UserStat.games, UserStat.wins, UserStat.xp).where(UserStat.user_id == user_id))
+            ).one()
             await s.commit()
+        return {"games": row[0], "wins": row[1], "xp": row[2] or 0}
+
+    async def award(self, user_id: int, keys: set[str]) -> list[str]:
+        """Grant achievements; returns only the ones the user did not have yet."""
+        fresh: list[str] = []
+        async with self.session() as s:
+            for key in sorted(keys):
+                res = await s.execute(
+                    text("INSERT OR IGNORE INTO achievements (user_id, key, at) VALUES (:u, :k, :t)"),
+                    {"u": user_id, "k": key, "t": time.time()},
+                )
+                if res.rowcount:
+                    fresh.append(key)
+            await s.commit()
+        return fresh
+
+    async def achievement_count(self, user_id: int) -> int:
+        async with self.session() as s:
+            return (
+                await s.execute(select(func.count()).select_from(Achievement).where(Achievement.user_id == user_id))
+            ).scalar_one()
 
     async def get_stat(self, user_id: int) -> tuple[str, int, int]:
         acc = await self.get_account(user_id)
@@ -309,6 +370,7 @@ class Store:
                     "next_role": "",
                     "vip_until": None,
                     "badge": "",
+                    "xp": 0,
                 }
             try:
                 inv = json.loads(row.inventory or "{}")
@@ -326,6 +388,7 @@ class Store:
                 "next_role": row.next_role or "",
                 "vip_until": row.vip_until if row.vip_until and row.vip_until > time.time() else None,
                 "badge": row.badge or "",
+                "xp": row.xp or 0,
             }
 
     async def credit_wallet(self, user_id: int, name: str, coins: int = 0, gems: int = 0) -> None:
@@ -537,10 +600,63 @@ class Store:
             await s.commit()
             return role
 
+    async def bump_season(self, season: str, chat_id: int, user_id: int, name: str, won: bool) -> None:
+        async with self.session() as s:
+            for scope in {0, chat_id}:
+                await s.execute(
+                    text(
+                        "INSERT INTO season_stats (season, chat_id, user_id, name, games, wins) VALUES (:s, :c, :u, :n, 1, :w)"
+                        " ON CONFLICT(season, chat_id, user_id) DO UPDATE SET name = :n, games = games + 1, wins = wins + :w"
+                    ),
+                    {"s": season, "c": scope, "u": user_id, "n": name[:128], "w": 1 if won else 0},
+                )
+            await s.commit()
+
+    async def season_top(self, season: str, chat_id: int = 0, limit: int = 10) -> list[tuple[str, int, int]]:
+        async with self.session() as s:
+            q = await s.execute(
+                select(SeasonStat)
+                .where(SeasonStat.season == season, SeasonStat.chat_id == chat_id)
+                .order_by(SeasonStat.wins.desc(), SeasonStat.games.desc())
+                .limit(limit)
+            )
+            return [(r.name or str(r.user_id), r.games, r.wins) for r in q.scalars()]
+
+    async def recent_games(self, chat_id: int, limit: int = 5) -> list[Game]:
+        async with self.session() as s:
+            q = await s.execute(
+                select(GameRow.payload)
+                .where(GameRow.chat_id == chat_id, GameRow.status == "finished")
+                .order_by(GameRow.updated_at.desc())
+                .limit(limit)
+            )
+            return [from_dict(json.loads(p)) for p in q.scalars()]
+
     async def top_stats(self, limit: int = 10) -> list[tuple[str, int, int]]:
         async with self.session() as s:
             q = await s.execute(select(UserStat).order_by(UserStat.wins.desc(), UserStat.games.desc()).limit(limit))
             return [(r.name or str(r.user_id), r.games, r.wins) for r in q.scalars()]
+
+    async def chat_settings(self, chat_id: int) -> dict:
+        async with self.session() as s:
+            row = await s.get(ChatSettings, chat_id)
+        try:
+            data = json.loads(row.data) if row else {}
+        except json.JSONDecodeError:
+            data = {}
+        return data if isinstance(data, dict) else {}
+
+    async def set_chat_setting(self, chat_id: int, key: str, value: object) -> dict:
+        async with self.session() as s:
+            row = await s.get(ChatSettings, chat_id)
+            data = json.loads(row.data) if row and row.data else {}
+            data[key] = value
+            if row is None:
+                s.add(ChatSettings(chat_id=chat_id, data=json.dumps(data)))
+            else:
+                row.data = json.dumps(data)
+            await s.commit()
+        return data
 
     async def get_lang(self, chat_id: int) -> str:
         async with self.session() as s:
