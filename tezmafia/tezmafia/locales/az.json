@@ -446,6 +446,8 @@
   "cmd.ban": "Oyunlardan kənarlaşdırmaq (admin)",
   "cmd.unban": "Kənarlaşdırmanı ləğv etmək (admin)",
   "go.draw": "Şəhərdə heç kim qalmadı. Heç-heçə — qalib yoxdur.",
-  "go.short.draw": "heç-heçə — heç kim qalmadı.",
-  "card.draw": "Heç-heçə"
+  "go.short.draw": "heç-heçə bitdi.",
+  "card.draw": "Heç-heçə",
+  "go.stalemate": "Üç gecə-gündüz heç kim ölmədi — şəhər yoruldu. Heç-heçə.",
+  "go.short.stalemate": "heç-heçə — üç dövrə heç kim ölmədi."
 }

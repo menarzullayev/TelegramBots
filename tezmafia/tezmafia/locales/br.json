@@ -446,6 +446,8 @@
   "cmd.ban": "Banir dos jogos (admin)",
   "cmd.unban": "Remover banimento (admin)",
   "go.draw": "Não sobrou ninguém na cidade. Empate — sem vencedor.",
-  "go.short.draw": "empate — não sobrou ninguém.",
-  "card.draw": "Empate"
+  "go.short.draw": "terminou empatado.",
+  "card.draw": "Empate",
+  "go.stalemate": "Três noites e dias sem mortes — a cidade se cansou. Empate.",
+  "go.short.stalemate": "empate — ninguém morreu por três rodadas."
 }

@@ -152,7 +152,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
 def chronicle_entry(game: Any, uid: int, lang: str) -> dict[str, Any]:
     from tezmafia.engine import player_won
     from tezmafia.i18n import role_title
-    from tezmafia.texts import chronicle_lines
+    from tezmafia.texts import chronicle_lines, outcome_key
 
     me = game.by_user(uid)
     won = bool(me and player_won(game, me))
@@ -164,7 +164,7 @@ def chronicle_entry(game: Any, uid: int, lang: str) -> dict[str, Any]:
         "id": game.id,
         "at": game.created_at,
         "players": len(game.players),
-        "result": plain(t(lang, f"go.short.{game.winner}")) if game.winner else plain(t(lang, "history.cancelled")),
+        "result": plain(t(lang, f"go.short.{outcome_key(game)}")) if game.winner else plain(t(lang, "history.cancelled")),
         "you": you,
         "won": won,
         "events": [plain(line) for line in chronicle_lines(game, lang)],

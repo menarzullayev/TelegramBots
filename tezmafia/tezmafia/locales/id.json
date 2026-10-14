@@ -446,6 +446,8 @@
   "cmd.ban": "Larang bermain (admin)",
   "cmd.unban": "Cabut larangan (admin)",
   "go.draw": "Tak ada yang tersisa di kota. Seri — tanpa pemenang.",
-  "go.short.draw": "seri — tak ada yang tersisa.",
-  "card.draw": "Seri"
+  "go.short.draw": "berakhir seri.",
+  "card.draw": "Seri",
+  "go.stalemate": "Tiga malam dan siang tanpa kematian — kota kelelahan. Seri.",
+  "go.short.stalemate": "seri — tiga putaran tanpa kematian."
 }

@@ -309,3 +309,74 @@ async def test_unchanged_lobby_is_not_reposted(app: App) -> None:
     app.bot.edit_message_text = same  # type: ignore[method-assign]
     await app.refresh_lobby(g)
     assert not [c for c in app.bot.calls if c[0] in ("send_message", "pin")] and g.lobby_message_id == 9
+
+
+# --- stalemate rule ----------------------------------------------------------------------------
+
+
+def _quiet_game(alive: int):
+    from tezmafia.engine import begin_night
+
+    g = _ready_game(8)
+    start(g)
+    for p in g.players:
+        p.alive = p.seat <= alive
+    g.chronicle = [{"n": 0, "seat": p.seat, "cause": "night"} for p in g.players if not p.alive]
+    begin_night(g, 0, 1)  # night 1 has happened
+    return g
+
+
+def test_three_quiet_rounds_with_few_alive_is_a_draw() -> None:
+    from tezmafia.engine import end_if_stalemate
+
+    g = _quiet_game(2)
+    g.deaths_seen = len(g.chronicle)
+    assert [end_if_stalemate(g) for _ in range(3)] == [False, False, True]
+    assert g.winner == Winner.DRAW and g.phase == Phase.FINISHED and g.alive_players()
+
+
+def test_big_table_is_never_stopped_by_the_stalemate_rule() -> None:
+    from tezmafia.engine import end_if_stalemate
+
+    g = _quiet_game(6)
+    g.deaths_seen = len(g.chronicle)
+    assert not any(end_if_stalemate(g) for _ in range(10)) and g.phase != Phase.FINISHED
+
+
+def test_a_death_resets_the_quiet_count() -> None:
+    from tezmafia.engine import end_if_stalemate
+
+    g = _quiet_game(3)
+    g.deaths_seen = len(g.chronicle)
+    end_if_stalemate(g)
+    end_if_stalemate(g)
+    g.chronicle.append({"n": 3, "seat": 1, "cause": "vote"})
+    g.players[0].alive = False
+    assert not end_if_stalemate(g) and g.quiet_rounds == 0
+
+
+def test_old_payloads_do_not_count_past_deaths_as_new() -> None:
+    from tezmafia.engine import from_dict, to_dict
+
+    g = _quiet_game(3)
+    raw = to_dict(g)
+    del raw["quiet_rounds"], raw["deaths_seen"]
+    back = from_dict(raw)
+    assert back.quiet_rounds == 0 and back.deaths_seen == len(g.chronicle)
+
+
+@pytest.mark.asyncio
+async def test_stalemate_finishes_through_enter_night_with_its_own_text(app: App) -> None:
+    from tezmafia import texts
+
+    g = _quiet_game(2)
+    g.deaths_seen, g.quiet_rounds = len(g.chronicle), 2
+    await app.persist(g)
+    app.finish = AsyncMock()  # type: ignore[method-assign]
+    await app.enter_night(g)
+    app.finish.assert_awaited_once()
+    assert g.winner == "draw" and texts.outcome_key(g) == "stalemate"
+    assert t("uz", "go.stalemate") in texts.game_over(g, "uz")
+    for p in g.players:
+        p.alive = False
+    assert texts.outcome_key(g) == "draw" and t("uz", "go.draw") in texts.game_over(g, "uz")

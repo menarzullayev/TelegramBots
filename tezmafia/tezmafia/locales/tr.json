@@ -446,6 +446,8 @@
   "cmd.ban": "Oyunlardan men et (yönetici)",
   "cmd.unban": "Yasağı kaldır (yönetici)",
   "go.draw": "Kasabada kimse kalmadı. Berabere — kazanan yok.",
-  "go.short.draw": "berabere — kimse kalmadı.",
-  "card.draw": "Berabere"
+  "go.short.draw": "berabere bitti.",
+  "card.draw": "Berabere",
+  "go.stalemate": "Üç gece ve gün boyunca kimse ölmedi — kasaba tükendi. Berabere.",
+  "go.short.stalemate": "berabere — üç tur boyunca kimse ölmedi."
 }
