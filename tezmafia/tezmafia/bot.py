@@ -98,6 +98,7 @@ from tezmafia.keyboards import (
     menu_kb,
     my_role_kb,
     night_kb,
+    premium_kb,
     rematch_kb,
     remind_kb,
     roles_kb,
@@ -672,6 +673,9 @@ class App:
         winner = t(lang, f"go.short.{texts.outcome_key(game)}") if game.winner else ""
         line = f"{result} — {winner}".rstrip(" —.")
         footer = t(lang, "card.footer", level=level_of(totals["xp"]), games=totals["games"])
+        premium = await self.store.chat_premium(game.chat_id)
+        if premium and premium[1]:
+            footer = f"{premium[1]} · {footer}"
         caption = escape(line) + (f"\n\n{extra}" if extra else "")
         if len(caption) > 1024:  # Telegram's caption limit; the news then goes as its own DM
             caption, extra = escape(line), ""
@@ -1548,7 +1552,12 @@ async def cb_config(query: CallbackQuery) -> None:
     elif key == "back":
         pass
     elif key in ("day", "night"):
-        choices = DAY_CHOICES if key == "day" else NIGHT_CHOICES
+        from tezmafia.shop import PREMIUM_DAY_CHOICES, PREMIUM_NIGHT_CHOICES
+
+        if await app.store.chat_premium(chat_id):
+            choices = PREMIUM_DAY_CHOICES if key == "day" else PREMIUM_NIGHT_CHOICES
+        else:
+            choices = DAY_CHOICES if key == "day" else NIGHT_CHOICES
         nxt = choices[(choices.index(cfg[key]) + 1) % len(choices)] if cfg[key] in choices else choices[0]
         await app.store.set_chat_setting(chat_id, key, nxt)
     else:
@@ -1907,7 +1916,84 @@ async def cmd_groupstats(message: Message) -> None:
         return
     season = time.strftime("%Y-%m")
     stats = await app.store.cached(("group", message.chat.id, season), lambda: app.store.group_stats(message.chat.id, season))
-    await message.answer(texts.group_stats_text(stats, season, lang))
+    text = texts.group_stats_text(stats, season, lang)
+    if await app.store.chat_premium(message.chat.id):
+        lines = ["", t(lang, "gs.months")]
+        for back in range(3):
+            month = _month_back(back)
+            top = await app.store.season_top(month, chat_id=message.chat.id, limit=1)
+            m = await app.store.cached(("group", message.chat.id, month), lambda m=month: app.store.group_stats(message.chat.id, m))
+            if top:
+                name, _games, wins = top[0]
+                lines.append(t(lang, "gs.month_row", month=month, players=m["players"], name=escape(name), wins=wins))
+        text += "\n".join(lines) if len(lines) > 2 else ""
+    await message.answer(text)
+
+
+def _month_back(back: int) -> str:
+    """YYYY-MM `back` months before this one."""
+    y, m = time.localtime().tm_year, time.localtime().tm_mon - back
+    while m <= 0:
+        y, m = y - 1, m + 12
+    return f"{y:04d}-{m:02d}"
+
+
+@router.message(Command("premium"))
+async def cmd_premium(message: Message) -> None:
+    from tezmafia.shop import GROUP_PREMIUM_STARS
+
+    lang = await _lang(message.chat.id)
+    if not _is_group(message):
+        await message.answer(t(lang, "mafia.group_only"))
+        return
+    active = await app.store.chat_premium(message.chat.id)
+    status = t(lang, "premium.active", date=texts.date_tag(active[0])) if active else ""
+    text = f"<b>{t(lang, 'premium.title')}</b>\n{status}\n{t(lang, 'premium.pitch', stars=GROUP_PREMIUM_STARS)}"
+    await message.answer(text.replace("\n\n", "\n"), reply_markup=premium_kb(message.chat.id, lang))
+
+
+@router.callback_query(F.data.startswith("gp:"))
+async def cb_premium(query: CallbackQuery) -> None:
+    """Any member: the subscription link goes to their private chat (payload gp:<payer>:<group>)."""
+    parts = _cb_parts(query.data, 2)
+    if not parts or not query.from_user or not parts[1].lstrip("-").isdigit():
+        await query.answer()
+        return
+    user_id, chat_id = query.from_user.id, int(parts[1])
+    lang = await _lang(user_id)
+    title, desc, stars, _coins = _product("gp", lang)  # type: ignore[misc]
+    group = query.message.chat.title if query.message and query.message.chat.title else str(chat_id)
+    try:
+        link = await app.bot.create_invoice_link(
+            title=title, description=desc, payload=f"gp:{user_id}:{chat_id}", currency="XTR",
+            prices=[LabeledPrice(label=title, amount=stars)], subscription_period=VIP_PERIOD,
+        )
+        await app.bot.send_message(user_id, t(lang, "premium.link_dm", title=escape(group)), reply_markup=link_kb(title, link))
+    except TelegramForbiddenError:
+        await query.answer(t(lang, "stars.open_dm"), show_alert=True)
+        return
+    await query.answer(t(lang, "premium.link_sent"), show_alert=True)
+
+
+async def _activate_premium(pay: Any, user: Any, lang: str, message: Message) -> None:
+    parts = pay.invoice_payload.split(":")
+    chat_id = int(parts[2]) if len(parts) > 2 and parts[2].lstrip("-").isdigit() else 0
+    if not chat_id:
+        log.error("premium payment without a group: %s", pay.invoice_payload)
+        return
+    until = float(pay.subscription_expiration_date or (time.time() + VIP_PERIOD))
+    title = ""
+    try:
+        title = (await app.bot.get_chat(chat_id)).title or ""
+    except TelegramAPIError:
+        log.info("premium: group title unavailable chat=%s", chat_id)
+    await app.store.set_chat_premium(chat_id, user.id, until, title)
+    note = t(await _lang(chat_id), "premium.paid", name=escape(user.first_name), date=texts.date_tag(until))
+    await message.answer(note)
+    try:
+        await app.bot.send_message(chat_id, note)
+    except TelegramAPIError:
+        log.info("premium: group announcement failed chat=%s", chat_id)
 
 
 async def _seat_bots(game: Game, user_id: int, count: int, lang: str) -> str | None:
@@ -2531,6 +2617,11 @@ def _product(key: str, lang: str) -> tuple[str, str, int, int] | None:
     """(title, description, stars, coins) for a Stars product key, or None."""
     if key == "vip":
         return "TezMafia VIP", t(lang, "stars.inv_desc_vip"), VIP_STARS, 0
+    if key == "gp":
+        from tezmafia.shop import GROUP_PREMIUM_STARS
+
+        title = "TezMafia Premium"
+        return title, t(lang, "premium.inv_desc", title=title), GROUP_PREMIUM_STARS, 0
     if key in STAR_PACKS:
         stars, coins = STAR_PACKS[key]
         return t(lang, "stars.inv_title_pack", coins=coins), t(lang, "stars.inv_desc_pack", coins=coins), stars, coins
@@ -2575,7 +2666,8 @@ async def cb_stars(query: CallbackQuery) -> None:
 async def on_pre_checkout(query: PreCheckoutQuery) -> None:
     """Telegram waits up to 10 s for this answer; reject anything that does not match our catalogue."""
     lang = await _lang(query.from_user.id)
-    key, _, owner = query.invoice_payload.partition(":")
+    key, _, rest = query.invoice_payload.partition(":")
+    owner = rest.split(":")[0]  # "gp:<user>:<chat>" carries the group after the payer
     product = _product(key, lang)
     ok = (
         product is not None
@@ -2610,6 +2702,9 @@ async def on_paid(message: Message) -> None:
         await app.store.set_vip(user.id, user.first_name, until)
         await message.answer(t(lang, "stars.paid_vip", date=texts.date_tag(until)))
         return
+    if key == "gp":
+        await _activate_premium(pay, user, lang, message)
+        return
     acc = await app.store.get_account(user.id)
     await message.answer(t(lang, "stars.paid_coins", coins=coins, balance=acc["coins"]))
 
@@ -2626,7 +2721,7 @@ async def cmd_refund(message: Message, command: CommandObject) -> None:
         return
     try:
         await app.bot.refund_star_payment(pay.user_id, charge)
-        if pay.product == "vip":
+        if pay.product in ("vip", "gp"):
             await app.bot.edit_user_star_subscription(pay.user_id, charge, is_canceled=True)
     except TelegramAPIError as exc:
         await message.answer(f"Bazada belgilandi, lekin Telegram rad etdi: {exc}", parse_mode=None)
@@ -2744,6 +2839,7 @@ def _bot_command_lists(lang: str) -> tuple[list[BotCommand], list[BotCommand], l
         BotCommand(command="history", description=cmd(lang, "history")),
         BotCommand(command="schedule", description=cmd(lang, "schedule")),
         BotCommand(command="addbot", description=cmd(lang, "addbot")),
+        BotCommand(command="premium", description=cmd(lang, "premium")),
         BotCommand(command="groupstats", description=cmd(lang, "groupstats")),
         BotCommand(command="kick", description=cmd(lang, "kick")),
         BotCommand(command="ban", description=cmd(lang, "ban")),
@@ -2778,7 +2874,7 @@ async def _sync_bot_commands(bot: Bot) -> None:
         "mafia", "game", "join", "leave", "extend", "next", "status", "status_dm",
         "roles", "profile", "shop", "buy", "top", "settings", "stop", "help", "start",
         "privacy", "terms", "paysupport", "deletemydata", "config", "history", "app",
-        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot", "skins",
+        "daily", "quests", "invite", "schedule", "clan", "tournament", "groupstats", "kick", "ban", "unban", "addbot", "skins", "premium",
     )
     digest = hashlib.sha1(
         json.dumps({lang: {k: cmd(lang, k) for k in keys} for lang in LANGS}, sort_keys=True, ensure_ascii=False).encode()

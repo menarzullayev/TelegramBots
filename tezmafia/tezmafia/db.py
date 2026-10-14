@@ -103,6 +103,15 @@ class GroupFounder(Base):
     rewarded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class ChatPremium(Base):
+    __tablename__ = "chat_premium"
+
+    chat_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    until: Mapped[float] = mapped_column(Float, default=0)
+    payer: Mapped[int] = mapped_column(BigInteger, default=0, index=True)
+    title: Mapped[str] = mapped_column(String(128), default="")
+
+
 class Cosmetic(Base):
     """Owned role-card skins and the one in use."""
 
@@ -851,6 +860,24 @@ class Store:
             "top": await self.season_top(season, chat_id=chat_id, limit=5),
         }
 
+    # --- group premium -------------------------------------------------------------------------
+
+    async def set_chat_premium(self, chat_id: int, payer: int, until: float, title: str) -> None:
+        async with self.session() as s:
+            row = await s.get(ChatPremium, chat_id)
+            if row is None:
+                s.add(ChatPremium(chat_id=chat_id, until=until, payer=payer, title=title[:128]))
+            else:
+                row.until, row.payer = max(row.until or 0, until), payer
+                row.title = title[:128] or row.title
+            await s.commit()
+
+    async def chat_premium(self, chat_id: int) -> tuple[float, str] | None:
+        """(until, group title) while premium is active, else None."""
+        async with self.session() as s:
+            row = await s.get(ChatPremium, chat_id)
+            return (row.until, row.title or "") if row and row.until and row.until > time.time() else None
+
     # --- cosmetics: role-card skins -----------------------------------------------------------
 
     async def skins_of(self, user_id: int) -> tuple[str, list[str]]:
@@ -1254,6 +1281,8 @@ class Store:
                 )
             if pay.product == "vip":
                 await s.execute(text("UPDATE stats SET vip_until = NULL WHERE user_id = :u"), {"u": pay.user_id})
+            if pay.product == "gp":
+                await s.execute(text("UPDATE chat_premium SET until = 0 WHERE payer = :u"), {"u": pay.user_id})
             await s.commit()
             return pay
 

@@ -481,5 +481,17 @@
   "skins.worn": "Üslub tətbiq edildi.",
   "skins.removed": "Orijinal üsluba qayıdıldı.",
   "cmd.skins": "Rol kartı üslubları",
-  "app.tab_skins": "Üslublar"
+  "app.tab_skins": "Üslublar",
+  "premium.title": "⭐ Qrup premium",
+  "premium.active": "{date} tarixinədək aktiv.",
+  "premium.pitch": "Ayda {stars} ⭐ — istənilən üzv ödəyə bilər:\n• uzun taymerlər: gündüz 180 s, gecə 120 s-dək\n• nəticə kartında qrup adı\n• /groupstats — son 3 ay",
+  "btn.premium_buy": "⭐ {stars} — 30 gün",
+  "premium.inv_desc": "{title}: 30 günlük qrup premium (avtomatik yenilənir).",
+  "premium.link_sent": "Ödəniş linki şəxsi mesajınıza göndərildi.",
+  "premium.link_dm": "{title} üçün premium — bu düymə ilə ödəyin:",
+  "premium.paid": "⭐ {name} qrup premiumunu {date} tarixinədək aktivləşdirdi. Təşəkkürlər!",
+  "premium.only": "Bu seçim qrup premiumu ilə açılır: /premium",
+  "gs.months": "📅 Aylar üzrə:",
+  "gs.month_row": "{month}: {players} oyunçu · 1-ci {name} ({wins})",
+  "cmd.premium": "Qrup premium"
 }
