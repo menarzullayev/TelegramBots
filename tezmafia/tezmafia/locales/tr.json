@@ -449,5 +449,6 @@
   "go.short.draw": "berabere bitti.",
   "card.draw": "Berabere",
   "go.stalemate": "Üç gece ve gün boyunca kimse ölmedi — kasaba tükendi. Berabere.",
-  "go.short.stalemate": "berabere — üç tur boyunca kimse ölmedi."
+  "go.short.stalemate": "berabere — üç tur boyunca kimse ölmedi.",
+  "mod.admin_only": "Bu komut yalnızca grup yöneticileri içindir."
 }

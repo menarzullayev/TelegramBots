@@ -449,5 +449,6 @@
   "go.short.draw": "berakhir seri.",
   "card.draw": "Seri",
   "go.stalemate": "Tiga malam dan siang tanpa kematian — kota kelelahan. Seri.",
-  "go.short.stalemate": "seri — tiga putaran tanpa kematian."
+  "go.short.stalemate": "seri — tiga putaran tanpa kematian.",
+  "mod.admin_only": "Perintah ini khusus admin grup."
 }

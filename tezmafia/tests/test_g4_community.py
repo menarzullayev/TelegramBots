@@ -156,7 +156,7 @@ async def test_moderation_is_admin_only(app: App) -> None:
     sent: list[str] = []
     for handler in (botmod.cmd_kick, botmod.cmd_ban, botmod.cmd_unban):
         await handler(_group_msg(app, 55, "/x", sent, reply_to=101), _cmd())  # type: ignore[arg-type]
-        assert sent[-1] == t("uz", "config.admin_only")
+        assert sent[-1] == t("uz", "mod.admin_only")
     assert not await app.store.is_banned(-100, 101)
 
 
@@ -288,3 +288,13 @@ def test_every_locale_has_the_g4_keys() -> None:
     for path in (Path(botmod.__file__).parent / "locales").glob("*.json"):
         data = json.loads(path.read_text(encoding="utf-8"))
         assert all(k in data for k in keys), path.name
+
+
+@pytest.mark.asyncio
+async def test_ban_by_id_shows_the_known_name(app: App) -> None:
+    await app.store.credit_wallet(5555555, "Ali", coins=1)
+    sent: list[str] = []
+    await botmod.cmd_ban(_group_msg(app, ADMIN, "/ban 5555555", sent), _cmd("5555555"))  # type: ignore[arg-type]
+    assert sent[-1] == t("uz", "mod.banned", name="Ali")
+    await botmod.cmd_unban(_group_msg(app, ADMIN, "/unban 7777777", sent), _cmd("7777777"))  # type: ignore[arg-type]
+    assert sent[-1] == t("uz", "mod.unbanned", name="7777777")  # unknown id: the id itself

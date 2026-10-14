@@ -449,5 +449,6 @@
   "go.short.draw": "heç-heçə bitdi.",
   "card.draw": "Heç-heçə",
   "go.stalemate": "Üç gecə-gündüz heç kim ölmədi — şəhər yoruldu. Heç-heçə.",
-  "go.short.stalemate": "heç-heçə — üç dövrə heç kim ölmədi."
+  "go.short.stalemate": "heç-heçə — üç dövrə heç kim ölmədi.",
+  "mod.admin_only": "Bu əmr yalnız qrup adminləri üçündür."
 }
