@@ -161,6 +161,7 @@ async def test_role_ticket_survives_dm_cancel(app: App) -> None:
         return SimpleNamespace(message_id=99)
 
     app.bot.send_message = dm_fail  # type: ignore[method-assign]
+    app.bot.send_photo = dm_fail  # type: ignore[method-assign]  # a closed DM blocks photos too
     await app.start_game(g)
     assert g.phase == Phase.FINISHED
     acc0 = await app.store.get_account(100)
@@ -207,8 +208,12 @@ class FakeMsg:
         self.text = text
         self.bot = bot
         self.message_id = 1
+        self.photo = None
 
     async def answer(self, *a, **k):
+        return SimpleNamespace(message_id=1)
+
+    async def answer_photo(self, *a, **k):
         return SimpleNamespace(message_id=1)
 
 
@@ -289,11 +294,13 @@ async def test_app_edges(app: App) -> None:
         return SimpleNamespace(message_id=99)
 
     app.bot.send_message = dm_fail  # type: ignore[method-assign]
+    app.bot.send_photo = dm_fail  # type: ignore[method-assign]  # a closed DM blocks photos too
     g = _ready_game()
     await app.start_game(g)
     assert g.phase == Phase.FINISHED
 
     app.bot.send_message = FakeBot.send_message.__get__(app.bot, FakeBot)  # type: ignore[method-assign]
+    app.bot.send_photo = FakeBot.send_photo.__get__(app.bot, FakeBot)  # type: ignore[method-assign]
     g = _ready_game()
     app.settings.first_phase = "day"  # type: ignore[misc]
     await app.persist(g)

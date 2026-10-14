@@ -55,7 +55,7 @@ from tezmafia.engine import (
     start,
 )
 from tezmafia.emoji import FX
-from tezmafia.brand import ASSETS, media, win_media
+from tezmafia.brand import ASSETS, caption_fits, media, role_card, win_media
 from tezmafia.i18n import LANGS, TG_LANG, cmd, phase_label, t
 from tezmafia.keyboards import chats_kb, host_kb, lang_kb, lobby_kb, lynch_kb, menu_kb, night_kb, roles_kb, shop_kb, vote_kb
 from tezmafia.services.mute import apply_phase_mutes, unmute_all
@@ -73,6 +73,20 @@ def _photo(name: str) -> FSInputFile | None:
     if path.is_file():
         return FSInputFile(path)
     return None
+
+
+async def _answer_with_photo(message: Message, name: str | None, text: str, **kwargs: Any) -> Message:
+    """Reply with a picture on top; falls back to a plain reply when the photo cannot be sent."""
+    preview = kwargs.pop("link_preview_options", NO_PREVIEW)
+    photo = _photo(name) if name else None
+    if photo:
+        try:
+            if caption_fits(text):
+                return await message.answer_photo(photo, caption=text, **kwargs)
+            await message.answer_photo(photo)
+        except TelegramAPIError:
+            log.warning("menu photo failed chat=%s name=%s", message.chat.id, name, exc_info=True)
+    return await message.answer(text, link_preview_options=preview, **kwargs)
 
 
 class App:
@@ -138,7 +152,7 @@ class App:
     async def safe_photo(self, chat_id: int, name: str, caption: str, **kwargs: Any) -> Message | None:
         photo = _photo(name)
         try:
-            if photo:
+            if photo and caption_fits(caption):
                 return await self.bot.send_photo(
                     chat_id,
                     photo,
@@ -146,6 +160,9 @@ class App:
                     parse_mode=ParseMode.HTML,
                     **kwargs,
                 )
+            if photo:
+                # Too long for a caption: the picture goes first, the text keeps its own message.
+                await self.bot.send_photo(chat_id, photo, protect_content=kwargs.get("protect_content"))
             return await self.bot.send_message(
                 chat_id,
                 caption,
@@ -169,6 +186,22 @@ class App:
             return True
         except (TelegramForbiddenError, TelegramBadRequest):
             return False
+
+    async def dm_photo(self, user_id: int, name: str | None, text: str, **kwargs: Any) -> bool:
+        """DM with a picture; any failure other than a closed DM falls back to the plain text DM."""
+        photo = _photo(name) if name else None
+        if not photo:
+            return await self.dm(user_id, text, **kwargs)
+        try:
+            if caption_fits(text):
+                await self.bot.send_photo(user_id, photo, caption=text, parse_mode=ParseMode.HTML, **kwargs)
+                return True
+            await self.bot.send_photo(user_id, photo, protect_content=kwargs.get("protect_content"))
+        except TelegramForbiddenError:
+            return False
+        except TelegramAPIError:
+            log.warning("dm photo failed user=%s name=%s", user_id, name, exc_info=True)
+        return await self.dm(user_id, text, **kwargs)
 
     async def react(self, chat_id: int, message_id: int, emoji: str) -> None:
         try:
@@ -274,8 +307,9 @@ class App:
             await self.react(game.chat_id, banner.message_id, "🔒")
         for p in game.players:
             effect = FX["fire"] if p.faction == "mafia" else FX["heart"]
-            ok = await self.dm(
+            ok = await self.dm_photo(
                 p.user_id,
+                role_card(p.role or ""),
                 texts.role_dm(game, p.user_id, await self.lang(p.user_id)),
                 protect_content=True,
                 message_effect_id=effect,
@@ -442,7 +476,12 @@ class App:
         await self.persist(game)
         await apply_phase_mutes(self.bot, game, night=False, enabled=self.settings.mute_night)
         lynch_lang = await self.lang(game.chat_id)
-        await self.safe_group(game, texts.lynch_text(game, lynch_lang), reply_markup=lynch_kb(game, lynch_lang))
+        await self.safe_photo(
+            game.chat_id,
+            media("verdict_confirm"),
+            texts.lynch_text(game, lynch_lang),
+            reply_markup=lynch_kb(game, lynch_lang),
+        )
         self.schedule(
             game.id,
             self.settings.lynch_seconds,
@@ -460,8 +499,9 @@ class App:
                 return
             result = resolve_votes(game)
             await self.persist(game)
-            await self.safe_group(
-                game,
+            await self.safe_photo(
+                game.chat_id,
+                media("trial"),
                 texts.elim_group(game, result["tie"], self.settings.reveal_on_death, await self.lang(game.chat_id)),
             )
             if result["winner"]:
@@ -476,12 +516,13 @@ class App:
                 return
             result = resolve_lynch(game)
             await self.persist(game)
-            await self.safe_group(
-                game,
-                texts.elim_group(
-                    game, not result["confirmed"], self.settings.reveal_on_death, await self.lang(game.chat_id)
-                ),
+            verdict = texts.elim_group(
+                game, not result["confirmed"], self.settings.reveal_on_death, await self.lang(game.chat_id)
             )
+            if result["confirmed"]:
+                await self.safe_photo(game.chat_id, media("verdict_sealed"), verdict)
+            else:
+                await self.safe_group(game, verdict)
             if result["winner"]:
                 await self.finish(game)
                 return
@@ -672,7 +713,7 @@ async def cb_role_card(query: CallbackQuery) -> None:
     await query.answer()
     if query.message:
         lang = await _lang(query.message.chat.id)
-        await query.message.answer(texts.role_card(key, lang))
+        await _answer_with_photo(query.message, role_card(key), texts.role_card(key, lang))
 
 
 @router.message(Command("leave"))
@@ -733,7 +774,7 @@ async def cmd_next(message: Message) -> None:
 @router.message(Command("top"))
 async def cmd_top(message: Message) -> None:
     rows = await app.store.top_stats()
-    await message.answer(texts.top_text(rows, await _lang(message.chat.id)))
+    await _answer_with_photo(message, media("menu_top"), texts.top_text(rows, await _lang(message.chat.id)))
 
 
 @router.message(Command("profile"))
@@ -741,7 +782,9 @@ async def cmd_profile(message: Message) -> None:
     if not message.from_user:
         return
     acc = await app.store.get_account(message.from_user.id)
-    await message.answer(
+    await _answer_with_photo(
+        message,
+        media("menu_profile"),
         texts.profile_text(
             acc["name"] or message.from_user.first_name,
             acc["games"],
@@ -761,7 +804,9 @@ async def cmd_shop(message: Message) -> None:
         return
     lang = await _lang(message.chat.id)
     acc = await app.store.get_account(message.from_user.id)
-    await message.answer(
+    await _answer_with_photo(
+        message,
+        media("menu_shop"),
         texts.shop_text(acc["coins"], acc["gems"], acc["inventory"], lang),
         reply_markup=shop_kb(lang),
     )
@@ -847,9 +892,10 @@ async def cmd_help(message: Message) -> None:
         rich_ok = True
     except TelegramAPIError:
         pass
-    await message.answer(
+    await _answer_with_photo(
+        message,
+        media("menu_help"),
         t(lang, "btn.shortcuts") if rich_ok else texts.help_text(lang),
-        link_preview_options=NO_PREVIEW,
         reply_markup=menu_kb(lang),
     )
 
@@ -937,9 +983,10 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         return
     lang = await _lang(message.chat.id)
     if not payload.startswith("g_"):
-        await message.answer(
+        await _answer_with_photo(
+            message,
+            media("menu_start"),
             texts.host_menu_text(lang),
-            link_preview_options=NO_PREVIEW,
             reply_markup=host_kb(app.settings.bot_username, lang),
         )
         return
@@ -1106,7 +1153,9 @@ async def cb_menu(query: CallbackQuery) -> None:
     lang = await _lang(query.message.chat.id)
     if action == "profile":
         acc = await app.store.get_account(query.from_user.id)
-        await query.message.answer(
+        await _answer_with_photo(
+            query.message,
+            media("menu_profile"),
             texts.profile_text(
                 acc["name"] or query.from_user.first_name,
                 acc["games"],
@@ -1121,7 +1170,9 @@ async def cb_menu(query: CallbackQuery) -> None:
         return
     if action == "shop":
         acc = await app.store.get_account(query.from_user.id)
-        await query.message.answer(
+        await _answer_with_photo(
+            query.message,
+            media("menu_shop"),
             texts.shop_text(acc["coins"], acc["gems"], acc["inventory"], lang),
             reply_markup=shop_kb(lang),
         )
@@ -1150,11 +1201,13 @@ async def cb_buy(query: CallbackQuery) -> None:
     await query.answer(texts.action_reason(reason if not ok else "bought", lang), show_alert=True)
     if query.message:
         acc = await app.store.get_account(query.from_user.id)
+        text = texts.shop_text(acc["coins"], acc["gems"], acc["inventory"], lang)
         try:
-            await query.message.edit_text(
-                texts.shop_text(acc["coins"], acc["gems"], acc["inventory"], lang),
-                reply_markup=shop_kb(lang),
-            )
+            # The shop may be a photo with the text as its caption.
+            if query.message.photo:
+                await query.message.edit_caption(caption=text, reply_markup=shop_kb(lang))
+            else:
+                await query.message.edit_text(text, reply_markup=shop_kb(lang))
         except TelegramAPIError:
             pass
 

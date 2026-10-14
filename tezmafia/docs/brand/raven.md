@@ -1,6 +1,6 @@
 # Qarg‘a brendi — dizayn tizimi va asset spetsifikatsiyasi
 
-**Holat:** poydevor tayyor (kod + tokenlar); maskot artwork kutilmoqda.
+**Holat:** maskot artwork tayyor va botga ulangan (5 bosqich, har biri egasi tomonidan tasdiqlangan).
 **Sana:** 2026-10-14
 **Mahsulot nomlari o‘zgarmaydi:** bot — `TezMafia`, shahar — `Qorashahar`, username — `@qorashahar_mafia_bot`.
 
@@ -11,16 +11,18 @@ Bot o‘z interfeysi ranglarini boshqara olmaydi, shuning uchun brend o‘yinchi
 
 | Kanal | Hozir | Kod |
 | --- | --- | --- |
-| Profil rasmi | `assets/avatar.jpg` (fedora + qizil ko‘z) | `setup_bot_profile` → `brand.media("avatar")` |
-| Faza rasmlari | 5 ta raster: `day`, `night`, `death`, `mafia-win`, `town-win` | `App.safe_photo` → `brand.MEDIA` |
-| Bot tavsifi rasmi (1280×720) | o‘rnatilmagan | Bot API'da yo‘q — faqat @BotFather orqali qo‘lda |
+| Profil rasmi | `assets/raven/avatar.jpg` | `setup_bot_profile` → `brand.media("avatar")` |
+| Faza va hukm rasmlari | 16 ta sahna, `assets/raven/scenes/` | `App.safe_photo` → `brand.MEDIA` |
+| Rol kartalari | 21 ta, `assets/raven/roles/` | rol DM'i (`App.dm_photo`), `/roles` kartasi → `brand.role_card` |
+| Menyu sarlavhalari | 5 ta, `assets/raven/menu/` | `/start`, `/help`, `/shop`, `/profile`, `/top` → `_answer_with_photo` |
+| Bot tavsifi rasmi (1280×720) | `assets/raven/banner.jpg` tayyor | Bot API'da yo‘q — faqat @BotFather orqali qo‘lda |
 | Stiker paket | `TezMafia_by_menarzullayev`, 5 ta oddiy TGS | `scripts/make_tgs.py` (yuklash qo‘lda) |
 | Custom emoji | uchinchi tomon VectorGuard to‘plami | `tezmafia/emoji.py` |
 | Tugmalar | Telegram `style` (primary/success/danger) + emoji ikonka | `tezmafia/keyboards.py` |
 | Matn | 11 til katalogi | `tezmafia/locales/*.json` |
 | Profil matnlari | 11 til | `profile.short`, `profile.desc` |
 
-Ishlatilmaydigan fayllar: `assets/phase.gif`, `assets/avatar.png`, `assets/stickers/icon.png` — kod ularga murojaat qilmaydi.
+Ishlatilmaydigan fayllar: `assets/phase.gif`, `assets/avatar.png`, `assets/stickers/icon.png`, hamda Qarg‘a almashtirgan eski rasmlar (`assets/avatar.jpg`, `day.png`, `night.png`, `death.png`, `mafia-win.png`, `town-win.png`) — kod ularga murojaat qilmaydi; o‘chirish alohida tasdiq bilan.
 
 ## 2. Brend nomuvofiqliklari (hozirgi holat)
 
@@ -68,23 +70,33 @@ Taqiqlar: fedora, plash, qurol, qon, katta yonib turgan ko‘zlar, doira ichidag
 
 ## 6. Asset spetsifikatsiyasi
 
-Yangi fayllar `assets/raven/` ga tushadi; tayyor bo‘lgach faqat `brand.MEDIA` qiymatlari almashadi.
+Hamma fayl `assets/raven/` da; bot faqat `brand.MEDIA` / `brand.role_card` orqali murojaat qiladi.
+Manba rasmlar ChatGPT'da chizilgan; kesish va eksport skriptlari `design/raven/stage*/` da (xom PNG'lar gitga kirmaydi).
 
-| Fayl | O‘lcham | Format | `MEDIA` kaliti | Mazmun |
-| --- | --- | --- | --- | --- |
-| `raven/avatar.jpg` | 640×640 | JPG ≤ 500 KB | `avatar` | ixcham avatar, to‘liq fon (Telegram doiraga kesadi) |
-| `raven/mark.svg` | vektor | SVG, shaffof | — | kichik belgi |
-| `raven/logo.svg` | vektor | SVG | — | belgi + `TezMafia` wordmark |
-| `raven/banner.jpg` | 1280×720 | JPG | — | bot tavsifi rasmi (@BotFather → Edit Description Picture) |
-| `raven/roles.jpg` | 1280×720 | JPG | `roles_dealt` | qarg‘a konvertlarni tarqatadi |
-| `raven/night.jpg` | 1280×720 | JPG | `night` | tun, qarg‘a tomda kuzatadi |
-| `raven/dawn.jpg` | 1280×720 | JPG | `dawn` | tong, tinch |
-| `raven/dawn-death.jpg` | 1280×720 | JPG | `dawn_death` | tong, qurbon bor (qon va jasadsiz) |
-| `raven/win-mafia.jpg` | 1280×720 | JPG | `win_mafia` | qizil hukmronlik |
-| `raven/win-town.jpg` | 1280×720 | JPG | `win_town` | oltin, adolat |
-| `raven/win-solo.jpg` | 1280×720 | JPG | `win_solo` | yolg‘iz g‘olib (Manyak, Arsonist…) |
+| Papka / fayl | O‘lcham | Format | Qayerda |
+| --- | --- | --- | --- |
+| `avatar.jpg` | 640×640 | JPG | profil rasmi (`avatar`) |
+| `mark.svg`, `mark-on-dark.svg` | vektor | SVG | kichik belgi (yorug‘ / qorong‘i fon) |
+| `logo-{horizontal,stacked}-{dark,light}.svg` | vektor | SVG, shrift yo‘llarga aylantirilgan | logotip: belgi + `TEZMAFIA` (Bahnschrift SemiBold Condensed) |
+| `banner.jpg` | 1280×720 | JPG | bot tavsifi rasmi (@BotFather → Edit Description Picture) |
+| `scenes/roles-dealt.jpg` | 1280×720 | JPG | `roles_dealt` |
+| `scenes/night.jpg` | 1280×720 | JPG | `night` |
+| `scenes/dawn.jpg`, `dawn-death.jpg` | 1280×720 | JPG | `dawn`, `dawn_death` (qonsiz, bo‘sh stul) |
+| `scenes/trial.jpg` | 1280×720 | JPG | `trial` — ovoz natijasi, hech kim chiqmadi |
+| `scenes/verdict-confirm.jpg` | 1280×720 | JPG | `verdict_confirm` — hukmni tasdiqlash (lynch) |
+| `scenes/verdict-sealed.jpg` | 1280×720 | JPG | `verdict_sealed` — hukm tasdiqlandi |
+| `scenes/win-{mafia,town,maniac,suicide,arsonist,snitch,mage,crook}.jpg` | 1280×720 | JPG | har g‘olibga alohida sahna (`win_media`) |
+| `scenes/lobby.jpg` | 1280×720 | JPG | hozircha ishlatilmaydi (pastga qarang) |
+| `roles/<role>.jpg` | 640×640 | JPG | 21 rol, `Role` enum qiymati bo‘yicha |
+| `menu/h01-start … h05-top.jpg` | 1280×720 | JPG | `menu_start`, `menu_help`, `menu_shop`, `menu_profile`, `menu_top` |
+| `stickers/s01-hello … s08-farewell.webp` | 512×512 | WEBP, shaffof | Telegram stiker paketi uchun tayyor |
 
-Barchasi: rasmda matn yo‘q, asosiy obyekt markaziy 60% ichida (Telegram ko‘rinishda kesadi), bitta palitra (3-bo‘lim).
+Qoidalar: rasmda matn yo‘q; matn caption'da. Caption 1024 belgidan oshsa (`brand.caption_fits`), rasm alohida,
+matn alohida xabar bo‘lib ketadi. Rasm yuborilmasa — xabar matn bilan baribir chiqadi; rol DM'ida faqat
+yopiq DM (`TelegramForbiddenError`) o‘yinni to‘xtatadi, rasm xatosi emas.
+
+Lobby xabari rasmga aylantirilmadi: u har qo‘shilishda tahrirlanadi va 23 o‘yinchi bilan caption chegarasidan
+oshishi mumkin. Ovoz xabari ham shu sababli matnligicha qoldi.
 
 ## 7. Ovoz
 
@@ -96,7 +108,14 @@ Qarg‘ani hikoyachi qilib matnlarga kiritish — alohida qaror; egasining rozil
 - [x] Audit (1–2-bo‘lim)
 - [x] Tokenlar va kontrast (`brand.PALETTE`)
 - [x] Media xaritasi: `bot.py` dagi qattiq yozilgan rasm nomlari → `brand.MEDIA`, testlar (`tests/test_brand.py`)
-- [ ] Maskot referensi (tanlangan qarg‘a konsepsiyasi) — **kutilmoqda**
-- [ ] `assets/raven/*` (6-bo‘lim) va `MEDIA` almashtirish
-- [ ] Bot tavsifi rasmi — @BotFather orqali qo‘lda
-- [ ] Stiker paket va custom emoji: brendga mos to‘plam tanlash (yangi ID'lar o‘ylab topilmaydi)
+- [x] Maskot referensi: 15 variantli konsepsiya varag‘i (`design/raven/concept-sheet-15.png`)
+- [x] 1-bosqich: avatar + belgi (SVG)
+- [x] 2-bosqich: banner + logotip
+- [x] 3-bosqich: 16 ta o‘yin sahnasi
+- [x] 4-bosqich: 21 ta rol kartasi
+- [x] 5-bosqich: 5 ta menyu sarlavhasi + 8 ta stiker
+- [x] `MEDIA` almashtirish, rol kartalari, menyu sarlavhalari, testlar (`tests/test_brand.py`, `tests/test_raven_media.py`)
+- [ ] Bot tavsifi rasmi — @BotFather orqali qo‘lda (`assets/raven/banner.jpg`)
+- [ ] Stiker paketini Telegram'da yaratish (8 ta WEBP tayyor)
+- [ ] Custom emoji: brendga mos to‘plam tanlash (yangi ID'lar o‘ylab topilmaydi)
+- [ ] Eski rasmlarni o‘chirish (1-bo‘lim) — tasdiq bilan

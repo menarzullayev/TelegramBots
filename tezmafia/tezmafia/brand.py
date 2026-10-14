@@ -6,7 +6,11 @@ profile photo, stickers, custom emoji and text. Swapping the artwork means editi
 
 from __future__ import annotations
 
+import html
+import re
 from pathlib import Path
+
+from tezmafia.roles import Role
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 
@@ -25,17 +29,34 @@ PALETTE: dict[str, str] = {
 
 # Logical moment → file under assets/. The bot only ever asks for a moment.
 MEDIA: dict[str, str] = {
-    "roles_dealt": "day.png",
-    "night": "night.png",
-    "dawn": "day.png",
-    "dawn_death": "death.png",
-    "win_mafia": "mafia-win.png",
-    "win_town": "town-win.png",
-    "win_solo": "death.png",
-    "avatar": "avatar.jpg",
+    "roles_dealt": "raven/scenes/roles-dealt.jpg",
+    "night": "raven/scenes/night.jpg",
+    "dawn": "raven/scenes/dawn.jpg",
+    "dawn_death": "raven/scenes/dawn-death.jpg",
+    "trial": "raven/scenes/trial.jpg",
+    "verdict_confirm": "raven/scenes/verdict-confirm.jpg",
+    "verdict_sealed": "raven/scenes/verdict-sealed.jpg",
+    "win_mafia": "raven/scenes/win-mafia.jpg",
+    "win_town": "raven/scenes/win-town.jpg",
+    "win_maniac": "raven/scenes/win-maniac.jpg",
+    "win_suicide": "raven/scenes/win-suicide.jpg",
+    "win_arsonist": "raven/scenes/win-arsonist.jpg",
+    "win_snitch": "raven/scenes/win-snitch.jpg",
+    "win_mage": "raven/scenes/win-mage.jpg",
+    "win_crook": "raven/scenes/win-crook.jpg",
+    "win_solo": "raven/scenes/dawn-death.jpg",
+    "menu_start": "raven/menu/h01-start.jpg",
+    "menu_help": "raven/menu/h02-help.jpg",
+    "menu_shop": "raven/menu/h03-shop.jpg",
+    "menu_profile": "raven/menu/h04-profile.jpg",
+    "menu_top": "raven/menu/h05-top.jpg",
+    "avatar": "raven/avatar.jpg",
 }
 
-_WIN = {"mafia": "win_mafia", "town": "win_town"}
+# Telegram limit for photo captions, counted on the text after HTML entities are parsed.
+CAPTION_LIMIT = 1024
+
+_TAG = re.compile(r"<[^>]+>")
 
 
 def media(moment: str) -> str:
@@ -44,11 +65,24 @@ def media(moment: str) -> str:
 
 
 def win_media(winner: str | None) -> str:
-    """Victory image: Mafia and town have their own; every solo role shares one."""
+    """Victory image: every winner with its own scene gets it; anything else shares win_solo."""
     if not winner:
         return media("win_town")
-    return media(_WIN.get(winner, "win_solo"))
+    return MEDIA.get(f"win_{winner}", MEDIA["win_solo"])
+
+
+def role_card(role: str) -> str | None:
+    """Portrait card for a role id, or None for an unknown id."""
+    if role not in {r.value for r in Role}:
+        return None
+    return f"raven/roles/{role}.jpg"
+
+
+def caption_fits(html_text: str) -> bool:
+    """True when the HTML text stays within the photo caption limit once tags are stripped."""
+    return len(html.unescape(_TAG.sub("", html_text))) <= CAPTION_LIMIT
 
 
 def missing_media() -> list[str]:
-    return sorted({name for name in MEDIA.values() if not (ASSETS / name).is_file()})
+    names = set(MEDIA.values()) | {f"raven/roles/{r.value}.jpg" for r in Role}
+    return sorted(name for name in names if not (ASSETS / name).is_file())
