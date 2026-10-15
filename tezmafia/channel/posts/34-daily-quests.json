@@ -1,0 +1,105 @@
+{
+  "id": 34,
+  "slug": "daily-quests",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#vazifalar",
+    "#rivojlanish"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/quests"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Bugungi vazifalar\n✅ 1 marta yuting — 1/1\n▫️ 3 ta o‘yin o‘ynang — 2/3\n▫️ Maxsus rol bilan yuting — 0/1\n\nHar vazifa: +15 coin va +10 XP. Uchalasi bajarilsa: +1 olmos."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Kunlik vazifalar: uchta topshiriq, bitta olmos",
+    "blocks": [
+      {
+        "p": "Har tong Qorashaharda yangi buyruqlar tarqatiladi. Bugun nima qilish kerakligini bilish uchun botga `/quests` yozing."
+      },
+      {
+        "p": "Har kuni 3 ta vazifa beriladi — hamma uchun bir xil. Demak, guruhda kim birinchi bo‘lib bajarishini bemalol bellashish mumkin."
+      },
+      {
+        "list": [
+          "Har bir vazifa uchun **+15 coin** va **+10 XP**.",
+          "Uchalasi bajarilsa — ustiga **+1 olmos**."
+        ]
+      },
+      {
+        "h": "Qanday vazifalar tushadi"
+      },
+      {
+        "list": [
+          "2 yoki 3 ta o‘yin o‘ynash.",
+          "1 yoki 2 marta yutish.",
+          "O‘yin oxirigacha tirik qolish.",
+          "Tinch tomonda, Mafiya tomonida yoki maxsus rol bilan yutish."
+        ]
+      },
+      {
+        "p": "Vazifa bajarilishi bilan bot xabar beradi, `/quests` da esa har birining holati ko‘rinadi: 2/3, ✅. Ertasiga — yangi uchlik."
+      },
+      {
+        "p": "Bugungi ro‘yxatni ko‘ring: `/quests`."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ежедневные задания: три поручения, один алмаз",
+    "blocks": [
+      {
+        "p": "Каждый день — 3 задания, одинаковые для всех. Смотрите их командой `/quests`."
+      },
+      {
+        "list": [
+          "За каждое: **+15 монет** и **+10 XP**.",
+          "Все три: ещё **+1 алмаз**."
+        ]
+      },
+      {
+        "p": "Задания: сыграть 2–3 игры, победить 1–2 раза, дожить до конца, победить за мирных, за Мафию или с особой ролью. Прогресс виден в `/quests`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Daily quests: three tasks, one gem",
+    "blocks": [
+      {
+        "p": "Every day brings 3 quests, the same for everyone. See them with `/quests`."
+      },
+      {
+        "list": [
+          "Each one: **+15 coins** and **+10 XP**.",
+          "All three: **+1 gem** on top."
+        ]
+      },
+      {
+        "p": "Quests: play 2–3 games, win once or twice, survive to the end, win for the town, for the Mafia or with a special role. Progress shows in `/quests`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

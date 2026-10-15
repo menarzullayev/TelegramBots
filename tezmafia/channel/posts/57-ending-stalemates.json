@@ -1,0 +1,37 @@
+{
+  "id": 57,
+  "slug": "ending-stalemates",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#qoidalar"],
+  "visual": {"type": "image", "images": ["scenes/verdict-sealed.jpg"]},
+  "uz": {
+    "title": "Cheksiz kechalarga chek: durang qoidasi",
+    "blocks": [
+      {"p": "Tasavvur qiling: stolda ikki kishi qoldi — **Afsungar** va **Omadli**. Tunda bir-biriga hech narsa qila olmaydi, kunduzi esa ovoz hal qilmaydi. Tun, tong, sud… va yana tun. Shahar uxlab qoldi, o‘yin esa tugamayapti."},
+      {"p": "Million o‘yinlik sinov aynan shunday “abadiy” stollarni topdi. Shuning uchun Qorashaharda yangi qonun bor:"},
+      {"quote": "Ketma-ket 3 to‘liq raund hech kim o‘lmasa va stolda 4 yoki undan kam kishi qolgan bo‘lsa — o‘yin durang bilan tugaydi."},
+      {"p": "Nega aynan 4 kishi? Katta, jonli stolda bir-ikki raund tinch o‘tishi tabiiy: odamlar bahslashadi, Doktor qutqaradi, ovozlar bo‘linadi. Bunday o‘yinni to‘xtatish adolatsiz bo‘lardi. Odamlarga o‘xshab o‘ynaydigan simulyatsiyada chegara qo‘yilgach, durang kamroq tushdi va hech qachon 8 va undan ortiq tirik kishili stolda tushmadi."},
+      {"p": "Natijada qotib qolgan stol endi bo‘lmaydi: kim tirik qolgan bo‘lsa ham, o‘yin aniq yakun bilan tugaydi va keyingi stolni ochish mumkin."},
+      {"p": "Barcha g‘alaba shartlari va durang — `/help` da."}
+    ]
+  },
+  "ru": {
+    "title": "Конец бесконечным ночам: правило ничьей",
+    "blocks": [
+      {"p": "Двое за столом — **Чародей** и **Везунчик** — не могут навредить друг другу, а голосование ничего не решает. Тест на миллион игр нашёл такие «вечные» столы."},
+      {"quote": "3 полных раунда подряд без смертей и не больше 4 живых — игра заканчивается ничьей."},
+      {"p": "Ограничение в 4 человека не мешает большим живым столам: в симуляции ничья ни разу не случилась при 8+ живых. Условия — в `/help`."}
+    ]
+  },
+  "en": {
+    "title": "No more endless nights: the stalemate rule",
+    "blocks": [
+      {"p": "Two left at the table — the **Enchanter** and the **Lucky One** — can't hurt each other, and the vote decides nothing. The million-game test found these “eternal” tables."},
+      {"quote": "3 full rounds in a row with no death and 4 or fewer alive — the game ends in a draw."},
+      {"p": "The 4-player cap keeps big, lively tables going: in simulation a draw never hit a table with 8+ alive. Every win condition is in `/help`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

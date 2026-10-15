@@ -1,0 +1,86 @@
+{
+  "id": 2,
+  "slug": "meet-the-raven",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#tanishuv",
+    "#qorashahar"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "avatar.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Qorashahar Qarg‘asi bilan tanishing",
+    "blocks": [
+      {
+        "p": "Har shaharning o‘z guvohi bor. Qorashaharniki — qarg‘a. U tom chetida o‘tiradi, hech kimga yon bosmaydi va hammasini ko‘radi: kim kimning eshigini taqillatdi, kim sudda birinchi bo‘lib qo‘l ko‘tardi, kim tong otguncha jim qoldi."
+      },
+      {
+        "p": "Bu qarg‘a — TezMafianing yuzi. Uni bot rasmida, rol kartalarida va g‘alaba sahnalarida uchratasiz. U Qorashaharning yagona hakami: konvert tarqatadi, tunni boshlaydi, ovozlarni sanaydi. Faqat bir narsani hech qachon qilmaydi — sirni oldindan ochmaydi."
+      },
+      {
+        "h": "Qorashahar qanday shahar?"
+      },
+      {
+        "list": [
+          "Tunlari uzun, ko‘chalari tor, chiroqlari kam.",
+          "Kunduzi hamma halol ko‘rinadi — ayniqsa Mafiya.",
+          "Gap ko‘p, isbot kam. Ishonch — bozordagi eng qimmat mol."
+        ]
+      },
+      {
+        "p": "Bu kanalda biz shu shahar tilida gaplashamiz: biroz sirli, biroz hazil bilan, lekin har doim qoidaga sodiq. Har bir post — Qorashahardagi yana bitta eshik."
+      },
+      {
+        "p": "Qarg‘a sizni allaqachon ko‘rib turibdi. Salom berish uchun botga `/start` bosing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Знакомьтесь: Ворон Qorashahar",
+    "blocks": [
+      {
+        "p": "У каждого города есть свой свидетель. У Qorashahar — ворон. Он сидит на краю крыши, ни на чьей стороне, и видит всё: кто к кому стучался, кто первым поднял руку на суде, кто молчал до рассвета."
+      },
+      {
+        "p": "Ворон — лицо TezMafia. Он на аватаре бота, на карточках ролей и в сценах победы. Он единственный судья города: раздаёт конверты, начинает ночь, считает голоса. И никогда не раскрывает тайну раньше времени."
+      },
+      {
+        "p": "В этом канале мы говорим языком Qorashahar: немного загадочно, немного с юмором, но всегда по правилам."
+      },
+      {
+        "p": "Ворон уже заметил вас. Поздоровайтесь — нажмите `/start` в боте."
+      }
+    ]
+  },
+  "en": {
+    "title": "Meet the Raven of Qorashahar",
+    "blocks": [
+      {
+        "p": "Every city has its witness. Qorashahar's is a raven. It sits on the edge of a roof, takes no side and sees everything: who knocked on whose door, who raised a hand first at the trial, who kept quiet until dawn."
+      },
+      {
+        "p": "The Raven is the face of TezMafia — on the bot's avatar, the role cards and the victory scenes. It is the city's only judge: it hands out envelopes, starts the night and counts the votes. It never gives a secret away early."
+      },
+      {
+        "p": "On this channel we speak the city's language: a little mysterious, a little playful, always by the rules."
+      },
+      {
+        "p": "The Raven has already spotted you. Say hello — press `/start` in the bot."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

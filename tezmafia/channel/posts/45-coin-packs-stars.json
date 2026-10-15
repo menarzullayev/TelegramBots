@@ -1,0 +1,62 @@
+{
+  "id": 45,
+  "slug": "coin-packs-stars",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#qorabozor", "#stars"],
+  "visual": {"type": "image", "images": ["menu/h03-shop.jpg"]},
+  "uz": {
+    "title": "Coin paketlari: Telegram Stars evaziga",
+    "blocks": [
+      {"p": "Coin o‘yinning o‘zidan yig‘iladi — har o‘yin +10, har g‘alaba +25. Lekin ba’zan Qora bozorga bugunoq kirgingiz keladi: kechqurun katta stol, cho‘ntakda esa ikki-uch coin. Shunday kechalar uchun `/shop` ichida coin paketlari bor."},
+      {"table": [
+        ["Narx", "Coin", "Bonus"],
+        ["25⭐", "100", "—"],
+        ["100⭐", "450", "+50"],
+        ["250⭐", "1200", "+200"],
+        ["500⭐", "2600", "+600"]
+      ]},
+      {"p": "Bonus eng kichik paket narxiga nisbatan hisoblangan: paket qancha katta bo‘lsa, har bir yulduzga shuncha ko‘p coin tushadi."},
+      {"h": "Qanday olinadi"},
+      {"list": [
+        "Botga shaxsiy chatda `/start` bosing — to‘lov oynasi aynan o‘sha yerga keladi.",
+        "`/shop` ni oching va kerakli tugmani tanlang, masalan **450 coin — 100⭐**.",
+        "To‘lovni Telegram o‘zi qabul qiladi; coin hamyoningizga darhol tushadi."
+      ]},
+      {"p": "Coin bilan Qora bozordagi buyumlar va rol chiptasi olinadi — xuddi o‘ynab yig‘ilgan coin kabi. Xarid qilib, `/terms` shartlariga rozilik bildirasiz; biror narsa tushmasa — `/paysupport`."},
+      {"p": "Hamyoningizni ko‘ring va paketni tanlang: `/shop`."}
+    ]
+  },
+  "ru": {
+    "title": "Пакеты монет за Telegram Stars",
+    "blocks": [
+      {"p": "Монеты зарабатываются игрой: +10 за партию, +25 за победу. А если на рынок нужно уже сегодня — в `/shop` есть пакеты."},
+      {"table": [
+        ["Цена", "Монеты", "Бонус"],
+        ["25⭐", "100", "—"],
+        ["100⭐", "450", "+50"],
+        ["250⭐", "1200", "+200"],
+        ["500⭐", "2600", "+600"]
+      ]},
+      {"p": "Нажмите `/start` в личке бота — счёт придёт туда. Выберите пакет в `/shop`, оплата через Telegram, монеты зачисляются сразу."},
+      {"p": "Монеты тратятся на предметы Чёрного рынка и билет на роль. Покупая, вы принимаете `/terms`; проблемы с оплатой — `/paysupport`."}
+    ]
+  },
+  "en": {
+    "title": "Coin packs for Telegram Stars",
+    "blocks": [
+      {"p": "Coins come from playing: +10 per game, +25 per win. If you need the market tonight, `/shop` has packs."},
+      {"table": [
+        ["Price", "Coins", "Bonus"],
+        ["25⭐", "100", "—"],
+        ["100⭐", "450", "+50"],
+        ["250⭐", "1200", "+200"],
+        ["500⭐", "2600", "+600"]
+      ]},
+      {"p": "Press `/start` in the bot's DM — the invoice arrives there. Pick a pack in `/shop`; Telegram takes the payment and the coins land at once."},
+      {"p": "Coins buy Black market items and role tickets. Buying means you accept `/terms`; payment problems go to `/paysupport`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

@@ -1,0 +1,67 @@
+{
+  "id": 51,
+  "slug": "season-pass-launch",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#mavsumiypass", "#noyabr"],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {"from": "user", "text": "/pass"},
+        {"from": "bot", "text": "🎟 Qorashahar pass — 2026-11\nBosqich 3/20 · 340 XP (keyingisigacha 60 XP)\n\nBepul yo‘lak: har bosqich coin, har 5-bosqich olmos.\nPullik yo‘lak: olmos, coin, 10-bosqichda skin, 20-bosqichda 🎟 belgisi.", "buttons": [["🎁 Olish (3)"], ["⭐ 99 — pullik yo‘lak"]]},
+        {"from": "bot", "text": "Olindi: +45 coin, +0 olmos"}
+      ]
+    }
+  },
+  "uz": {
+    "title": "Qorashahar pass ochildi",
+    "blocks": [
+      {"p": "Konvertlar ochildi. Bugundan noyabr mavsumi boshlandi, u bilan birga — **Qorashahar pass**: 20 bosqichli zinapoya, har biri **100 XP**. Oy davomida o‘yinlarda yig‘gan XP’ingiz shu zinapoyada hisoblanadi: o‘yin uchun 10, g‘alaba uchun +20, tirik qolsangiz +5."},
+      {"table": [
+        ["Bosqich", "Bepul yo‘lak", "Pullik yo‘lak · 99⭐"],
+        ["Har bosqich", "15 coin", "toq bosqich 30 coin, juft bosqich 2 olmos"],
+        ["5 va 15", "+1 olmos", "30 coin"],
+        ["10", "15 coin + 1 olmos", "rol kartasi uslubi"],
+        ["20", "15 coin + 1 olmos", "5 olmos + 🎟 belgisi"],
+        ["Oy bo‘yi jami", "300 coin, 4 olmos", "300 coin, 21 olmos, uslub, 🎟"]
+      ]},
+      {"p": "Bepul yo‘lak hammaga ochiq. Pullik yo‘lak mavsumga bir marta, **99⭐** — va u kech olinsa ham, allaqachon o‘tgan bosqichlarning pullik mukofotlari ham ochiladi. 10-bosqichda sizda hali yo‘q uslub beriladi (uchala uslub bo‘lsa — o‘rniga 10 olmos). **🎟** belgisi do‘konda sotilmaydi."},
+      {"p": "Har oy yangi mavsum, yangi zinapoya. Mukofotlarni `/pass` ostidagi **🎁 Olish** tugmasi bilan oling. Botli o‘yinlarda XP kamroq — jonli stol tezroq ko‘taradi."},
+      {"p": "Birinchi bosqich bir-ikki o‘yin narida. `/pass` ni oching va noyabrni boshlang."}
+    ]
+  },
+  "ru": {
+    "title": "Qorashahar pass открыт",
+    "blocks": [
+      {"p": "Стартовал ноябрьский сезон и **Qorashahar pass**: 20 уровней по **100 XP**. Считается XP за игры месяца: 10 за игру, +20 за победу, +5 если выжили."},
+      {"table": [
+        ["Уровень", "Бесплатно", "Платно · 99⭐"],
+        ["Каждый", "15 монет", "нечётный 30 монет, чётный 2 алмаза"],
+        ["5 и 15", "+1 алмаз", "30 монет"],
+        ["10", "15 монет + 1 алмаз", "стиль карты"],
+        ["20", "15 монет + 1 алмаз", "5 алмазов + значок 🎟"],
+        ["Итого", "300 монет, 4 алмаза", "300 монет, 21 алмаз, стиль, 🎟"]
+      ]},
+      {"p": "Платная дорожка — 99⭐ один раз за сезон; купленная позже, она открывает и пройденные уровни. Забирайте награды кнопкой **🎁 Забрать** в `/pass`."}
+    ]
+  },
+  "en": {
+    "title": "The Qorashahar pass is open",
+    "blocks": [
+      {"p": "The November season and the **Qorashahar pass** are live: 20 tiers of **100 XP**. It counts the month's game XP: 10 per game, +20 for a win, +5 if you survive."},
+      {"table": [
+        ["Tier", "Free", "Paid · 99⭐"],
+        ["Every tier", "15 coins", "odd 30 coins, even 2 gems"],
+        ["5 and 15", "+1 gem", "30 coins"],
+        ["10", "15 coins + 1 gem", "a card skin"],
+        ["20", "15 coins + 1 gem", "5 gems + the 🎟 badge"],
+        ["Month total", "300 coins, 4 gems", "300 coins, 21 gems, skin, 🎟"]
+      ]},
+      {"p": "The paid track is 99⭐ once per season; bought late, it unlocks the tiers you've already passed. Collect with **🎁 Claim** in `/pass`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

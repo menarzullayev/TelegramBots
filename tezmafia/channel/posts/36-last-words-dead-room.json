@@ -1,0 +1,73 @@
+{
+  "id": 36,
+  "slug": "last-words-dead-room",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#qoidalar",
+    "#atmosfera"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "scenes/dawn-death.jpg"
+    ]
+  },
+  "uz": {
+    "title": "So‘nggi so‘z va o‘liklar xonasi",
+    "blocks": [
+      {
+        "p": "Qorashaharda o‘lim — oxiri emas. Shunchaki boshqa xonaga o‘tish."
+      },
+      {
+        "h": "90 soniya — so‘nggi so‘z uchun"
+      },
+      {
+        "p": "O‘yindan chiqqan zahoti bot sizga shaxsiy xabar yozadi: 90 soniya ichida so‘nggi so‘zingizni yuboring — u guruhga «…ning so‘nggi so‘zi» bo‘lib chiqadi. Gumoningizni ayting, xayrlashing yoki shaharni chalg‘iting. Tanlov sizniki."
+      },
+      {
+        "h": "O‘liklar xonasi"
+      },
+      {
+        "p": "Shundan keyin siz o‘liklar xonasidasiz. Botga yozgan har bir xabaringiz faqat boshqa o‘lgan o‘yinchilarga boradi. Tiriklar eshitmaydi, arvohlar esa bemalol gaplashadi: taxminlar, kulgi va abadiy «men aytgandim-ku!»."
+      },
+      {
+        "p": "Guruhda esa o‘lganlar jim qilinadi — buning uchun botda a’zolarni cheklash huquqi bo‘lishi kerak. Tirikka maslahat berish Qorashaharda eng og‘ir gunoh."
+      },
+      {
+        "p": "Keyingi o‘yinda o‘lsangiz, botning shaxsiy chatini oching — u yerda sizni suhbat kutyapti."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Последние слова и комната мёртвых",
+    "blocks": [
+      {
+        "p": "Выбыв из игры, вы получаете личное сообщение: 90 секунд на последние слова — они уйдут в группу."
+      },
+      {
+        "p": "Дальше вы в комнате мёртвых: всё, что вы пишете боту, видят только другие выбывшие. Живые не слышат. В группе выбывшие молчат (если у бота есть право ограничивать участников)."
+      }
+    ]
+  },
+  "en": {
+    "title": "Last words and the room of the dead",
+    "blocks": [
+      {
+        "p": "When you are out, the bot DMs you: 90 seconds for last words, which are posted to the group."
+      },
+      {
+        "p": "After that you are in the room of the dead: whatever you write to the bot reaches only other dead players. The living hear nothing. In the group the dead are muted (if the bot can restrict members)."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

@@ -1,0 +1,137 @@
+{
+  "id": 12,
+  "slug": "twenty-one-roles",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/don.jpg",
+      "roles/detective.jpg",
+      "roles/doctor.jpg",
+      "roles/maniac.jpg",
+      "roles/mage.jpg",
+      "roles/suicide.jpg",
+      "roles/arsonist.jpg",
+      "roles/citizen.jpg"
+    ]
+  },
+  "uz": {
+    "title": "21 rol: kim kim?",
+    "blocks": [
+      {
+        "p": "Qorashaharda har bir eshik ortida o‘z hikoyasi bor. Kimdir tunda nishon tanlaydi, kimdir qutqaradi, kimdir faqat kuzatadi. Kimdir esa hech kimga xizmat qilmaydi — faqat o‘ziga."
+      },
+      {
+        "p": "Shaharda jami **21 ta rol** bor va ular uch tomonga bo‘linadi:"
+      },
+      {
+        "list": [
+          "**Shahar** — 10 ta rol: Tinch aholi, Komissar, Serjant, Doktor, Oshiq, Darvesh, Omadli, Kamikadze, Hokim, Sotqin.",
+          "**Mafiya** — 5 ta rol: Mafiya, Don, Qora advokat, Josus, Jallod.",
+          "**Yolg‘izlar** — 6 ta rol: Manyak, Suitsid, Arsonist, Afsungar, Firibgar, Ayg‘oqchi."
+        ]
+      },
+      {
+        "p": "Ulardan 5 tasi — Tinch aholi, Mafiya, Don, Komissar va Doktor — o‘yinning asosi, ular doim joyida. Qolgan 16 tasi maxsus rollar: klassik rejimda stol kattalashgani sari ular birin-ketin qo‘shiladi, guruh adminlari esa istaganini o‘chirib qo‘yishi mumkin."
+      },
+      {
+        "p": "Har bir rolni yaqindan tanimoqchimisiz? Botda `/roles` yozing yoki **Kim kim?** tugmasini bosing — rasmli karta va qisqa tavsif chiqadi. Keyingi postlarda esa har bir oilani alohida ochamiz."
+      },
+      {
+        "p": "Avval o‘zingizni sinang: pastdagi savolga javob bering."
+      }
+    ]
+  },
+  "ru": {
+    "title": "21 роль: кто есть кто?",
+    "blocks": [
+      {
+        "p": "В Qorashahar **21 роль**, и они делятся на три стороны:"
+      },
+      {
+        "list": [
+          "**Город** — 10 ролей: Мирный житель, Комиссар, Сержант, Доктор, Любовница, Дервиш, Везунчик, Камикадзе, Мэр, Предатель.",
+          "**Мафия** — 5 ролей: Мафия, Дон, Чёрный адвокат, Шпион, Палач.",
+          "**Одиночки** — 6 ролей: Маньяк, Самоубийца, Поджигатель, Чародей, Мошенник, Стукач."
+        ]
+      },
+      {
+        "p": "5 ролей — основа игры и есть всегда. Остальные 16 особых добавляются по мере роста стола, и админы группы могут отключить любую."
+      },
+      {
+        "p": "Карточка каждой роли — `/roles` или кнопка **Кто есть кто?** в боте. А сначала ответьте на вопрос ниже."
+      }
+    ]
+  },
+  "en": {
+    "title": "21 roles: who's who?",
+    "blocks": [
+      {
+        "p": "Qorashahar has **21 roles**, split into three sides:"
+      },
+      {
+        "list": [
+          "**Town** — 10 roles: Civilian, Detective, Sergeant, Doctor, Lover, Dervish, Lucky One, Kamikaze, Mayor, Traitor.",
+          "**Mafia** — 5 roles: Mafia, Don, Crooked Lawyer, Spy, Executioner.",
+          "**Loners** — 6 roles: Maniac, Suicide, Arsonist, Enchanter, Swindler, Informer."
+        ]
+      },
+      {
+        "p": "Five are the core of the game and always in play. The other 16 special roles join as the table grows, and group admins can switch off any of them."
+      },
+      {
+        "p": "See each role's card with `/roles` or the **Who's who?** button in the bot. But first, answer the quiz below."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Qorashaharda jami nechta rol bor?",
+      "ru": "Сколько всего ролей в Qorashahar?",
+      "en": "How many roles are there in Qorashahar?"
+    },
+    "options": [
+      {
+        "uz": "12",
+        "ru": "12",
+        "en": "12"
+      },
+      {
+        "uz": "16",
+        "ru": "16",
+        "en": "16"
+      },
+      {
+        "uz": "21",
+        "ru": "21",
+        "en": "21"
+      },
+      {
+        "uz": "23",
+        "ru": "23",
+        "en": "23"
+      }
+    ],
+    "correct": [
+      2
+    ],
+    "explanation": {
+      "uz": "21 ta: 5 tasi asosiy va doim o‘yinda, 16 tasi maxsus — adminlar ularni o‘chira oladi.",
+      "ru": "21: 5 основных есть всегда, 16 особых админы могут отключить.",
+      "en": "21: five core roles are always in, the 16 special ones can be switched off by admins."
+    }
+  }
+}

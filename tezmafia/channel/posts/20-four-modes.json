@@ -1,0 +1,119 @@
+{
+  "id": 20,
+  "slug": "four-modes",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#rejimlar",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "scenes/roles-dealt.jpg"
+    ]
+  },
+  "uz": {
+    "title": "To‘rt rejim — to‘rt xil tun",
+    "blocks": [
+      {
+        "p": "Qorashahar har kecha bir xil uxlamaydi. `/config` panelining yuqorisida to‘rtta rejim turibdi — bittasini tanlang, qolganini hakam o‘zi hal qiladi."
+      },
+      {
+        "list": [
+          "**Klassik** — rollar o‘yinchilar soniga qarab balanslangan. Yangi guruh uchun eng to‘g‘ri boshlanish.",
+          "**Xaos** — maxsus rollar tasodifiy tushadi. Stolda kim borligini hech kim oldindan bilmaydi, hatto eng tajribali o‘yinchi ham.",
+          "**Sirli** — o‘lganlarning roli o‘yin oxirigacha sir. Konvertlar faqat final jadvalida ochiladi, shuning uchun har bir o‘lim yangi savol tug‘diradi.",
+          "**Tezkor** — qisqa taymerlar: tun 25, muhokama 45, sud 25, hukm tasdig‘i 15 soniya. Tushlik tanaffusiga sig‘adigan o‘yin."
+        ]
+      },
+      {
+        "p": "Rejimni faqat guruh adminlari almashtiradi va u keyingi stoldan kuchga kiradi — boshlangan o‘yinda hech narsa o‘zgarmaydi."
+      },
+      {
+        "p": "Bir maslahat: birinchi haftani Klassikda o‘tkazing, o‘yinchilar rollarni tanib olsin. Keyin Sirli bilan shubhani kuchaytiring yoki Xaos bilan hammani hayratda qoldiring."
+      },
+      {
+        "p": "Qaysi biri sizning guruhingizga mos? Pastdagi so‘rovnomada ovoz bering, keyin guruhda `/config` yozib sinab ko‘ring."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Четыре режима — четыре разные ночи",
+    "blocks": [
+      {
+        "p": "Наверху панели `/config` — четыре режима. Выберите один, остальное сделает ведущий."
+      },
+      {
+        "list": [
+          "**Классика** — роли сбалансированы под число игроков. Лучший старт для новой группы.",
+          "**Хаос** — особые роли выпадают случайно, состав стола не знает никто.",
+          "**Тайный** — роли выбывших скрыты до конца игры и открываются только в финальной таблице.",
+          "**Быстрый** — короткие таймеры: ночь 25, обсуждение 45, суд 25, подтверждение 15 секунд."
+        ]
+      },
+      {
+        "p": "Режим меняют только админы, он действует со следующего стола. Голосуйте в опросе ниже и попробуйте `/config`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Four modes — four kinds of night",
+    "blocks": [
+      {
+        "p": "At the top of the `/config` panel sit four modes. Pick one; the game master does the rest."
+      },
+      {
+        "list": [
+          "**Classic** — roles balanced for the number of players. The best start for a new group.",
+          "**Chaos** — special roles are drawn at random; nobody knows who is at the table.",
+          "**Secret** — the dead keep their role secret until the final table.",
+          "**Fast** — short timers: night 25, discussion 45, trial 25, confirmation 15 seconds."
+        ]
+      },
+      {
+        "p": "Only admins can switch modes, and the change applies from the next table. Vote in the poll below, then try `/config`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": {
+    "type": "regular",
+    "question": {
+      "uz": "Qaysi rejim sizga ko‘proq yoqadi?",
+      "ru": "Какой режим вам ближе?",
+      "en": "Which mode is your favourite?"
+    },
+    "options": [
+      {
+        "uz": "Klassik",
+        "ru": "Классика",
+        "en": "Classic"
+      },
+      {
+        "uz": "Xaos",
+        "ru": "Хаос",
+        "en": "Chaos"
+      },
+      {
+        "uz": "Sirli",
+        "ru": "Тайный",
+        "en": "Secret"
+      },
+      {
+        "uz": "Tezkor",
+        "ru": "Быстрый",
+        "en": "Fast"
+      }
+    ],
+    "correct": [],
+    "explanation": null
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": 15,
+  "slug": "protectors-and-power",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#shahar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/doctor.jpg",
+      "roles/lucky.jpg",
+      "roles/mayor.jpg",
+      "roles/hooker.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Himoya va kuch: shaharning tayanchlari",
+    "blocks": [
+      {
+        "p": "Qorashahar faqat qidirish bilan omon qolmaydi. Kimdir tunda o‘limni to‘sishi, kimdir kunduzi tarozini og‘dirishi kerak."
+      },
+      {
+        "list": [
+          "**Doktor** — har tun bitta odamni tanlaydi, o‘sha tun u o‘lmaydi. O‘zini esa butun o‘yinda faqat bir marta qutqara oladi. Tongda «Kimdir bugun ikkinchi marta tug‘ildi» degan xabar chiqsa — bu uning ishi.",
+          "**Omadli** — birinchi suiqasddan omon chiqadi. Ikkinchisida omad tugaydi. Zaxira hayotni qanday sarflash — o‘ziga havola.",
+          "**Hokim** — shahar boshlig‘i. Sudda uning bitta ovozi ikkita hisoblanadi. Hokim kimni ko‘rsatsa, tarozi o‘sha tomonga og‘adi.",
+          "**Oshiq** — tunda bitta odamni band qiladi. U na tungi ishini qila oladi, na ertasi kuni sudda ovoz bera oladi. To‘g‘ri tanlansa — Mafiya qurolsiz qoladi."
+        ]
+      },
+      {
+        "p": "To‘rttasi ham shahar tomonida. Lekin Qorashaharda yaxshi niyat ham xato qilishi mumkin: Oshiq adashib Komissarni band qilsa, shahar bir tunlik ko‘zidan ayriladi."
+      },
+      {
+        "p": "Qaysi biri sizga yaqin? Botda `/roles` yozing va kartalarni varaqlang."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Защита и сила: опоры города",
+    "blocks": [
+      {
+        "list": [
+          "**Доктор** — каждую ночь спасает одного человека; себя — лишь раз за игру.",
+          "**Везунчик** — переживает первое покушение. На втором удача заканчивается.",
+          "**Мэр** — на суде его голос считается за два.",
+          "**Любовница** — ночью занимает одного человека: тот не действует ночью и не голосует на следующий день."
+        ]
+      },
+      {
+        "p": "Все четверо — за город. Но ошибка возможна: занятый Любовницей Комиссар — это ночь без проверки. Карточки — `/roles`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Protection and power: the town's pillars",
+    "blocks": [
+      {
+        "list": [
+          "**Doctor** — saves one person each night; themselves only once per game.",
+          "**Lucky One** — survives the first attempt on their life. The luck runs out on the second.",
+          "**Mayor** — their vote counts twice at the trial.",
+          "**Lover** — keeps one person busy at night: no night action and no vote the next day."
+        ]
+      },
+      {
+        "p": "All four are on the town's side. But mistakes happen: a Detective kept busy by the Lover is a night without a check. Cards: `/roles`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

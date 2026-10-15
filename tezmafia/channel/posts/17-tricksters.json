@@ -1,0 +1,82 @@
+{
+  "id": 17,
+  "slug": "tricksters",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#ayyorlar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/suicide.jpg",
+      "roles/snitch.jpg",
+      "roles/werewolf.jpg",
+      "roles/kamikaze.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Ayyorlar: hamma narsa ko‘ringanidek emas",
+    "blocks": [
+      {
+        "p": "Qorashaharda shunday odamlar borki, ularni o‘ldirish ham, osish ham, hatto e’tiborsiz qoldirish ham — xato bo‘lishi mumkin."
+      },
+      {
+        "list": [
+          "**Suitsid** — hamma tirik qolishga urinadi, u esa osilishga. Shahar uni sudda ossa, o‘yinni u yutadi. Juda shubhali yurgan odamga ovoz berishdan oldin bir o‘ylang.",
+          "**Ayg‘oqchi** — yolg‘iz o‘ynaydi. Har tun bitta odamni tanlaydi. Komissar ham o‘sha tunda aynan shu odamni tekshirsa — o‘yin tugaydi, Ayg‘oqchi foydasiga.",
+          "**Sotqin** — shahar tomonida boshlaydi. Mafiya unga hujum qilsa, o‘lmaydi — ular safiga o‘tadi. Kechagi do‘st ertaga boshqa stolda o‘tirishi mumkin.",
+          "**Kamikadze** — yolg‘iz ketmaydi. Tunda o‘ldirilsa — qotilini, sudda osilsa — unga ovoz berganlardan birini o‘zi bilan olib ketadi."
+        ]
+      },
+      {
+        "p": "Suitsid va Ayg‘oqchi — yolg‘izlar, Sotqin va Kamikadze esa shahar tomonida boshlaydi. Lekin ular bilan ishingiz tushsa, qoidalar birdan o‘zgaradi. Qorashaharda eng xavfli savol — «Aniq bilasanmi?»"
+      },
+      {
+        "p": "Kartalarni ko‘rish uchun botda `/roles` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Хитрецы: не всё то, чем кажется",
+    "blocks": [
+      {
+        "list": [
+          "**Самоубийца** — хочет на виселицу. Повесят на суде — он победил.",
+          "**Стукач** — одиночка. Если Комиссар в ту же ночь проверит того же, кого выбрал Стукач, — игра окончена в его пользу.",
+          "**Предатель** — начинает за город. Нападёт Мафия — не умрёт, а перейдёт к ней.",
+          "**Камикадзе** — не уходит один: ночью заберёт убийцу, на суде — одного из голосовавших против него."
+        ]
+      },
+      {
+        "p": "Прежде чем стрелять или голосовать, подумайте дважды. Карточки — `/roles`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Tricksters: not everything is what it seems",
+    "blocks": [
+      {
+        "list": [
+          "**Suicide** — wants the noose. Hanged at the trial — they win.",
+          "**Informer** — plays alone. If the Detective checks the same person the Informer picked that night, the game ends in the Informer's favour.",
+          "**Traitor** — starts on the town's side. If the Mafia attacks, they don't die — they join the Mafia.",
+          "**Kamikaze** — never goes alone: killed at night, they take the killer; hanged at the trial, one of their voters."
+        ]
+      },
+      {
+        "p": "Think twice before you shoot or vote. Cards: `/roles`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

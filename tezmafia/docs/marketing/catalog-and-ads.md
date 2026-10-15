@@ -5,7 +5,8 @@ DECISION-17 H4. Ready-to-paste texts for bot catalogs and Telegram Ads. The owne
 
 Facts used in the copy (keep them true when editing): free host bot for group Mafia, 21 roles,
 5+ players or bots fill empty seats, 11 languages, Mini App profile, weekly tournament, clans,
-season pass from November, Stars only for cosmetics.
+season pass from November, gems/skins/badges/pass are cosmetic, coins (earned by playing or bought with
+Stars) also buy in-game items such as a shield or a role ticket — never claim "no pay-to-win".
 
 - Bot: `@qorashahar_mafia_bot`
 - Channel: "TezMafia — Qorashahar" (`@tezmafia` once the owner sets the username)
@@ -39,7 +40,7 @@ TezMafia — Telegram guruhlari uchun Mafiya o‘yinining avtomatik hakami. Botn
 - Adminlar uchun: rol to‘plami, taymerlar, /kick, /ban, guruh statistikasi
 - 11 til: o‘zbek, rus, ingliz, qozoq, qirg‘iz, tojik, turk, ozarbayjon, ukrain, indonez, portugal
 
-Hakam bepul. Stars faqat kosmetika uchun (belgilar, uslublar, pass) — o‘yin balansiga ta’sir qilmaydi.
+Hakam bepul. Olmos, belgilar, uslublar va pass — faqat bezak. Coin o‘ynab yig‘iladi (yoki Stars bilan olinadi) va o‘yin ichidagi buyumlarga sarflanadi.
 
 **Kategoriya:** O‘yinlar · **Teglar:** mafiya, o‘yin, guruh, do‘stlar, turnir
 
@@ -60,7 +61,7 @@ TezMafia — автоматический ведущий игры «Мафия»
 - Для админов: набор ролей, таймеры, /kick, /ban, статистика группы
 - 11 языков: узбекский, русский, английский, казахский, киргизский, таджикский, турецкий, азербайджанский, украинский, индонезийский, португальский
 
-Ведущий бесплатный. Stars — только за косметику (значки, стили, пропуск), на баланс игры не влияют.
+Ведущий бесплатный. Алмазы, значки, стили и пропуск — только косметика. Монеты зарабатываются в игре (или покупаются за Stars) и тратятся на игровые предметы.
 
 **Категория:** Игры · **Теги:** мафия, игра, группа, друзья, турнир
 

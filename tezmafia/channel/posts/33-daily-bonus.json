@@ -1,0 +1,218 @@
+{
+  "id": 33,
+  "slug": "daily-bonus",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#bonus",
+    "#rivojlanish"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/daily"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🎁 Kunlik bonus: +40 coin va 1 olmos. Ketma-ket 7-kun. Ertaga yana keling!"
+        },
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/daily"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Bugungi bonus olingan. Keyingisi: 9 soatdan keyin."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Kunlik bonus: har kuni bitta konvert",
+    "blocks": [
+      {
+        "p": "Qorashaharning qora bozorida eski odat bor: har kuni kelgan mijozga kichik sovg‘a. Botga `/daily` yozing — bugungi konvert sizniki."
+      },
+      {
+        "h": "Seriya qancha uzun — sovg‘a shuncha katta"
+      },
+      {
+        "table": [
+          [
+            "Kun",
+            "Bonus"
+          ],
+          [
+            "1",
+            "10 coin"
+          ],
+          [
+            "2",
+            "15 coin"
+          ],
+          [
+            "3",
+            "20 coin"
+          ],
+          [
+            "4",
+            "25 coin"
+          ],
+          [
+            "5",
+            "30 coin"
+          ],
+          [
+            "6",
+            "35 coin"
+          ],
+          [
+            "7",
+            "40 coin + 1 olmos"
+          ]
+        ]
+      },
+      {
+        "p": "7-kundan keyin bonus 40 coin da qoladi, har 7-kunda esa yana 1 olmos qo‘shiladi. Bir kunni o‘tkazib yuborsangiz, seriya boshidan — 10 coin dan boshlanadi."
+      },
+      {
+        "p": "Unutishdan qo‘rqmang: seriyangiz uzilish arafasida bo‘lsa, kechqurun bot o‘zi eslatib qo‘yadi."
+      },
+      {
+        "p": "Bugungi konvert ham kutyapti: `/daily`."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ежедневный бонус: конверт каждый день",
+    "blocks": [
+      {
+        "p": "Напишите боту `/daily` — сегодняшний конверт ваш."
+      },
+      {
+        "table": [
+          [
+            "День",
+            "Бонус"
+          ],
+          [
+            "1",
+            "10 монет"
+          ],
+          [
+            "2",
+            "15"
+          ],
+          [
+            "3",
+            "20"
+          ],
+          [
+            "…",
+            "+5 в день"
+          ],
+          [
+            "7",
+            "40 монет + 1 алмаз"
+          ]
+        ]
+      },
+      {
+        "p": "После 7-го дня бонус остаётся 40 монет, каждый 7-й день — ещё алмаз. Пропуск дня обнуляет серию. Если серия под угрозой, вечером бот напомнит."
+      }
+    ]
+  },
+  "en": {
+    "title": "Daily bonus: an envelope every day",
+    "blocks": [
+      {
+        "p": "Type `/daily` in the bot — today's envelope is yours."
+      },
+      {
+        "table": [
+          [
+            "Day",
+            "Bonus"
+          ],
+          [
+            "1",
+            "10 coins"
+          ],
+          [
+            "2",
+            "15"
+          ],
+          [
+            "3",
+            "20"
+          ],
+          [
+            "…",
+            "+5 a day"
+          ],
+          [
+            "7",
+            "40 coins + 1 gem"
+          ]
+        ]
+      },
+      {
+        "p": "After day 7 the bonus stays at 40 coins, with a gem every 7th day. Missing a day resets the streak. If your streak is at risk, the bot reminds you in the evening."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Ketma-ket 3-kuni /daily necha coin beradi?",
+      "ru": "Сколько монет даёт /daily на 3-й день серии?",
+      "en": "How many coins does /daily give on day 3 of a streak?"
+    },
+    "options": [
+      {
+        "uz": "10",
+        "ru": "10",
+        "en": "10"
+      },
+      {
+        "uz": "15",
+        "ru": "15",
+        "en": "15"
+      },
+      {
+        "uz": "20",
+        "ru": "20",
+        "en": "20"
+      },
+      {
+        "uz": "30",
+        "ru": "30",
+        "en": "30"
+      }
+    ],
+    "correct": [
+      2
+    ],
+    "explanation": {
+      "uz": "10 coin dan boshlanadi va har kuni +5: 10 → 15 → 20. Eng ko‘pi — 40 coin.",
+      "ru": "Старт 10 монет, +5 в день: 10 → 15 → 20. Максимум — 40.",
+      "en": "It starts at 10 coins, +5 a day: 10 → 15 → 20. The cap is 40."
+    }
+  }
+}

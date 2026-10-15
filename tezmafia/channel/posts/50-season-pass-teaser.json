@@ -1,0 +1,45 @@
+{
+  "id": 50,
+  "slug": "season-pass-teaser",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#mavsumiypass", "#tezkunda"],
+  "visual": {"type": "image", "images": ["skins/preview.jpg"]},
+  "uz": {
+    "title": "Qorashahar pass: noyabrda eshik ochiladi",
+    "blocks": [
+      {"p": "Shaharda mish-mish yuribdi. Qarg‘a tomlarda kimnidir kutyapti, Qora bozor peshtaxtasi ostida esa yangi konvertlar taxlanmoqda. Ustiga bitta so‘z yozilgan: **noyabr**."},
+      {"p": "**2026-yil noyabr mavsumi** bilan birga **Qorashahar pass** boshlanadi — oyma-oy yuriladigan mukofotlar zinapoyasi. Siz shunchaki o‘ynaysiz: oy davomida yig‘ilgan XP sizni bosqichma-bosqich yuqoriga ko‘taradi, har bosqichda esa mukofot kutadi."},
+      {"list": [
+        "**Bepul yo‘lak** — hamma uchun, hech qanday to‘lovsiz.",
+        "**Pullik yo‘lak** — ustiga qo‘shimcha mukofotlar, shu jumladan rol kartasi uslubi va hech qayerda sotilmaydigan belgi."
+      ]},
+      {"p": "Pass mukofotlari — coin, olmos, uslub va belgi. Rollar, ovozlar va g‘alaba qoidalari o‘zgarmaydi."},
+      {"p": "To‘liq zinapoya, narx va bosqichlar 1-noyabrda shu kanalda e’lon qilinadi. Hozircha `/pass` buyrug‘i sizga qachon boshlanishini aytadi — sinab ko‘ring va oktabrni stolda o‘tkazing: noyabrga tayyor kelganlar birinchi bo‘lib ko‘tariladi."}
+    ]
+  },
+  "ru": {
+    "title": "Qorashahar pass: двери откроются в ноябре",
+    "blocks": [
+      {"p": "С **сезоном ноября 2026** стартует **Qorashahar pass** — лестница наград на месяц. Вы просто играете: XP за месяц поднимает вас по уровням."},
+      {"list": [
+        "**Бесплатная дорожка** — для всех.",
+        "**Платная дорожка** — дополнительные награды, включая стиль карты и значок, который нигде не продаётся."
+      ]},
+      {"p": "Награды — монеты, алмазы, стиль и значок; правила игры не меняются. Подробности — 1 ноября здесь. А пока `/pass` подскажет дату старта."}
+    ]
+  },
+  "en": {
+    "title": "Qorashahar pass: the doors open in November",
+    "blocks": [
+      {"p": "The **November 2026 season** brings the **Qorashahar pass** — a monthly ladder of rewards. You just play: the month's XP lifts you tier by tier."},
+      {"list": [
+        "**Free track** — for everyone.",
+        "**Paid track** — extra rewards, including a card skin and a badge sold nowhere else."
+      ]},
+      {"p": "Rewards are coins, gems, a skin and a badge; the game rules don't change. Full details on 1 November, right here. Until then, `/pass` tells you the start date."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

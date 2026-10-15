@@ -1,0 +1,48 @@
+{
+  "id": 58,
+  "slug": "games-that-dont-freeze",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#ishonchlilik"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "Qotib qolmaydigan o‘yin",
+    "blocks": [
+      {"p": "Mafiyada eng yomon narsa — Don emas. Eng yomoni: tun tushdi, hamma kutyapti, tong esa kelmayapti. TezMafia’da bu bo‘lmasligi uchun parda ortida to‘rtta qo‘riqchi ishlaydi."},
+      {"list": [
+        "**Har stolga bitta qulf.** Yigirma kishi bir soniyada tugma bossa ham, bot ularni navbat bilan, birma-bir ko‘rib chiqadi. Ikkita ovoz bir-birini “yeb” qo‘ymaydi, o‘yin holati buzilmaydi.",
+        "**O‘zini tiklaydigan taymer.** Har bosqichning tugash vaqti xotirada emas, saqlangan holda turadi. Taymer qaysidir sabab bilan yo‘qolsa, u qayta yoqiladi.",
+        "**Navbatchi.** Har daqiqada vaqti o‘tib ketgan, lekin davom etmagan stollarni qidiradi va ularni yana yurgizib yuboradi.",
+        "**Qayta ishga tushgandan keyin tiklanish.** Bot qayta yoqilsa, ochiq o‘yinlar o‘sha joyidan davom etadi; vaqti tugab qolgan bosqichga o‘yinchilar uchun qisqa qo‘shimcha vaqt beriladi. Agar uzilish rollar tarqatilayotganda bo‘lgan bo‘lsa, shaxsiy xabarlar qayta yuboriladi."
+      ]},
+      {"p": "Bu qo‘riqchilar ham sinovdan o‘tgan: 1000 ta stol bir vaqtda o‘ynagan sinovda baza xatosi ham, yo‘qolgan statistika ham bo‘lmadi."},
+      {"p": "Siz faqat o‘yinni o‘ylang — soatni Qarg‘a kuzatadi. Navbatdagi stol: `/game`."}
+    ]
+  },
+  "ru": {
+    "title": "Игры, которые не зависают",
+    "blocks": [
+      {"list": [
+        "**Замок на каждый стол:** одновременные нажатия обрабатываются по очереди, голоса не теряются.",
+        "**Самовосстанавливающиеся таймеры:** срок фазы сохранён, потерянный таймер включается снова.",
+        "**Дежурный:** каждую минуту ищет просроченные столы и запускает их.",
+        "**Восстановление после перезапуска:** открытые игры продолжаются с того же места, с короткой отсрочкой."
+      ]},
+      {"p": "Вы думаете об игре — за часами следит Ворон. Новый стол: `/game`."}
+    ]
+  },
+  "en": {
+    "title": "Games that don't freeze",
+    "blocks": [
+      {"list": [
+        "**One lock per table:** simultaneous taps are handled in order, no vote gets lost.",
+        "**Self-healing timers:** each phase's deadline is saved; a lost timer is re-armed.",
+        "**A watchdog:** every minute it looks for overdue tables and gets them moving.",
+        "**Crash recovery:** after a restart, open games resume where they were, with a short grace period."
+      ]},
+      {"p": "You think about the game — the Raven watches the clock. Next table: `/game`."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}],
+  "poll": null
+}
