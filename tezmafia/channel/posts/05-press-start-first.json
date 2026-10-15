@@ -1,0 +1,92 @@
+{
+  "id": 5,
+  "slug": "press-start-first",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#boshlash",
+    "#maslahat"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "menu/h01-start.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Nega avval botga /start bosish kerak",
+    "blocks": [
+      {
+        "p": "Qorashaharda eng katta sir — kimning qo‘lida qaysi konvert borligi. Uni guruhda ochib bo‘lmaydi: hamma ko‘rib qoladi. Shuning uchun har bir rol sizga botning shaxsiy xabarida keladi."
+      },
+      {
+        "p": "Lekin Telegram qoidasi qat’iy: siz botga birinchi bo‘lib yozmaguningizcha, u sizga xabar yubora olmaydi. Bitta `/start` — va eshik ochiq."
+      },
+      {
+        "h": "Bosmasangiz nima bo‘ladi?"
+      },
+      {
+        "list": [
+          "Lobbida ismingiz yonida ⏳ va «botga hali /start bosmagan» degan yozuv turadi.",
+          "Mezbon o‘yinni boshlay olmaydi: bot «Hali hamma tayyor emas» deb kutib turadi.",
+          "Butun stol sizni kutadi. Qorashaharda esa kechikkanni yaxshi ko‘rishmaydi."
+        ]
+      },
+      {
+        "p": "Yaxshi xabar: buni bir marta qilsangiz kifoya. Keyingi o‘yinlarda konvert o‘z-o‘zidan keladi, tungi tanlovlar ham, so‘nggi so‘z ham shu chatda bo‘ladi."
+      },
+      {
+        "p": "Hoziroq qiling: pastdagi tugma orqali botni oching va `/start` bosing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Зачем сначала нажать /start в боте",
+    "blocks": [
+      {
+        "p": "Главная тайна Qorashahar — у кого какой конверт. В группе его не откроешь: увидят все. Поэтому роль приходит в личные сообщения от бота."
+      },
+      {
+        "p": "Но правило Telegram строгое: пока вы не написали боту первым, он не может написать вам. Один `/start` — и дверь открыта."
+      },
+      {
+        "list": [
+          "Иначе в лобби у вашего имени будет ⏳ и пометка, что вы ещё не нажали /start.",
+          "Ведущий не сможет начать: бот подождёт, пока будут готовы все."
+        ]
+      },
+      {
+        "p": "Сделать это нужно один раз. Откройте бота кнопкой ниже и нажмите `/start`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Why press /start in the bot first",
+    "blocks": [
+      {
+        "p": "The biggest secret in Qorashahar is who holds which envelope. You can't open it in the group — everyone would see. So your role arrives in the bot's private chat."
+      },
+      {
+        "p": "But Telegram's rule is strict: until you message the bot first, it can't message you. One `/start` and the door is open."
+      },
+      {
+        "list": [
+          "Otherwise the lobby shows ⏳ next to your name and notes you haven't pressed /start yet.",
+          "The host can't start: the bot waits until everyone is ready."
+        ]
+      },
+      {
+        "p": "You only need to do it once. Open the bot with the button below and press `/start`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

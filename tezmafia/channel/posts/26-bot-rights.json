@@ -1,0 +1,104 @@
+{
+  "id": 26,
+  "slug": "bot-rights",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#adminlar",
+    "#sozlash"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Salom! Men TezMafia — guruhingiz uchun Mafiya hakami.\nYangi o‘yin: /game\nQoidalar: /help"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "To‘liq ishlashim uchun meni admin qiling: tunda chatni yopish, o‘lganlarni jim qilish va lobbini pin qilish uchun huquq kerak."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Hakamga qaysi huquqlar kerak — va nima uchun",
+    "blocks": [
+      {
+        "p": "TezMafia guruhga kirganda salom beradi va admin bo‘lishni so‘raydi. Bu hokimiyatga ishtiyoq emas: hakamning ishi shuni talab qiladi. Har bir huquqning aniq vazifasi bor."
+      },
+      {
+        "list": [
+          "**A’zolarni cheklash** — tun tushganda chatni yopadi va o‘lganlarni jim qiladi. Arvohlar tiriklarga maslahat bermasin.",
+          "**Xabarlarni o‘chirish** — tunda guruhga yozilgan oddiy xabarlar o‘chiriladi. Buyruqlarga tegilmaydi.",
+          "**Xabarlarni pin qilish** — lobbi xabari tepaga mahkamlanadi, kechikkanlar stolni darhol topadi. O‘yin tugagach, pin olib tashlanadi."
+        ]
+      },
+      {
+        "p": "Bu uchtasidan boshqa hech narsa kerak emas: bot guruh nomini o‘zgartirmaydi, odamlarni guruhdan haydamaydi va boshqa admin tayinlamaydi."
+      },
+      {
+        "h": "Qanday beriladi"
+      },
+      {
+        "list": [
+          "Guruh sozlamalarini oching → **Adminlar**.",
+          "TezMafia’ni tanlang va yuqoridagi uch huquqni yoqing.",
+          "Saqlang — keyingi tunda shahar haqiqatan jim bo‘ladi."
+        ]
+      },
+      {
+        "p": "Hali qo‘shmaganmisiz? Pastdagi tugma bilan botni guruhga qo‘shing va unga admin huquqini bering."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Какие права нужны ведущему — и зачем",
+    "blocks": [
+      {
+        "p": "TezMafia просит сделать его админом не ради власти — так требует работа ведущего."
+      },
+      {
+        "list": [
+          "**Блокировка участников** — закрывать чат ночью и отключать голос выбывшим.",
+          "**Удаление сообщений** — обычные сообщения ночью удаляются, команды не трогаются.",
+          "**Закрепление сообщений** — лобби закрепляется, после игры открепляется."
+        ]
+      },
+      {
+        "p": "Больше ничего не нужно. Откройте настройки группы → Администраторы → TezMafia и включите эти три права."
+      }
+    ]
+  },
+  "en": {
+    "title": "Which rights the game master needs — and why",
+    "blocks": [
+      {
+        "p": "TezMafia asks to be an admin not for power — the job requires it."
+      },
+      {
+        "list": [
+          "**Restrict members** — close the chat at night and mute the dead.",
+          "**Delete messages** — ordinary messages posted at night are removed; commands are left alone.",
+          "**Pin messages** — the lobby is pinned and unpinned after the game."
+        ]
+      },
+      {
+        "p": "Nothing else is needed. Open group settings → Administrators → TezMafia and switch on these three rights."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

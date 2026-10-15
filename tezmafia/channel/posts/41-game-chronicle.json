@@ -1,0 +1,94 @@
+{
+  "id": 41,
+  "slug": "game-chronicle",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#xronika",
+    "#ilova"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/app"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Profil, yutuqlar, reyting va do‘kon — bitta ilovada.",
+          "buttons": [
+            [
+              "Ilovani ochish"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "O‘yinlarim · 14.10 · 👥 8\nTinch aholi yutdi\nSiz: Komissar — G‘alaba\n🌙 1-tun: Jasur (Doktor) — tunda o‘ldirildi\n☀️ 1-kun: Otabek (Mafiya) — shahar ovozi bilan osildi\n🌙 2-tun: Zarina (Hokim) — tunda o‘ldirildi\n☀️ 2-kun: Bekzod (Don) — shahar ovozi bilan osildi"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "O‘yin xronikasi: tun qanday o‘tganini qayta o‘qing",
+    "blocks": [
+      {
+        "p": "O‘yin tugadi, savollar esa qoldi: Doktor qayerda edi? Birinchi tunda kim ketdi? Don qachon qo‘lga tushdi? Javoblar — xronikada."
+      },
+      {
+        "p": "TezMafia ilovasining **O‘yinlarim** bo‘limida so‘nggi 10 ta o‘yiningiz saqlanadi. Har biri — o‘limlarning tartibli solnomasi, endi niqobsiz:"
+      },
+      {
+        "list": [
+          "Kim qaysi tunda yoki kunda chiqdi — 🌙 yoki ☀️ belgisi bilan.",
+          "Uning haqiqiy roli — o‘yin tugagani uchun endi sir emas.",
+          "Sababi: tunda o‘ldirildi, shahar ovozi bilan osildi, Afsungarga qo‘l ko‘tardi, Kamikadze portlashi, harakatsizlik yoki admin qarori.",
+          "Va sizning qatoringiz: qaysi rolda o‘ynadingiz va natija qanday bo‘ldi."
+        ]
+      },
+      {
+        "p": "Xronika faqat tugagan o‘yinlar uchun ochiladi — ketayotgan stolning sirlari hech qayerdan sizib chiqmaydi."
+      },
+      {
+        "p": "Botga `/app` yozing va **O‘yinlarim** ni oching."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Хроника игры: перечитайте, как прошла ночь",
+    "blocks": [
+      {
+        "p": "В разделе **Мои игры** приложения TezMafia хранятся ваши последние 10 игр: кто, когда и как выбыл (🌙/☀️), его настоящая роль и ваша строка — роль и итог."
+      },
+      {
+        "p": "Хроника открывается только для завершённых игр. Напишите боту `/app`."
+      }
+    ]
+  },
+  "en": {
+    "title": "The game chronicle: reread how the night went",
+    "blocks": [
+      {
+        "p": "The **My games** tab of the TezMafia app keeps your last 10 games: who went out, when and how (🌙/☀️), their real role, and your own line — role and result."
+      },
+      {
+        "p": "The chronicle opens only for finished games. Type `/app` in the bot."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Ilovani ochish",
+      "ru": "Открыть приложение",
+      "en": "Open the app",
+      "url": "https://t.me/qorashahar_mafia_bot?start=app"
+    }
+  ],
+  "poll": null
+}

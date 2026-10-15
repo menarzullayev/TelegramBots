@@ -1,0 +1,46 @@
+{
+  "id": 62,
+  "slug": "mini-app-under-the-hood",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#miniapp"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "Mini App ichida nima bor",
+    "blocks": [
+      {"p": "Mini App — Qorashaharning arxivi: profilingiz, yutuqlaringiz, reyting, do‘kon va o‘tgan o‘yinlaringiz xronikasi. Arxiv eshigi esa uchta qulf bilan qo‘riqlanadi."},
+      {"list": [
+        "**Imzoli kirish.** Mini App’ni ochganingizda Telegram sizning kimligingizni maxsus imzo bilan tasdiqlab yuboradi. Server bu imzoni tekshiradi: soxta yoki imzosiz so‘rov rad etiladi. Parol ham, ro‘yxatdan o‘tish ham kerak emas.",
+        "**Eskirgan kirish yaramaydi.** Imzo 24 soatdan eski bo‘lsa, u qabul qilinmaydi — birovning eski havolasi bilan sizning profilingizga kirib bo‘lmaydi.",
+        "**Spamga to‘siq.** Har bir o‘yinchi daqiqasiga ko‘pi bilan 10 ta o‘zgartiruvchi amal bajara oladi. Oddiy foydalanishga bu yetarlidan ortiq, botlarga esa — yo‘q."
+      ]},
+      {"h": "Tezlik"},
+      {"p": "Reyting va boshqa og‘ir hisoblar bir daqiqa davomida tayyor holda saqlanadi, shuning uchun har ochilishda qaytadan hisoblanmaydi. Yuklama sinovida 500 kishi bir vaqtda ochganda Mini App soniyasiga **171 ta so‘rovga** javob berdi — bu qulflar yuklama ostida ham ishlashda davom etdi."},
+      {"p": "Arxivni oching: pastdagi tugma yoki botda `/app`."}
+    ]
+  },
+  "ru": {
+    "title": "Mini App изнутри",
+    "blocks": [
+      {"list": [
+        "**Подписанный вход:** Telegram подтверждает, кто вы, подписью; поддельные и неподписанные запросы отклоняются. Без паролей.",
+        "**Не старше 24 часов:** устаревшая подпись не принимается.",
+        "**Защита от спама:** не больше 10 изменяющих действий в минуту на игрока."
+      ]},
+      {"p": "Рейтинги кэшируются на минуту; в нагрузочном тесте при 500 одновременных пользователях — **171 запрос/с**. Откройте: кнопка ниже или `/app`."}
+    ]
+  },
+  "en": {
+    "title": "The Mini App under the hood",
+    "blocks": [
+      {"list": [
+        "**Signed login:** Telegram vouches for who you are with a signature; forged or unsigned requests are refused. No passwords.",
+        "**No older than 24 hours:** a stale signature is rejected.",
+        "**Spam guard:** at most 10 changing actions per minute per player."
+      ]},
+      {"p": "Rankings are cached for a minute; in the load test, with 500 people at once, it served **171 requests/s**. Open it: the button below or `/app`."}
+    ]
+  },
+  "buttons": [{"uz": "Mini App’ni ochish", "ru": "Открыть Mini App", "en": "Open the Mini App", "url": "https://t.me/qorashahar_mafia_bot?start=app"}],
+  "poll": null
+}

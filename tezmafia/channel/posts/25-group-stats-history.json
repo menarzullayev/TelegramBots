@@ -1,0 +1,102 @@
+{
+  "id": 25,
+  "slug": "group-stats-history",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#statistika",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Otabek",
+          "text": "/groupstats"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Guruh statistikasi\nTugagan o‘yinlar: 42\nBu oy o‘ynaganlar: 17\n\nNatijalar:\n• tinch aholi yutdi — 23\n• shahar endi Mafiyaniki — 15\n• Manyak yolg‘iz qoldi — va yutdi — 4\n\nBu oyning eng yaxshilari (2026-10)\n1. Kamola — 9/14\n2. Aziz — 7/12\n3. Nodira — 6/13"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Guruh solnomasi: /groupstats va /history",
+    "blocks": [
+      {
+        "p": "Har guruhning o‘z afsonalari bor. Kim ko‘p yutdi, qaysi tomon kuchliroq, oxirgi o‘yin qanday tugadi — hammasi ikki buyruqda saqlanadi."
+      },
+      {
+        "h": "/groupstats"
+      },
+      {
+        "list": [
+          "Guruhdagi tugagan o‘yinlar soni.",
+          "Bu oy o‘ynaganlar soni.",
+          "Natijalar: necha marta tinch aholi, necha marta Mafiya yoki yakka g‘olib yutgani.",
+          "Bu oyning eng yaxshi 5 o‘yinchisi — g‘alabalar va o‘yinlar bilan."
+        ]
+      },
+      {
+        "h": "/history"
+      },
+      {
+        "p": "Guruhdagi so‘nggi 5 ta o‘yin: sana, qanday tugagani va stolda nechta o‘yinchi o‘tirgani. Kecha kechqurun nima bo‘lganini eslash uchun eng tez yo‘l."
+      },
+      {
+        "p": "Ikkala buyruq guruhda ishlaydi va uni istalgan a’zo chaqira oladi — adminlik shart emas."
+      },
+      {
+        "p": "Oy oxirida `/groupstats` ni guruhga pin qiling: kelasi oy taxtga kim chiqadi?"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Летопись группы: /groupstats и /history",
+    "blocks": [
+      {
+        "p": "У каждой группы свои легенды — и две команды, чтобы их помнить."
+      },
+      {
+        "list": [
+          "`/groupstats` — завершённые игры, игроки за месяц, итоги по сторонам и топ-5 месяца.",
+          "`/history` — последние 5 игр: дата, исход и число игроков."
+        ]
+      },
+      {
+        "p": "Обе команды работают в группе, вызвать их может любой участник. Закрепите `/groupstats` в конце месяца."
+      }
+    ]
+  },
+  "en": {
+    "title": "The group chronicle: /groupstats and /history",
+    "blocks": [
+      {
+        "p": "Every group has its legends — and two commands to remember them."
+      },
+      {
+        "list": [
+          "`/groupstats` — finished games, players this month, results by side and the month's top 5.",
+          "`/history` — the last 5 games: date, outcome and number of players."
+        ]
+      },
+      {
+        "p": "Both work in the group and any member can call them. Pin `/groupstats` at the end of the month."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

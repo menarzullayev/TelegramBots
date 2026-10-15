@@ -1,0 +1,94 @@
+{
+  "id": 18,
+  "slug": "citizen",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#tinch_aholi"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "roles/citizen.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Tinch aholi: eng muhim rol",
+    "blocks": [
+      {
+        "p": "Konvertni ochdingiz — «Tinch aholi». Ko‘pchilik shu lahzada yelka qisadi: tunda ish yo‘q, qurol yo‘q, sir ham yo‘q. Shoshmang. Qorashaharda aynan siz hal qilasiz."
+      },
+      {
+        "p": "Tinch aholi tunda uxlaydi, kunduzi o‘ylaydi. Uning yagona quroli — sud va sog‘lom aql. Kichik va o‘rta stollarda eng ko‘p aynan siz kabilar o‘tiradi, admin biror maxsus rolni o‘chirsa, uning o‘rniga ham tinch aholi tushadi — demak sudda hal qiluvchi ovozlar ko‘pincha sizniki. Komissar bilganini aytishi mumkin, Doktor qutqarishi mumkin — ammo arqonni kim tortishini oxir-oqibat oddiy shahar ahli hal qiladi."
+      },
+      {
+        "h": "Yaxshi tinch aholi nima qiladi?"
+      },
+      {
+        "list": [
+          "Tinglaydi: kim kimni himoya qildi, kim birdan jim bo‘lib qoldi.",
+          "Taqqoslaydi: kechagi ovozlar bugungi gaplarga to‘g‘ri keladimi?",
+          "Ovoz beradi — har gal. Jim o‘tirgan ovoz Mafiyaga sovg‘a."
+        ]
+      },
+      {
+        "p": "Shahar Mafiya ham, boshqa dushmanlar ham qolmaganda yutadi. Bu g‘alabani Komissar emas, sudda to‘g‘ri qo‘l ko‘targan tinch aholi olib keladi."
+      },
+      {
+        "p": "Keyingi o‘yinda konvertdan «Tinch aholi» chiqsa, xafa bo‘lmang — stolni siz boshqarasiz. Boshlash uchun guruhda `/game` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Мирный житель: самая важная роль",
+    "blocks": [
+      {
+        "p": "Вы открыли конверт — «Мирный житель». Ни ночных дел, ни оружия. Не спешите расстраиваться: в Qorashahar решаете именно вы."
+      },
+      {
+        "p": "Ночью мирный житель спит, днём думает. Его оружие — суд и здравый смысл. За небольшим и средним столом мирных больше всех, а значит, решающие голоса на суде чаще всего их."
+      },
+      {
+        "list": [
+          "Слушайте: кто кого защищал, кто вдруг замолчал.",
+          "Сравнивайте вчерашние голоса с сегодняшними словами.",
+          "Голосуйте каждый раз — молчащий голос в подарок Мафии."
+        ]
+      },
+      {
+        "p": "Начните игру: напишите в группе `/game`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Civilian: the most important role",
+    "blocks": [
+      {
+        "p": "You open the envelope: “Civilian”. No night action, no weapon. Don't be disappointed — in Qorashahar, you're the one who decides."
+      },
+      {
+        "p": "A civilian sleeps at night and thinks by day. Their weapon is the trial and common sense. At small and mid-sized tables civilians outnumber everyone, so the deciding votes at the trial are usually theirs."
+      },
+      {
+        "list": [
+          "Listen: who defended whom, who suddenly went quiet.",
+          "Compare yesterday's votes with today's words.",
+          "Vote every time — a silent vote is a gift to the Mafia."
+        ]
+      },
+      {
+        "p": "Start a game: type `/game` in your group."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

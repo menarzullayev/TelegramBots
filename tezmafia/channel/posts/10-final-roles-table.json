@@ -1,0 +1,91 @@
+{
+  "id": 10,
+  "slug": "final-roles-table",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#oyin_yakuni"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🏆 O‘yin tamom\n🏙 Shahar nafas oldi. Mafiya yo‘q qilindi.\n\nNiqoblar ortida:\n1 · Aziz · Komissar · ✅ nafas olyapti\n2 · Malika · Don · 💀 o‘ldi\n3 · Sardor · Doktor · ✅ nafas olyapti\n4 · Dilnoza · Tinch aholi · 💀 o‘ldi\n5 · Jasur · Mafiya · 💀 o‘ldi\n6 · Nodira · Tinch aholi · ✅ nafas olyapti"
+        },
+        {
+          "from": "user",
+          "name": "Sardor",
+          "text": "Malika?! Butun o‘yin menga «Doktorman» deb yurgan eding-ku 😳"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Niqoblar ortida: yakuniy rollar jadvali",
+    "blocks": [
+      {
+        "p": "Qorashaharda eng shirin lahza — g‘alaba ham emas. Eng shirin lahza — oxirgi xabar ochilib, hammaning niqobi bir vaqtda tushgan payt."
+      },
+      {
+        "p": "O‘yin tugashi bilan bot guruhga yakuniy jadvalni yuboradi:"
+      },
+      {
+        "list": [
+          "o‘rin raqami va o‘yinchining ismi;",
+          "u butun o‘yin davomida yashirgan rol;",
+          "oxirida kim ✅ nafas olyapti, kim 💀 soyaga aylangan."
+        ]
+      },
+      {
+        "p": "Tepasida esa yakun turadi: shahar nafas oldimi, Mafiya hukmron bo‘ldimi yoki Manyak ko‘chada yolg‘iz qoldimi. Jadval tartibli, chiziqli — telefonda ham bir qarashda o‘qiladi."
+      },
+      {
+        "p": "Aynan shu yerda eng qizg‘in bahslar boshlanadi: «Sen Don eding?!», «Men ikkinchi tundayoq bilgandim!». Kim aldadi, kim to‘g‘ri topdi — hammasi qora-oq yozilgan, inkor qilib bo‘lmaydi."
+      },
+      {
+        "p": "Do‘stlaringiz niqobini ko‘rmoqchimisiz? Guruhda `/game` yozing va o‘yinni oxirigacha olib boring."
+      }
+    ]
+  },
+  "ru": {
+    "title": "За масками: итоговая таблица ролей",
+    "blocks": [
+      {
+        "p": "Самый сладкий момент в Qorashahar — не победа, а последнее сообщение, когда маски падают у всех сразу."
+      },
+      {
+        "p": "В конце игры бот присылает в группу таблицу: номер места, имя, роль и кто жив ✅, а кто погиб 💀. Сверху — итог игры."
+      },
+      {
+        "p": "Здесь и начинаются самые жаркие споры: «Ты был Доном?!» Хотите увидеть маски друзей? Напишите `/game`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Behind the masks: the final roles table",
+    "blocks": [
+      {
+        "p": "The sweetest moment in Qorashahar isn't the win. It's the last message, when every mask drops at once."
+      },
+      {
+        "p": "When the game ends, the bot posts a table to the group: seat number, name, role, and who is alive ✅ or dead 💀. The outcome sits on top."
+      },
+      {
+        "p": "That's where the loudest arguments start: “You were the Don?!” Want to see your friends unmasked? Type `/game`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

@@ -1,0 +1,39 @@
+{
+  "id": 59,
+  "slug": "tests-and-qa-gate",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#sifat"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "437 test va 100/100 sifat darvozasi",
+    "blocks": [
+      {"p": "Qorashaharda har bir guvoh so‘roq qilinadi. Botning har bir o‘zgarishi ham shunday: yangi qator kod o‘yinchiga yetib borishidan oldin uchta nazoratdan o‘tadi."},
+      {"list": [
+        "**Kod tozaligi tekshiruvi.** Avtomatik “korrektor” kodni o‘qib chiqadi va shubhali joylarni darhol ko‘rsatadi.",
+        "**437 avtomatik test.** Ular o‘yinni qayta-qayta o‘ynaydi: rollar to‘g‘ri tarqatiladimi, ovozlar to‘g‘ri sanaladimi, coin to‘g‘ri tushadimi, 11 tildagi matnlar joyidami.",
+        "**100 ta QA chiptasi.** Sifat darvozasi 100 ta tekshiruv ro‘yxatini yuritadi va faqat **100 tadan 100 tasi** o‘tganda yashil chiroq yoqadi. 99 — bu qizil."
+      ]},
+      {"p": "Hammasi har o‘zgarishda avtomatik ishga tushadi. Bitta test yiqilsa — o‘zgarish to‘xtaydi va avval tuzatiladi."},
+      {"h": "Salbiy testlar"},
+      {"p": "Bizda qoida bor: yangi himoya yozilsa, uning **ishlamay qolishini** ko‘rsatadigan test ham yoziladi. Masalan, soxta Mini App so‘rovi rad etilishi, o‘chirilgan rol tarqatilmasligi tekshiriladi. Test faqat “hammasi yaxshi” deb tasdiqlamaydi — u xatoni ushlay olishini ham isbotlashi kerak."},
+      {"p": "Natijani o‘zingiz sinab ko‘ring — eng qattiq tekshiruv baribir jonli stol. `/game`."}
+    ]
+  },
+  "ru": {
+    "title": "437 тестов и QA-ворота 100/100",
+    "blocks": [
+      {"p": "Каждое изменение проходит три проверки: линтер, **437 автотестов** (раздача ролей, подсчёт голосов, монеты, тексты на 11 языках) и **QA-ворота из 100 тикетов**, которые зеленеют только при 100 из 100."},
+      {"p": "Каждая новая защита получает и негативный тест — доказательство, что она ловит ошибку. Проверьте сами: `/game`."}
+    ]
+  },
+  "en": {
+    "title": "437 tests and a 100/100 QA gate",
+    "blocks": [
+      {"p": "Every change passes three checks: a linter, **437 automated tests** (role dealing, vote counting, coins, texts in 11 languages) and a **100-ticket QA gate** that turns green only at 100 out of 100."},
+      {"p": "Every new safeguard also gets a negative test — proof that it actually catches the error. See for yourself: `/game`."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}],
+  "poll": null
+}

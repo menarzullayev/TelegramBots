@@ -1,0 +1,135 @@
+{
+  "id": 19,
+  "slug": "config-panel",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#adminlar",
+    "#sozlamalar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Dilnoza",
+          "text": "/config"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "⚙️ Guruh sozlamalari\nRejim: Klassik — rollar o‘yinchilar soniga qarab balanslangan\nRol ochilishi: ✅\nTunda chat yopiladi: ✅\nKunduz: 90 s · Tun: 45 s\nO‘zgarishlar keyingi stoldan kuchga kiradi.\nAnonim ovoz: ❌ · O‘chirilgan rollar: 0",
+          "buttons": [
+            [
+              "● Klassik",
+              "Xaos"
+            ],
+            [
+              "Sirli",
+              "Tezkor"
+            ],
+            [
+              "✅ Rol ochilishi",
+              "✅ Tunda chat yopiq"
+            ],
+            [
+              "Kunduz: 90 s",
+              "Tun: 45 s"
+            ],
+            [
+              "❌ Anonim ovoz",
+              "🎭 Rollar"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "/config: Qorashahar qonunlarini siz yozasiz",
+    "blocks": [
+      {
+        "p": "Har shaharning o‘z tartibi bor. Bir guruh uzun tunlarni yaxshi ko‘radi, boshqasi — tez hukmni. Shuning uchun guruh adminlari qo‘lida bitta kalit bor: `/config`. U guruh sozlamalari panelini ochadi, qolgani — tugmalar bilan."
+      },
+      {
+        "h": "Panelda nimalar bor"
+      },
+      {
+        "list": [
+          "**Rejim** — Klassik, Xaos, Sirli yoki Tezkor.",
+          "**Rol ochilishi** — o‘lgan o‘yinchining konverti guruhga ochiladimi yoki yo‘q.",
+          "**Tunda chat yopiq** — tun tushganda guruh jim bo‘ladi, hech kim pichirlab maslahat bermaydi.",
+          "**Kunduz** — muhokama uchun 60, 90 yoki 120 soniya.",
+          "**Tun** — tungi harakat uchun 30, 45 yoki 60 soniya.",
+          "**Anonim ovoz** va **Rollar** — ular haqida alohida postlarda gaplashamiz."
+        ]
+      },
+      {
+        "p": "Standart holatda: Klassik rejim, rol ochiladi, tunda chat yopiq, kunduz 90 s, tun 45 s. Bundan uzunroq taymerlar guruh premiumida ochiladi."
+      },
+      {
+        "p": "Tugmalarni faqat guruh adminlari bosa oladi — oddiy o‘yinchiga bot muloyimgina rad javobini beradi. O‘zgarishlar keyingi stoldan kuchga kiradi: ketayotgan o‘yinning qoidasi o‘rtada buzilmaydi."
+      },
+      {
+        "p": "Guruhingizda `/config` yozing va shahar qonunlarini o‘zingizga moslang."
+      }
+    ]
+  },
+  "ru": {
+    "title": "/config: законы Qorashahar пишете вы",
+    "blocks": [
+      {
+        "p": "У каждого города свои порядки. Для админов группы есть один ключ — `/config`: он открывает панель настроек, дальше всё кнопками."
+      },
+      {
+        "list": [
+          "**Режим** — Классика, Хаос, Тайный или Быстрый.",
+          "**Раскрывать роли** — открывается ли конверт выбывшего.",
+          "**Закрывать чат ночью** — ночью группа молчит.",
+          "**День** — 60, 90 или 120 секунд обсуждения; **Ночь** — 30, 45 или 60 секунд.",
+          "**Анонимное голосование** и **Роли** — о них расскажем отдельно."
+        ]
+      },
+      {
+        "p": "По умолчанию: Классика, роли раскрываются, чат ночью закрыт, день 90 с, ночь 45 с. Таймеры длиннее — в групповом премиуме."
+      },
+      {
+        "p": "Менять настройки могут только админы группы, изменения действуют со следующего стола. Напишите `/config` в своей группе."
+      }
+    ]
+  },
+  "en": {
+    "title": "/config: you write the laws of Qorashahar",
+    "blocks": [
+      {
+        "p": "Every town has its own rules. Group admins hold one key — `/config`. It opens the group settings panel; the rest is buttons."
+      },
+      {
+        "list": [
+          "**Mode** — Classic, Chaos, Secret or Fast.",
+          "**Reveal roles** — whether a dead player's envelope is opened.",
+          "**Close chat at night** — the group goes silent after dark.",
+          "**Day** — 60, 90 or 120 seconds of discussion; **Night** — 30, 45 or 60 seconds.",
+          "**Anonymous vote** and **Roles** — more on those in separate posts."
+        ]
+      },
+      {
+        "p": "Defaults: Classic, roles revealed, chat closed at night, day 90 s, night 45 s. Longer timers come with group premium."
+      },
+      {
+        "p": "Only group admins can change settings, and changes apply from the next table. Type `/config` in your group."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

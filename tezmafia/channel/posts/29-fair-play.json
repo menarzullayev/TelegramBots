@@ -1,0 +1,98 @@
+{
+  "id": 29,
+  "slug": "fair-play",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#halollik",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/profile"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Bekzod\nO‘ynagan o‘yinlari: 31\nG‘alabalar: 12\nDaraja 4 · XP 610\nYutuqlar: 6/15\nFair-play: 85/100"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Fair-play: halol o‘yinchining reytingi",
+    "blocks": [
+      {
+        "p": "Mafiyada eng yomon o‘yinchi — yutqazgan emas, g‘oyib bo‘lgan o‘yinchi. Rol oladi, tunda hech narsa qilmaydi, stol esa uning sukutiga garov bo‘lib qoladi."
+      },
+      {
+        "p": "Shuning uchun har bir o‘yinchida **Fair-play** reytingi bor — 0 dan 100 gacha. Hamma 100 dan boshlaydi."
+      },
+      {
+        "list": [
+          "Tungi rol ketma-ket 2 tun harakatsiz qolsa, hakam uni o‘yindan chiqaradi — reytingdan **−15**.",
+          "Har bir halol yakunlangan o‘yin reytingni **+3** ga tiklaydi, lekin 100 dan oshmaydi.",
+          "Xronikada bunday chiqish «harakatsizlik uchun chiqib ketdi» deb yoziladi."
+        ]
+      },
+      {
+        "p": "Reytingingiz `/profile` da turadi. Bir marta adashish halokat emas: bir necha halol o‘yin — va raqam yana yuqorida."
+      },
+      {
+        "p": "Adminlar uchun maslahat: tungi rolda yo‘qolib qoladiganlar ko‘paysa, `/config` da tun taymerini uzaytiring yoki `/kick` dan foydalaning. Halol stol — hamma uchun yoqimli tun."
+      },
+      {
+        "p": "Reytingingizni tekshiring: botga `/profile` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Честная игра: рейтинг надёжного игрока",
+    "blocks": [
+      {
+        "p": "Худший игрок в Мафии — не проигравший, а пропавший. Поэтому у каждого есть рейтинг **Честная игра** от 0 до 100; все начинают со 100."
+      },
+      {
+        "list": [
+          "Ночная роль бездействует 2 ночи подряд — ведущий выводит её из игры: **−15**.",
+          "Каждая честно доигранная игра: **+3**, не выше 100."
+        ]
+      },
+      {
+        "p": "Рейтинг виден в `/profile`. Админам: если игроки часто пропадают ночью, удлините ночной таймер в `/config`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Fair play: the reliable player's rating",
+    "blocks": [
+      {
+        "p": "The worst Mafia player isn't the loser but the one who vanishes. So everyone has a **Fair play** rating from 0 to 100, starting at 100."
+      },
+      {
+        "list": [
+          "A night role idle for 2 nights in a row is removed by the game master: **−15**.",
+          "Every game played out honestly: **+3**, capped at 100."
+        ]
+      },
+      {
+        "p": "Your rating is in `/profile`. Admins: if players often go missing at night, lengthen the night timer in `/config`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

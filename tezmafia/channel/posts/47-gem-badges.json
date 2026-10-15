@@ -1,0 +1,75 @@
+{
+  "id": 47,
+  "slug": "gem-badges",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#olmos", "#belgilar"],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {"from": "user", "text": "/shop"},
+        {"from": "bot", "text": "Olmos do‘koni\nBelgi o‘yinda ismingiz oldida ko‘rinadi va o‘yinga ta’sir qilmaydi. Balans: 9 olmos.", "buttons": [["⭐ — 3 olmos", "🌹 — 5 olmos"], ["💀 — 5 olmos", "🔥 — 8 olmos"], ["👑 — 12 olmos"]]},
+        {"from": "bot", "text": "Belgi olindi va taqildi."}
+      ]
+    }
+  },
+  "uz": {
+    "title": "Olmos belgilari: ismingiz oldidagi imzo",
+    "blocks": [
+      {"p": "Qorashaharda odamni yuzidan emas, belgisidan tanishadi. Olmos bilan ismingiz oldiga kichik imzo taqasiz — u lobbida va o‘yin xabarlarida ko‘rinib turadi."},
+      {"table": [
+        ["Belgi", "Narx"],
+        ["⭐", "3 olmos"],
+        ["🌹", "5 olmos"],
+        ["💀", "5 olmos"],
+        ["🔥", "8 olmos"],
+        ["👑", "12 olmos"]
+      ]},
+      {"p": "Uchta belgi esa sotilmaydi — faqat qo‘lga kiritiladi:"},
+      {"list": [
+        "**🏆** — haftalik turnirning uchligi uchun.",
+        "**🎖** — guruhida birinchi 5+ kishilik o‘yinni o‘tkazgan asoschi uchun.",
+        "**🎟** — mavsumiy passning 20-bosqichi uchun."
+      ]},
+      {"p": "Belgilar faqat bezak: o‘yinga, rolga va ovozga hech qanday ta’sir qilmaydi. Olmos esa g‘alabadan (+1), kunlik bonusning 7-kunidan va uchala kunlik topshiriqdan yig‘iladi."},
+      {"p": "Bir nechta belgi olgan bo‘lsangiz, istaganini **taqish** mumkin, xohlasangiz — **Belgini olib tashlash**."},
+      {"p": "Imzongizni tanlang: `/shop` → **Olmos do‘koni**."}
+    ]
+  },
+  "ru": {
+    "title": "Значки за алмазы",
+    "blocks": [
+      {"p": "Значок стоит перед вашим именем в лобби и в сообщениях игры."},
+      {"table": [
+        ["Значок", "Цена"],
+        ["⭐", "3 алмаза"],
+        ["🌹", "5 алмазов"],
+        ["💀", "5 алмазов"],
+        ["🔥", "8 алмазов"],
+        ["👑", "12 алмазов"]
+      ]},
+      {"p": "🏆 (топ-3 турнира недели), 🎖 (основатель) и 🎟 (20-й уровень пропуска) не продаются — их только зарабатывают."},
+      {"p": "Значки — чистое украшение, на игру не влияют. Алмазы дают победы, 7-й день серии бонусов и все три квеста. `/shop` → **Магазин алмазов**."}
+    ]
+  },
+  "en": {
+    "title": "Gem badges",
+    "blocks": [
+      {"p": "A badge sits before your name in the lobby and in game messages."},
+      {"table": [
+        ["Badge", "Price"],
+        ["⭐", "3 gems"],
+        ["🌹", "5 gems"],
+        ["💀", "5 gems"],
+        ["🔥", "8 gems"],
+        ["👑", "12 gems"]
+      ]},
+      {"p": "🏆 (weekly tournament top 3), 🎖 (founder) and 🎟 (season pass tier 20) are never sold — only earned."},
+      {"p": "Badges are pure decoration with no effect on the game. Gems come from wins, day 7 of the daily streak and finishing all three quests. `/shop` → **Gem shop**."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

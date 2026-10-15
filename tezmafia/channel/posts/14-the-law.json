@@ -1,0 +1,89 @@
+{
+  "id": 14,
+  "slug": "the-law",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#komissar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/detective.jpg",
+      "roles/sergeant.jpg",
+      "roles/hobo.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Qonun posbonlari: tergovchilar",
+    "blocks": [
+      {
+        "p": "Mafiya yashirinadi — kimdir esa izlaydi. Qorashaharda iz quvadiganlar uchta, va har birining o‘z usuli bor."
+      },
+      {
+        "h": "Komissar"
+      },
+      {
+        "p": "Shaharning yagona quroli. Birinchi tunda faqat tekshiradi — o‘q yo‘q. Keyin har tun tanlaydi: tekshirish yoki otish. Javob qisqa: «Iz topildi — Mafiya» yoki «Iz yo‘q — tinch aholi». Eng qiyini keyin boshlanadi: bilganingizni o‘zingizni fosh qilmasdan shaharga qanday yetkazasiz?"
+      },
+      {
+        "h": "Serjant"
+      },
+      {
+        "p": "Hozircha oddiy aholi, lekin zaxirada. Komissar o‘lgan kuni ishni u qabul qiladi va yangi Komissarga aylanadi. Mafiya bir tergovchidan qutuldim deb o‘ylaydi — adashadi."
+      },
+      {
+        "h": "Darvesh"
+      },
+      {
+        "p": "Uysiz donishmand. Tunda birovning ostonasida tunaydi va u yerga kim kelganini ko‘radi. Bir shart bor: o‘sha tun o‘z uyi bo‘sh qoladi."
+      },
+      {
+        "p": "Ehtiyot bo‘ling: Qora advokat himoyasidagi odam Komissarga «toza» bo‘lib ko‘rinadi. Qorashaharda hatto dalil ham yolg‘on gapirishi mumkin."
+      },
+      {
+        "p": "Har bir rolning to‘liq kartasi — botda `/roles`."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Закон: следователи",
+    "blocks": [
+      {
+        "list": [
+          "**Комиссар** — в первую ночь только проверяет, дальше каждую ночь: проверить или выстрелить. Ответ короткий: Мафия или мирный житель.",
+          "**Сержант** — пока обычный житель в запасе. Погибнет Комиссар — Сержант займёт его место.",
+          "**Дервиш** — ночует на чужом пороге и видит, кто туда пришёл. Его собственный дом в эту ночь пуст."
+        ]
+      },
+      {
+        "p": "Осторожно: подзащитный Чёрного адвоката покажется Комиссару «чистым». Карточки ролей — `/roles`."
+      }
+    ]
+  },
+  "en": {
+    "title": "The law: investigators",
+    "blocks": [
+      {
+        "list": [
+          "**Detective** — only checks on the first night, then each night: check or shoot. The answer is short: Mafia or civilian.",
+          "**Sergeant** — an ordinary civilian held in reserve. If the Detective dies, the Sergeant takes over.",
+          "**Dervish** — sleeps on someone's doorstep and sees who comes there. Their own house stays empty that night."
+        ]
+      },
+      {
+        "p": "Careful: anyone the Crooked Lawyer protects looks “clean” to the Detective. Role cards: `/roles`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

@@ -1,0 +1,80 @@
+{
+  "id": 22,
+  "slug": "anonymous-vote",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#sud",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "scenes/trial.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Anonim ovoz: barmoqlar yashirin",
+    "blocks": [
+      {
+        "p": "Oddiy sudda hamma kim kimga ovoz berayotganini ko‘rib turadi. Birinchi ovozdan keyin qolganlar ortidan ergashadi — Mafiya esa bu olomon kuchidan mohirona foydalanadi."
+      },
+      {
+        "p": "**Anonim ovoz** yoqilganda sud boshqacha ko‘rinadi. Guruhda faqat hisob turadi: «Ovoz berganlar: 4/7». Kim kimga barmoq ko‘rsatgani sir bo‘lib qoladi, natija ovoz yopilganda ochiladi."
+      },
+      {
+        "h": "Nima o‘zgaradi"
+      },
+      {
+        "list": [
+          "Har kim o‘z fikri bilan ovoz beradi — ko‘pchilikka qarab emas.",
+          "Erta ovoz bergan o‘yinchi bosim ostida qolmaydi.",
+          "Fikr o‘zgardimi? Vaqt tugaguncha ovozni almashtirish yoki **Fikrimdan qaytdim** bilan qaytarib olish mumkin."
+        ]
+      },
+      {
+        "p": "Kuchli o‘yinchilar uchun bu yangi sinov: endi ovozlar xaritasiga qarab emas, faqat gaplar va sukutga qarab izlash kerak."
+      },
+      {
+        "p": "Yoqish: guruhda `/config` → **Anonim ovoz**. Sozlama keyingi stoldan ishlaydi va uni faqat adminlar o‘zgartiradi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Анонимное голосование: пальцы спрятаны",
+    "blocks": [
+      {
+        "p": "В обычном суде все видят, кто за кого голосует, и остальные идут за первыми голосами — Мафия это обожает."
+      },
+      {
+        "p": "С **Анонимным голосованием** в группе виден только счёт: «Проголосовали: 4/7». Итог открывается, когда голосование закрывается. До конца времени голос можно сменить или забрать кнопкой **Забираю голос**."
+      },
+      {
+        "p": "Включить: `/config` → **Анонимное голосование**. Действует со следующего стола."
+      }
+    ]
+  },
+  "en": {
+    "title": "Anonymous vote: fingers hidden",
+    "blocks": [
+      {
+        "p": "In a normal trial everyone sees who votes for whom, and the rest follow the first votes — the Mafia loves that."
+      },
+      {
+        "p": "With **Anonymous vote** the group sees only the count: “Voted: 4/7”. The result is revealed when voting closes. Until time runs out you can change your vote or take it back with **I changed my mind**."
+      },
+      {
+        "p": "Turn it on: `/config` → **Anonymous vote**. It applies from the next table."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

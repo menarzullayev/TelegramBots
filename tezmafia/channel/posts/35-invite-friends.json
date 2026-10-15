@@ -1,0 +1,101 @@
+{
+  "id": 35,
+  "slug": "invite-friends",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#taklif",
+    "#ijtimoiy"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/invite"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Do‘stlaringizni taklif qiling! Har bir yangi o‘yinchi birinchi o‘yinini tugatganda siz +50 coin, u esa +25 coin oladi.\nTaklif qilganlaringiz: 2\nSizning havolangiz: t.me/qorashahar_mafia_bot?start=ref_…",
+          "buttons": [
+            [
+              "Havolani nusxalash"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Do‘stingiz Zarina birinchi o‘yinini tugatdi: +50 coin!"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Do‘stni olib keling — ikkalangizga coin",
+    "blocks": [
+      {
+        "p": "Qorashahar yangi yuzlarni yaxshi ko‘radi. Ayniqsa, ularni siz olib kelgan bo‘lsangiz."
+      },
+      {
+        "list": [
+          "Botga `/invite` yozing — shaxsiy havolangiz chiqadi.",
+          "**Havolani nusxalash** tugmasi bilan uni do‘stingizga yuboring.",
+          "Do‘stingiz havola orqali botga kirsin va birinchi o‘yinini oxirigacha o‘ynasin."
+        ]
+      },
+      {
+        "p": "Shunda siz **+50 coin**, do‘stingiz esa **+25 coin** oladi. Bot ikkalangizga ham xabar beradi, `/invite` da esa nechta odam taklif qilganingiz ko‘rinib turadi."
+      },
+      {
+        "p": "Mukofot birinchi o‘yin tugagandan keyin keladi — havolani bosishning o‘zi yetmaydi. Qorashahar so‘zga emas, ishga ishonadi."
+      },
+      {
+        "p": "Bugun stolga kimni chaqirasiz? `/invite`."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Приведите друга — монеты обоим",
+    "blocks": [
+      {
+        "list": [
+          "Напишите боту `/invite` — появится ваша личная ссылка.",
+          "Отправьте её другу кнопкой **Скопировать ссылку**.",
+          "Друг заходит по ссылке и доигрывает первую игру."
+        ]
+      },
+      {
+        "p": "Вы получаете **+50 монет**, друг — **+25**. Награда приходит только после первой завершённой игры. Счётчик приглашённых — в `/invite`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Bring a friend — coins for both",
+    "blocks": [
+      {
+        "list": [
+          "Type `/invite` in the bot to get your personal link.",
+          "Send it to a friend with **Copy link**.",
+          "Your friend joins through the link and finishes their first game."
+        ]
+      },
+      {
+        "p": "You get **+50 coins**, your friend **+25**. The reward comes only after that first finished game. Your invite count is in `/invite`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

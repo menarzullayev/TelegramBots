@@ -1,0 +1,55 @@
+{
+  "id": 52,
+  "slug": "safe-payments",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#tolov", "#stars"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "To‘lov: faqat Stars, faqat shaxsiy chatda",
+    "blocks": [
+      {"p": "Qorashaharda sirlar ko‘p, lekin hisob-kitob ochiq bo‘lishi kerak. TezMafia’da nima qanday to‘lanishini bir joyga yig‘dik."},
+      {"list": [
+        "**O‘yin bepul.** Stol ochish, o‘ynash, coin va olmos yig‘ish uchun hech narsa to‘lash shart emas.",
+        "**Faqat Telegram Stars.** Coin paketlari, VIP, guruh premium va passning pullik yo‘lagi — barchasi ⭐ orqali.",
+        "**To‘lov oynasi shaxsiy chatda.** Guruhda tugma bossangiz ham, hisob botning lichkasiga keladi. Shuning uchun avval botga `/start` bosing.",
+        "**Karta ma’lumoti botga kelmaydi.** To‘lovni Telegram o‘zi qabul qiladi; bot faqat nima sotib olinganini biladi.",
+        "**Obunalar sizning qo‘lingizda.** VIP va guruh premium har 30 kunda yangilanadi, Telegram sozlamalarida bekor qilinadi."
+      ]},
+      {"h": "Agar nimadir tushmasa"},
+      {"p": "Raqamli xarid berilgandan keyin pul odatda qaytarilmaydi. Lekin to‘lov o‘tib, xarid tushmagan bo‘lsa yoki texnik xato bo‘lsa — botga bitta xabarda yozing: `/paysupport 100⭐ to‘ladim, coin tushmadi`. Murojaat tekshiriladi, asosli bo‘lsa Stars qaytariladi (shu xarid bilan berilgan coin yoki VIP olib qo‘yiladi). Odatda 24 soat ichida javob beramiz."},
+      {"p": "Coin va olmos — faqat bot ichidagi imkoniyat: ularni pulga almashtirib yoki boshqa o‘yinchiga o‘tkazib bo‘lmaydi."},
+      {"p": "To‘liq shartlar — `/terms`. Savol bo‘lsa — `/paysupport`."}
+    ]
+  },
+  "ru": {
+    "title": "Оплата: только Stars и только в личке",
+    "blocks": [
+      {"list": [
+        "**Игра бесплатна.**",
+        "**Только Telegram Stars:** пакеты монет, VIP, премиум группы, платная дорожка пропуска.",
+        "**Счёт приходит в личку бота** — сначала нажмите `/start`.",
+        "**Данные карты бот не получает:** платёж принимает Telegram.",
+        "**Подписки** продлеваются каждые 30 дней и отменяются в настройках Telegram."
+      ]},
+      {"p": "Цифровые покупки после выдачи обычно не возвращаются. Если оплата прошла, а покупка не пришла или случилась ошибка — `/paysupport` с описанием. При обоснованной заявке Stars вернут, выданные монеты или VIP спишут. Ответ обычно в течение 24 часов."},
+      {"p": "Условия — `/terms`."}
+    ]
+  },
+  "en": {
+    "title": "Payments: Stars only, in your DM only",
+    "blocks": [
+      {"list": [
+        "**The game is free.**",
+        "**Telegram Stars only:** coin packs, VIP, group premium, the paid pass track.",
+        "**The invoice comes to the bot's DM** — press `/start` there first.",
+        "**The bot never sees card details:** Telegram takes the payment.",
+        "**Subscriptions** renew every 30 days and are cancelled in Telegram settings."
+      ]},
+      {"p": "Digital purchases are generally not refundable once delivered. If you paid and nothing arrived, or something broke — write `/paysupport` with details. If the request is valid, the Stars are refunded and the coins or VIP from that purchase are taken back. We usually answer within 24 hours."},
+      {"p": "Full terms — `/terms`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

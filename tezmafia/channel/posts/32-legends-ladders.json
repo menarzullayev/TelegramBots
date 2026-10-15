@@ -1,0 +1,85 @@
+{
+  "id": 32,
+  "slug": "legends-ladders",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#reyting",
+    "#rivojlanish"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "menu/h05-top.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Qorashahar afsonalari: uch xil shon-shuhrat",
+    "blocks": [
+      {
+        "p": "Har shaharning devorida ismlar o‘yilgan. Qorashaharda ular `/top` buyrug‘ida yashaydi — va devor uch qismdan iborat."
+      },
+      {
+        "list": [
+          "**Mavsum** — shu oyning eng yaxshilari. Har oy yangi mavsum: o‘tgan oy afsonalari ham yangidan boshlaydi.",
+          "**Guruh** — faqat sizning guruhingiz ichidagi reyting. Bu tugma `/top` guruhda chaqirilganda chiqadi.",
+          "**Hamma vaqt** — butun tarix davomida eng ko‘p yutganlar."
+        ]
+      },
+      {
+        "p": "Ro‘yxat g‘alabalar soni bo‘yicha tuziladi, har qatorda esa ism, o‘yinlar va g‘alabalar turadi. Bu yerda omad emas, sabr hal qiladi: bitta kechada emas, butun oy davomida yaxshi o‘ynagan yuqoriga chiqadi."
+      },
+      {
+        "p": "Mavsum boshida taxta bo‘sh bo‘lishi mumkin. Bu Qorashaharning eng halol taklifi: birinchi ism siznikidir."
+      },
+      {
+        "p": "Guruhda `/top` yozing va **Guruh** tugmasini bosing — do‘stlaringiz orasida kim afsona?"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Легенды Qorashahar: три вида славы",
+    "blocks": [
+      {
+        "p": "Имена на стене Qorashahar живут в команде `/top`."
+      },
+      {
+        "list": [
+          "**Сезон** — лучшие этого месяца; каждый месяц новый сезон.",
+          "**Группа** — рейтинг внутри вашей группы (кнопка есть, когда `/top` вызван в группе).",
+          "**За всё время** — самые побеждающие за всю историю."
+        ]
+      },
+      {
+        "p": "Порядок — по числу побед. В начале сезона доска может быть пуста: первое имя может стать вашим."
+      }
+    ]
+  },
+  "en": {
+    "title": "Legends of Qorashahar: three kinds of glory",
+    "blocks": [
+      {
+        "p": "The names on Qorashahar's wall live in the `/top` command."
+      },
+      {
+        "list": [
+          "**Season** — this month's best; every month is a new season.",
+          "**Group** — the ranking inside your group (shown when `/top` is called in a group).",
+          "**All time** — the biggest winners in history."
+        ]
+      },
+      {
+        "p": "Ranked by wins. Early in a season the board may be empty — the first name could be yours."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

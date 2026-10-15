@@ -1,0 +1,95 @@
+{
+  "id": 11,
+  "slug": "eleven-languages",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#tillar",
+    "#sozlamalar"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "menu/h02-help.jpg"
+    ]
+  },
+  "uz": {
+    "title": "11 til — bitta bosish",
+    "blocks": [
+      {
+        "p": "Qorashahar ko‘chalarida turli tillar eshitiladi. Toshkentdagi do‘stingiz o‘zbekcha, Olmaotadagisi qozoqcha, Istanbuldagisi turkcha o‘ynaydi — va hammasi bitta stolda."
+      },
+      {
+        "p": "TezMafia 11 tilda gaplashadi:"
+      },
+      {
+        "list": [
+          "🇺🇿 O‘zbek · 🇷🇺 Русский · 🇺🇸 English",
+          "🇺🇦 Українська · 🇰🇿 Қазақ · 🇰🇬 Кыргызча · 🇹🇯 Тоҷикӣ",
+          "🇦🇿 Azərbaycanca · 🇹🇷 Türkçe · 🇮🇩 Indonesia · 🇧🇷 Português"
+        ]
+      },
+      {
+        "h": "Qanday almashtiriladi?"
+      },
+      {
+        "list": [
+          "Botning shaxsiy chatida `/settings` (yoki `/lang`) yozing va tilingizni tanlang — bot siz bilan shu tilda gaplashadi: rollar, tungi tanlovlar, maslahatlar.",
+          "Guruhda xuddi shu buyruq guruh tilini o‘zgartiradi. Buni faqat adminlar qila oladi.",
+          "Bot tavsifi va buyruqlar menyusi Telegram’ingiz tiliga o‘zi moslashadi."
+        ]
+      },
+      {
+        "p": "Taymerlar ham har bir o‘quvchiga o‘z tilida ko‘rinadi — shuning uchun bitta stolda turli tilda o‘ylaydigan do‘stlar bemalol birga o‘ynaydi."
+      },
+      {
+        "p": "Hoziroq sinab ko‘ring: botni oching va `/settings` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "11 языков в одно касание",
+    "blocks": [
+      {
+        "p": "TezMafia говорит на 11 языках: узбекский, русский, английский, украинский, казахский, киргизский, таджикский, азербайджанский, турецкий, индонезийский и португальский."
+      },
+      {
+        "list": [
+          "В личке бота `/settings` (или `/lang`) меняет ваш язык — роли и подсказки придут на нём.",
+          "В группе та же команда меняет язык группы, но только для админов.",
+          "Описание бота и меню команд сами подстраиваются под язык вашего Telegram."
+        ]
+      },
+      {
+        "p": "Таймеры каждый видит на своём языке. Попробуйте: откройте бота и напишите `/settings`."
+      }
+    ]
+  },
+  "en": {
+    "title": "11 languages, one tap",
+    "blocks": [
+      {
+        "p": "TezMafia speaks 11 languages: Uzbek, Russian, English, Ukrainian, Kazakh, Kyrgyz, Tajik, Azerbaijani, Turkish, Indonesian and Portuguese."
+      },
+      {
+        "list": [
+          "In the bot's private chat, `/settings` (or `/lang`) sets your language — roles and hints arrive in it.",
+          "In a group the same command sets the group's language, admins only.",
+          "The bot's description and command menu follow your Telegram language automatically."
+        ]
+      },
+      {
+        "p": "Everyone sees the timers in their own language. Try it: open the bot and type `/settings`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

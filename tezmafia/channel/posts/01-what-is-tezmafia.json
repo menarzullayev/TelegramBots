@@ -1,0 +1,106 @@
+{
+  "id": 1,
+  "slug": "what-is-tezmafia",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#tanishuv",
+    "#tezmafia"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "banner.jpg"
+    ]
+  },
+  "uz": {
+    "title": "TezMafia: guruhingiz uchun Mafiya hakami",
+    "blocks": [
+      {
+        "p": "Qorashaharda tun tushdi. Chiroqlar o‘chdi, ko‘chada faqat qadam tovushi. Kimdir bu kecha tongni ko‘rmaydi — kimligini esa siz topasiz."
+      },
+      {
+        "p": "**TezMafia** — Telegram guruhingiz uchun klassik Mafiya hakami. Qog‘oz, qalam va tun bo‘yi uxlamay o‘tiradigan boshlovchi endi kerak emas: bot hammasini o‘zi yuritadi."
+      },
+      {
+        "list": [
+          "rollarni yashirin tarqatadi — har kimning konverti o‘zining shaxsiy xabarida;",
+          "tun, tong, muhokama va sudni navbatma-navbat boshqaradi;",
+          "ovozlarni sanaydi, hukmni tasdiqlatadi va g‘olibni e’lon qiladi;",
+          "o‘yin oxirida niqoblar ortida kim bo‘lganini ochib beradi."
+        ]
+      },
+      {
+        "p": "Bir stolga 5 dan 23 gacha o‘yinchi sig‘adi. Qorashaharda 21 ta rol yashaydi: Mafiya va Don, Komissar va Doktor, yolg‘iz Manyak, hatto dorni orzu qiladigan Suitsid ham. O‘ynash bepul — kerak bo‘lgani do‘stlar va ozgina shubha."
+      },
+      {
+        "p": "**Birinchi qadam:** botga `/start` bosing, keyin uni guruhingizga qo‘shing. Qolganini Qorashahar o‘zi ko‘rsatadi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "TezMafia: ведущий Мафии для вашей группы",
+    "blocks": [
+      {
+        "p": "В Qorashahar опустилась ночь. Фонари погасли, на улице только шаги. Кто-то не доживёт до утра — а кто именно, решать вам."
+      },
+      {
+        "p": "**TezMafia** — ведущий классической Мафии для вашей Telegram-группы. Бумага, ручка и ведущий, который не спит всю ночь, больше не нужны: бот ведёт игру сам."
+      },
+      {
+        "list": [
+          "тайно раздаёт роли — у каждого свой конверт в личных сообщениях;",
+          "ведёт ночь, рассвет, обсуждение и суд;",
+          "считает голоса, просит подтвердить приговор и объявляет победителя;",
+          "в конце показывает, кто скрывался под масками."
+        ]
+      },
+      {
+        "p": "За столом от 5 до 23 игроков и 21 роль. Играть бесплатно — нужны только друзья и немного подозрительности."
+      },
+      {
+        "p": "**Первый шаг:** нажмите `/start` в боте, затем добавьте его в группу."
+      }
+    ]
+  },
+  "en": {
+    "title": "TezMafia: a Mafia host for your group",
+    "blocks": [
+      {
+        "p": "Night has fallen on Qorashahar. The lights are out, only footsteps in the street. Someone won't see the morning — and you'll find out who."
+      },
+      {
+        "p": "**TezMafia** hosts classic Mafia in your Telegram group. No more paper, pens or a host who stays up all night: the bot runs the whole game."
+      },
+      {
+        "list": [
+          "deals roles in secret — everyone gets their own envelope in private chat;",
+          "runs night, dawn, discussion and the trial;",
+          "counts votes, asks the table to confirm the verdict and announces the winner;",
+          "reveals who was behind every mask at the end."
+        ]
+      },
+      {
+        "p": "A table seats 5 to 23 players, with 21 roles in play. It's free to play — all you need is friends and a little suspicion."
+      },
+      {
+        "p": "**First step:** press `/start` in the bot, then add it to your group."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    },
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

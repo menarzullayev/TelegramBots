@@ -1,0 +1,43 @@
+{
+  "id": 53,
+  "slug": "your-data",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#maxfiylik"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "Ma’lumotlaringiz — sizning qaroringiz",
+    "blocks": [
+      {"p": "Qarg‘a hamma narsani ko‘radi, lekin hammasini eslab qolmaydi. TezMafia faqat o‘yinni o‘tkazish uchun keraklisini saqlaydi:"},
+      {"list": [
+        "Telegram ID, ism va username;",
+        "o‘yin ma’lumotlari: tushgan rol, ovozlar, tun harakatlari, natija;",
+        "statistika, coin va olmos balansi, buyumlar, tanlangan til;",
+        "Stars to‘lovlari: identifikator, summa, sana va nima olingani — karta ma’lumoti emas."
+      ]},
+      {"p": "Guruhdagi oddiy yozishmalar saqlanmaydi. Ma’lumotlar sotilmaydi, reklama uchun ishlatilmaydi va uchinchi tomonga berilmaydi. Tugagan o‘yinlar **90 kundan** keyin o‘zi o‘chadi, texnik loglar — 14 kundan keyin."},
+      {"h": "Hammasini o‘chirish"},
+      {"p": "Botning shaxsiy chatida `/deletemydata` yozing. Bot nima o‘chishini aniq aytadi — statistika, hamyon, buyumlar, navbatdagi rol va til — va tasdiq so‘raydi: **Ha, o‘chirish** yoki **Yo‘q**. Bu qaytarib bo‘lmaydi; tugagan o‘yinlardan ismingiz va username’ingiz ham olib tashlanadi. Faol o‘yin paytida o‘chirib bo‘lmaydi — avval o‘yin tugashi kerak."},
+      {"p": "Nusxa olish yoki boshqa savol bo‘lsa — `/paysupport`: maxfiylik bo‘yicha murojaatlarga 30 kun ichida javob beriladi."},
+      {"p": "To‘liq matn: `/privacy`."}
+    ]
+  },
+  "ru": {
+    "title": "Ваши данные — ваш выбор",
+    "blocks": [
+      {"p": "Бот хранит только нужное для игры: Telegram ID, имя и username, данные партий, статистику, кошелёк, предметы, язык и записи о платежах Stars (без данных карты)."},
+      {"p": "Переписка группы не сохраняется. Данные не продаются и не передаются третьим лицам. Завершённые игры удаляются через 90 дней, технические логи — через 14."},
+      {"p": "`/deletemydata` в личке бота — с подтверждением **Да, удалить** / **Нет**. Необратимо; во время активной игры недоступно. Полный текст — `/privacy`."}
+    ]
+  },
+  "en": {
+    "title": "Your data, your choice",
+    "blocks": [
+      {"p": "The bot keeps only what the game needs: Telegram ID, name and username, game data, stats, wallet, items, language and Stars payment records (no card details)."},
+      {"p": "Ordinary group chat isn't stored. Data is never sold or shared with third parties. Finished games are deleted after 90 days, technical logs after 14."},
+      {"p": "`/deletemydata` in the bot's DM, with a **Yes, delete** / **No** confirmation. It can't be undone and isn't available during a live game. Full text — `/privacy`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

@@ -1,0 +1,107 @@
+{
+  "id": 24,
+  "slug": "moderation",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#moderatsiya",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Malika",
+          "text": "/kick 4"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Jasur o‘yindan chiqarildi."
+        },
+        {
+          "from": "user",
+          "name": "Malika",
+          "text": "/ban"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Jasur bu guruhda TezMafia o‘ynashdan chetlatildi."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Stolda tartib: /kick, /ban va /unban",
+    "blocks": [
+      {
+        "p": "Har shaharda bitta bezori topiladi: o‘yinni sabotaj qiladi, haqorat qiladi yoki stolni yarim yo‘lda tashlab ketadi. Hakam guruh adminlariga buning uchun uchta buyruq beradi."
+      },
+      {
+        "list": [
+          "`/kick` — o‘yinchini joriy stoldan chiqaradi: lobbidan ham, ketayotgan o‘yindan ham. Uning xabariga javoban yozing yoki o‘rin raqami bilan: `/kick 3`.",
+          "`/ban` — bu guruhda TezMafia o‘ynashdan chetlatadi. U stolda bo‘lsa, darhol chiqariladi.",
+          "`/unban` — chetlatishni bekor qiladi, odam yana o‘ynay oladi."
+        ]
+      },
+      {
+        "p": "Buyruqlar faqat guruh adminlari uchun. Chetlatish faqat shu guruhga tegishli: odam guruhdan haydalmaydi, boshqa guruhlarda ham bemalol o‘ynaydi — faqat sizning stolingizga yaqinlasha olmaydi."
+      },
+      {
+        "p": "O‘yin davomida chiqarilgan o‘yinchi xronikada «admin tomonidan chiqarildi» deb yoziladi. Agar bu o‘yin taqdirini hal qilsa, hakam g‘olibni darhol e’lon qiladi — stol osilib qolmaydi."
+      },
+      {
+        "p": "Qoidalarni guruh tavsifiga yozib qo‘ying — shunda `/kick` kamroq kerak bo‘ladi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Порядок за столом: /kick, /ban и /unban",
+    "blocks": [
+      {
+        "p": "В каждом городе найдётся хулиган. Для админов группы у ведущего три команды."
+      },
+      {
+        "list": [
+          "`/kick` — убирает игрока с текущего стола (лобби или идущая игра). Ответом на его сообщение или по номеру места: `/kick 3`.",
+          "`/ban` — отстраняет от игр TezMafia в этой группе; если он за столом — сразу удаляет.",
+          "`/unban` — снимает отстранение."
+        ]
+      },
+      {
+        "p": "Отстранение действует только в вашей группе. Если удаление решает исход, ведущий сразу объявляет победителя."
+      }
+    ]
+  },
+  "en": {
+    "title": "Order at the table: /kick, /ban and /unban",
+    "blocks": [
+      {
+        "p": "Every town has a troublemaker. The game master gives group admins three commands."
+      },
+      {
+        "list": [
+          "`/kick` — removes a player from the current table (lobby or running game). Reply to their message or use a seat number: `/kick 3`.",
+          "`/ban` — bans them from TezMafia games in this group; if they are seated, they are removed at once.",
+          "`/unban` — lifts the ban."
+        ]
+      },
+      {
+        "p": "A ban applies only to your group. If a removal decides the game, the winner is announced right away."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}
