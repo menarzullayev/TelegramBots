@@ -1,0 +1,60 @@
+{
+  "id": 49,
+  "slug": "group-premium",
+  "series": "E",
+  "segment": "admin",
+  "hashtags": ["#premium", "#guruhadmin"],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "title": "Qorashahar kechalari",
+      "messages": [
+        {"from": "user", "name": "Jasur", "text": "/premium"},
+        {"from": "bot", "text": "⭐ Guruh premium\nOyiga 199 ⭐ — guruhning istalgan a‘zosi to‘lashi mumkin:\n• uzun taymerlar: kun 180 s, tun 120 s gacha\n• natija kartasida guruh nomi\n• /groupstats — oxirgi 3 oy bo‘yicha", "buttons": [["⭐ 199 — 30 kun"]]}
+      ]
+    }
+  },
+  "uz": {
+    "title": "Guruh premium: stolingiz — sizning qoidangiz",
+    "blocks": [
+      {"p": "Ba’zi guruhlar tez o‘ynaydi, ba’zilari esa har bir so‘zni tarozida tortadi. Uzoq bahs, sekin tun, chuqur tahlil sevadigan guruhlar uchun **guruh premium** bor: oyiga **199⭐**."},
+      {"list": [
+        "**Uzun taymerlar:** kunduz 180 soniyagacha, tun 120 soniyagacha — `/config` dagi **Kunduz** va **Tun** tugmalarida.",
+        "**Guruh nomi natija kartasida:** har bir ulashilgan karta guruhingizni eslatadi.",
+        "**`/groupstats` oxirgi 3 oy bo‘yicha:** oylar kesimida kim o‘ynadi, kim birinchi bo‘ldi."
+      ]},
+      {"p": "To‘lashni admin kutishi shart emas: guruhning **istalgan a’zosi** `/premium` ostidagi **⭐ 199 — 30 kun** tugmasini bosishi mumkin. To‘lov havolasi uning shaxsiy chatiga keladi, premium esa butun guruh uchun yoqiladi."},
+      {"p": "Bu Telegram obunasi: har 30 kunda o‘zi yangilanadi va Telegram sozlamalarida bekor qilinadi. Premium faqat qulaylik va ko‘rinish beradi — rollar, ovozlar va g‘alaba qoidalari hamma uchun bir xil qoladi."},
+      {"p": "Guruhingizda `/premium` yozing va nima ochilishini ko‘ring."}
+    ]
+  },
+  "ru": {
+    "title": "Премиум для группы",
+    "blocks": [
+      {"p": "Для групп, которые любят долгие споры: **199⭐ в месяц**."},
+      {"list": [
+        "Длинные таймеры: день до 180 с, ночь до 120 с (в `/config`).",
+        "Название группы на карте результата.",
+        "`/groupstats` за последние 3 месяца."
+      ]},
+      {"p": "Оплатить может **любой участник**: кнопка **⭐ 199 — 30 дней** под `/premium`, ссылка придёт ему в личку. Это подписка Telegram, отменяется в настройках. Правила игры для всех одинаковы."},
+      {"p": "Напишите `/premium` в группе."}
+    ]
+  },
+  "en": {
+    "title": "Group premium",
+    "blocks": [
+      {"p": "For groups that like long debates: **199⭐ a month**."},
+      {"list": [
+        "Longer timers: day up to 180 s, night up to 120 s (in `/config`).",
+        "Your group name on result cards.",
+        "`/groupstats` for the last 3 months."
+      ]},
+      {"p": "**Any member** can pay: the **⭐ 199 — 30 days** button under `/premium`; the link goes to their DM. It's a Telegram subscription, cancelled in settings. Game rules stay the same for everyone."},
+      {"p": "Type `/premium` in your group."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}],
+  "poll": null
+}

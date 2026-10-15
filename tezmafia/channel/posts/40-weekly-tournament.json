@@ -1,0 +1,154 @@
+{
+  "id": 40,
+  "slug": "weekly-tournament",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#turnir",
+    "#ijtimoiy"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Nodira",
+          "text": "/tournament"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🏆 Haftalik turnir — 2026-W42\nOchko: g‘alaba 3, o‘yin 1. Dushanba kuni top-3: 5/3/2 olmos va 🏆 belgisi.\n\n1. Nodira — 31 ochko\n2. Sardor — 27 ochko\n3. Malika — 22 ochko\n4. Bekzod — 19 ochko"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Haftalik turnir 🏆: har dushanba — yangi chempion",
+    "blocks": [
+      {
+        "p": "Mavsum bir oy davom etadi, turnir esa — bir hafta. Bu sabrsizlar uchun: yetti kunda afsonaga aylanish mumkin."
+      },
+      {
+        "h": "Ochko qanday yig‘iladi"
+      },
+      {
+        "list": [
+          "Har bir tugagan o‘yin — **1 ochko**.",
+          "G‘alaba uchun ustiga yana **3 ochko**."
+        ]
+      },
+      {
+        "p": "Hafta dushanbadan boshlanadi. Dushanba kuni o‘tgan haftaning eng yaxshi uchtasi taqdirlanadi:"
+      },
+      {
+        "table": [
+          [
+            "O‘rin",
+            "Mukofot"
+          ],
+          [
+            "1",
+            "5 olmos + 🏆"
+          ],
+          [
+            "2",
+            "3 olmos + 🏆"
+          ],
+          [
+            "3",
+            "2 olmos + 🏆"
+          ]
+        ]
+      },
+      {
+        "p": "🏆 belgisi sotilmaydi — uni faqat turnirda yutib olish mumkin. Ochko teng bo‘lsa, ko‘proq g‘alabasi borlar, keyin esa buni kamroq o‘yinda qilganlar oldinga chiqadi."
+      },
+      {
+        "p": "Joriy jadval — `/tournament`. Bu hafta u yerda sizning ismingiz ham bo‘lsin. Avval pastdagi viktorinani yeching."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Еженедельный турнир 🏆: каждый понедельник — новый чемпион",
+    "blocks": [
+      {
+        "list": [
+          "Каждая завершённая игра — **1 очко**.",
+          "За победу — ещё **3 очка**."
+        ]
+      },
+      {
+        "p": "Неделя начинается в понедельник. В понедельник топ-3 прошлой недели получают 5/3/2 алмаза и значок 🏆 — его нельзя купить. При равенстве выше тот, у кого больше побед, затем — меньше игр."
+      },
+      {
+        "p": "Таблица — `/tournament`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Weekly tournament 🏆: a new champion every Monday",
+    "blocks": [
+      {
+        "list": [
+          "Every finished game — **1 point**.",
+          "A win adds **3 more points**."
+        ]
+      },
+      {
+        "p": "The week starts on Monday. On Monday last week's top 3 get 5/3/2 gems and the 🏆 badge, which can't be bought. Ties go to more wins, then fewer games."
+      },
+      {
+        "p": "Standings: `/tournament`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Turnirda yutilgan bitta o‘yin necha ochko beradi?",
+      "ru": "Сколько очков турнира даёт одна выигранная игра?",
+      "en": "How many tournament points does one won game give?"
+    },
+    "options": [
+      {
+        "uz": "1",
+        "ru": "1",
+        "en": "1"
+      },
+      {
+        "uz": "3",
+        "ru": "3",
+        "en": "3"
+      },
+      {
+        "uz": "4",
+        "ru": "4",
+        "en": "4"
+      },
+      {
+        "uz": "5",
+        "ru": "5",
+        "en": "5"
+      }
+    ],
+    "correct": [
+      2
+    ],
+    "explanation": {
+      "uz": "O‘yin uchun 1 ochko va g‘alaba uchun yana 3 — jami 4. Yutqazilgan o‘yin ham 1 ochko beradi.",
+      "ru": "1 очко за игру и ещё 3 за победу — всего 4. Проигранная игра тоже даёт 1.",
+      "en": "1 point for the game plus 3 for the win — 4 in total. A lost game still gives 1."
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "id": 27,
+  "slug": "founder-reward",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#asoschi",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "avatar.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Asoschi belgisi 🎖: shaharni siz qurdingiz",
+    "blocks": [
+      {
+        "p": "Har shaharning birinchi chirog‘ini kimdir yoqadi. Qorashahar buni unutmaydi."
+      },
+      {
+        "p": "Botni guruhga qo‘shgan odam — guruh asoschisi. Guruhingizda kamida 5 nafar haqiqiy odam o‘tirgan birinchi o‘yin g‘olib bilan tugasa, asoschiga avtomatik sovg‘a keladi:"
+      },
+      {
+        "list": [
+          "**200 coin**",
+          "**2 olmos**",
+          "**🎖 «Asoschi» belgisi** — uni sotib olib bo‘lmaydi, faqat shu yo‘l bilan topiladi."
+        ]
+      },
+      {
+        "p": "Robotlar beshlikka hisoblanmaydi — stolga tirik do‘stlarni chaqiring. Mukofot har guruh uchun bir marta beriladi, bir kishi uni ko‘pi bilan 5 ta guruh uchun oladi."
+      },
+      {
+        "p": "Hech narsa bosish shart emas: bot o‘zi shaxsiy xabarda tabriklaydi. Shuning uchun botga oldindan `/start` bosib qo‘ying."
+      },
+      {
+        "p": "Shaharingiz hali yo‘qmi? Pastdagi tugma bilan botni guruhga qo‘shing va beshta do‘stni stolga chaqiring."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Значок основателя 🎖: этот город построили вы",
+    "blocks": [
+      {
+        "p": "Кто добавил бота в группу — тот её основатель. Когда в группе пройдёт первая игра минимум с 5 живыми людьми и победителем, основатель автоматически получает:"
+      },
+      {
+        "list": [
+          "**200 монет**",
+          "**2 алмаза**",
+          "**значок 🎖 «Основатель»** — его нельзя купить."
+        ]
+      },
+      {
+        "p": "Боты в пятёрку не входят. Награда — один раз на группу, не больше чем за 5 групп на человека. Поздравление придёт в личку, поэтому заранее нажмите `/start` в боте."
+      }
+    ]
+  },
+  "en": {
+    "title": "The Founder badge 🎖: you built this town",
+    "blocks": [
+      {
+        "p": "Whoever adds the bot to a group is its founder. When the group's first game with at least 5 real people ends with a winner, the founder automatically gets:"
+      },
+      {
+        "list": [
+          "**200 coins**",
+          "**2 gems**",
+          "**the 🎖 Founder badge** — it cannot be bought."
+        ]
+      },
+      {
+        "p": "Bots don't count towards the five. The reward is paid once per group, for at most 5 groups per person. It arrives by DM, so press `/start` in the bot first."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

@@ -1,0 +1,135 @@
+{
+  "id": 21,
+  "slug": "custom-role-set",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#rollar",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Qaysi maxsus rollar o‘ynalsin? O‘chirilgan rol o‘rniga tinch aholi tushadi.",
+          "buttons": [
+            [
+              "✅ Serjant",
+              "✅ Oshiq"
+            ],
+            [
+              "✅ Manyak",
+              "✅ Qora advokat"
+            ],
+            [
+              "✅ Hokim",
+              "✅ Suitsid"
+            ],
+            [
+              "✅ Omadli",
+              "✅ Kamikadze"
+            ],
+            [
+              "✅ Darvesh",
+              "✅ Josus"
+            ],
+            [
+              "✅ Jallod",
+              "✅ Sotqin"
+            ],
+            [
+              "❌ Arsonist",
+              "❌ Afsungar"
+            ],
+            [
+              "✅ Firibgar",
+              "✅ Ayg‘oqchi"
+            ],
+            [
+              "Orqaga"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "O‘z rol to‘plamingiz — bepul",
+    "blocks": [
+      {
+        "p": "Qorashaharda 21 rol bor. Beshtasi — shaharning suyagi: Tinch aholi, Mafiya, Don, Komissar va Doktor. Ularni o‘chirib bo‘lmaydi. Qolgan 16 ta maxsus rolni esa guruhingiz xohishiga ko‘ra yoqib-o‘chirasiz. Pul ham, premium ham kerak emas."
+      },
+      {
+        "h": "Qanday sozlanadi"
+      },
+      {
+        "list": [
+          "Guruhda `/config` yozing.",
+          "**🎭 Rollar** tugmasini bosing.",
+          "Keraksiz rolni bosing — ✅ belgisi ❌ ga aylanadi. Qayta bossangiz, rol qaytadi.",
+          "**Orqaga** bilan asosiy panelga qayting."
+        ]
+      },
+      {
+        "p": "O‘chirilgan rol o‘rniga tinch aholi tushadi, stoldagi o‘rinlar soni o‘zgarmaydi. Panelda nechta rol o‘chirilgani doim ko‘rinib turadi. Sozlamani faqat guruh adminlari o‘zgartiradi."
+      },
+      {
+        "p": "Yangi guruhmi? Arsonist va Afsungarni hozircha chetga qo‘ying — o‘yinchilar avval klassik qoidalarni o‘zlashtirsin. Tajribali stolmi? Hammasini yoqing va tongni kuting."
+      },
+      {
+        "p": "`/config` → **Rollar**: shahar aholisini o‘zingiz tanlang."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Свой набор ролей — бесплатно",
+    "blocks": [
+      {
+        "p": "В Qorashahar 21 роль. Пять базовых — Мирный житель, Мафия, Дон, Комиссар и Доктор — отключить нельзя. Остальные 16 особых ролей группа включает и выключает сама, без денег и премиума."
+      },
+      {
+        "list": [
+          "Напишите в группе `/config`.",
+          "Нажмите **🎭 Роли**.",
+          "Нажмите на роль — ✅ сменится на ❌.",
+          "Вернитесь кнопкой **Назад**."
+        ]
+      },
+      {
+        "p": "Вместо отключённой роли выпадает мирный житель, число мест не меняется. Менять набор могут только админы."
+      }
+    ]
+  },
+  "en": {
+    "title": "Your own role set — free",
+    "blocks": [
+      {
+        "p": "Qorashahar has 21 roles. Five core ones — Civilian, Mafia, Don, Detective and Doctor — stay locked. The other 16 special roles your group switches on and off as it likes, no money or premium needed."
+      },
+      {
+        "list": [
+          "Type `/config` in the group.",
+          "Tap **🎭 Roles**.",
+          "Tap a role — ✅ turns into ❌.",
+          "Go back with **Back**."
+        ]
+      },
+      {
+        "p": "A switched-off role is replaced by a civilian, so the seat count stays the same. Only admins can change the set."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

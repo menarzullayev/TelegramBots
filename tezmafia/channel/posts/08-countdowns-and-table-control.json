@@ -1,0 +1,120 @@
+{
+  "id": 8,
+  "slug": "countdowns-and-table-control",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#qoidalar",
+    "#buyruqlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Malika",
+          "text": "/status"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Bosqich: kun · 2-raund\nHali nafas olayotganlar: 5"
+        },
+        {
+          "from": "user",
+          "name": "Aziz",
+          "text": "Hamma gapirib bo‘ldi, sudga o‘taylik.\n/next"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Mezbon soatni oldinga surdi."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Jonli taymerlar va stol boshqaruvi",
+    "blocks": [
+      {
+        "p": "Qorashaharda vaqt — eng qattiqqo‘l hakam. Har bir bosqich xabarida ⏳ jonli sanoq turadi va u o‘zi yangilanib boradi. Eng yaxshi tomoni: vaqt har bir o‘quvchining Telegram tilida ko‘rsatiladi. Sardor o‘zbekcha, Malika ruscha o‘qisa ham, ikkalasi bir xil soniyani ko‘radi."
+      },
+      {
+        "h": "Mezbonning buyruqlari"
+      },
+      {
+        "list": [
+          "`/extend` — lobbida kutish vaqtini uzaytiradi. Kechikayotgan do‘st uchun; lekin cheksiz emas.",
+          "`/next` — keyingi bosqichga o‘tadi. Hamma gapirib bo‘lgan bo‘lsa, kutib o‘tirishga hojat yo‘q.",
+          "`/stop` — stolni yig‘ishtiradi va o‘yinni bekor qiladi."
+        ]
+      },
+      {
+        "h": "Hamma uchun"
+      },
+      {
+        "list": [
+          "`/status` — hozir qaysi bosqich, nechanchi raund va kim hali nafas olyapti.",
+          "`/leave` — o‘yin boshlanmasdan stoldan turib ketish."
+        ]
+      },
+      {
+        "p": "Mezbon — stolni ochgan odam. Uning buyruqlarini boshqalar bera olmaydi: Qorashaharda tartib shunday."
+      },
+      {
+        "p": "Keyingi o‘yinda sinab ko‘ring: sud qizib ketganda `/status` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Живые таймеры и управление столом",
+    "blocks": [
+      {
+        "p": "В каждом сообщении фазы стоит живой обратный отсчёт ⏳, и время показано на языке Telegram каждого читателя."
+      },
+      {
+        "list": [
+          "`/extend` — ведущий продлевает ожидание в лобби (не бесконечно).",
+          "`/next` — ведущий переходит к следующей фазе.",
+          "`/stop` — ведущий отменяет игру.",
+          "`/status` — фаза, раунд и сколько игроков живы.",
+          "`/leave` — выйти из-за стола до старта."
+        ]
+      },
+      {
+        "p": "Ведущий — тот, кто открыл стол. Попробуйте `/status` в следующей игре."
+      }
+    ]
+  },
+  "en": {
+    "title": "Live countdowns and table control",
+    "blocks": [
+      {
+        "p": "Every phase message carries a live ⏳ countdown, shown in each reader's own Telegram language."
+      },
+      {
+        "list": [
+          "`/extend` — the host extends the lobby wait (not forever).",
+          "`/next` — the host moves to the next phase.",
+          "`/stop` — the host cancels the game.",
+          "`/status` — the phase, round and how many are still alive.",
+          "`/leave` — leave the table before the start."
+        ]
+      },
+      {
+        "p": "The host is whoever opened the table. Try `/status` in your next game."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

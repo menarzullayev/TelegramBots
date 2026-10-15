@@ -1,0 +1,67 @@
+{
+  "id": 37,
+  "slug": "play-again",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#revansh",
+    "#ijtimoiy"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "scenes/win-town.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Yana o‘ynash: revansh bir tugma narida",
+    "blocks": [
+      {
+        "p": "Final jadvali ochildi, niqoblar tushdi, guruhda shovqin: «Men sizga aytgandim-ku!». Ana shu lahzada hamma bitta narsani xohlaydi — revansh."
+      },
+      {
+        "p": "O‘yin tugashi bilan natija xabari ostida **Yana o‘ynash** tugmasi paydo bo‘ladi. Kim bosmasin, shu guruhda yangi stol ochiladi va u mezbonga aylanadi."
+      },
+      {
+        "p": "Eng muhimi: oldingi o‘yinning qolgan ishtirokchilari botdan shaxsiy xabar oladi — «Aziz yangi stol ochdi. Qo‘shilish: …». Telefonni chetga qo‘ygan do‘stlar ham chaqiriqni o‘tkazib yubormaydi."
+      },
+      {
+        "p": "Guruhda boshqa o‘yin ketayotgan bo‘lsa, bot buni aytadi va ikkinchi stol ochmaydi — Qorashaharda bir kechada bitta tun."
+      },
+      {
+        "p": "Keyingi o‘yin oxirida **Yana o‘ynash** ni birinchi bo‘lib bosing — mezbonlik sizniki."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Сыграть ещё: реванш в одно касание",
+    "blocks": [
+      {
+        "p": "После игры под итогом появляется кнопка **Сыграть ещё**. Кто нажал — открывает новый стол в этой группе и становится хозяином."
+      },
+      {
+        "p": "Остальные участники прошлой игры получают личное приглашение со ссылкой. Если в группе уже идёт игра, второй стол не откроется."
+      }
+    ]
+  },
+  "en": {
+    "title": "Play again: a rematch is one tap away",
+    "blocks": [
+      {
+        "p": "When a game ends, a **Play again** button appears under the result. Whoever taps it opens a new table in the group and becomes the host."
+      },
+      {
+        "p": "The other players from the last game get a DM invite with a link. If a game is already running in the group, no second table opens."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

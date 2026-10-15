@@ -1,0 +1,129 @@
+{
+  "id": 13,
+  "slug": "mafia-family",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#mafiya"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/mafia.jpg",
+      "roles/don.jpg",
+      "roles/lawyer.jpg",
+      "roles/killer.jpg",
+      "roles/journalist.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Mafiya oilasi",
+    "blocks": [
+      {
+        "p": "Kunduzi ular eng halol odamlar: salom beradi, hamdardlik bildiradi, hatto birinchi bo‘lib «Mafiyani topamiz!» deb qichqiradi. Tunda esa bir-birini taniydigan beshta soya bitta stol atrofida yig‘iladi."
+      },
+      {
+        "list": [
+          "**Mafiya** — oilaning askari. Tunda sheriklari bilan birga nishon tanlaydi. Bot unga sheriklarining ismini aytib qo‘yadi.",
+          "**Don** — oila boshlig‘i. Sheriklar kelisha olmasa, uning so‘zi qonun: Don ko‘rsatgan odam tongni ko‘rmaydi.",
+          "**Qora advokat** — har tun bitta odamni tanlaydi. Komissar o‘sha odamni tekshirsa, «toza» degan javob oladi.",
+          "**Jallod** — yollanma o‘qchi. Uning o‘qi har qanday himoyani teshadi. Faqat Komissarni nishonga olmasin — o‘zi o‘ladi.",
+          "**Josus** — oilaning ko‘zi. Tunda bitta eshikni poylaydi: kim kelganini va uy egasi shahar yordamchisimi yoki oddiy odammi — bilib oladi."
+        ]
+      },
+      {
+        "p": "Mafiyaning maqsadi oddiy: soni qolgan shahar bilan tenglashsa — Qorashaharda endi doim tun. Qora advokat, Jallod va Josus odatda katta stollarda paydo bo‘ladi, shuning uchun oila qancha katta bo‘lsa, shu qadar xavfli."
+      },
+      {
+        "p": "Oila a’zolarini yaxshi bilasizmi? Pastdagi savolda bitta begona yashiringan."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Семья Мафии",
+    "blocks": [
+      {
+        "p": "Днём они самые честные люди в городе. Ночью пять теней, знающих друг друга, садятся за один стол."
+      },
+      {
+        "list": [
+          "**Мафия** — ночью вместе с сообщниками выбирает цель; бот называет ей сообщников.",
+          "**Дон** — глава семьи: если сообщники не договорились, решает его слово.",
+          "**Чёрный адвокат** — выбранный им человек при проверке Комиссара окажется «чистым».",
+          "**Палач** — его пуля пробивает любую защиту. Только не стреляйте в Комиссара — погибнете сами.",
+          "**Шпион** — следит за дверью: кто пришёл и помощник ли хозяин дома."
+        ]
+      },
+      {
+        "p": "Мафия побеждает, когда сравняется числом с остальными. В вопросе ниже спрятан чужак — найдите его."
+      }
+    ]
+  },
+  "en": {
+    "title": "The Mafia family",
+    "blocks": [
+      {
+        "p": "By day they're the most honest people in town. By night five shadows who know each other gather at one table."
+      },
+      {
+        "list": [
+          "**Mafia** — picks a target with their partners at night; the bot tells them who the partners are.",
+          "**Don** — the head of the family: if the partners can't agree, his word is law.",
+          "**Crooked Lawyer** — whoever they pick shows up “clean” if the Detective checks them.",
+          "**Executioner** — their bullet pierces any protection. Just don't aim at the Detective — you'll die yourself.",
+          "**Spy** — watches a door: who came, and whether the owner is a town helper."
+        ]
+      },
+      {
+        "p": "The Mafia wins when its numbers draw level with the rest. One outsider is hiding in the quiz below — find them."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Qaysi rol Mafiya oilasiga kirmaydi?",
+      "ru": "Какая роль не входит в семью Мафии?",
+      "en": "Which role is NOT part of the Mafia family?"
+    },
+    "options": [
+      {
+        "uz": "Don",
+        "ru": "Дон",
+        "en": "Don"
+      },
+      {
+        "uz": "Qora advokat",
+        "ru": "Чёрный адвокат",
+        "en": "Crooked Lawyer"
+      },
+      {
+        "uz": "Sotqin",
+        "ru": "Предатель",
+        "en": "Traitor"
+      },
+      {
+        "uz": "Josus",
+        "ru": "Шпион",
+        "en": "Spy"
+      }
+    ],
+    "correct": [
+      2
+    ],
+    "explanation": {
+      "uz": "Sotqin shahar tomonida boshlaydi. Mafiya unga hujum qilsagina, u o‘lmaydi va ular safiga o‘tadi.",
+      "ru": "Предатель начинает на стороне города. Только если Мафия нападёт на него, он не умрёт, а перейдёт к ним.",
+      "en": "The Traitor starts on the town's side. Only if the Mafia attacks them do they survive and switch sides."
+    }
+  }
+}

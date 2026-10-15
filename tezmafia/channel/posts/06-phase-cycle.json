@@ -1,0 +1,103 @@
+{
+  "id": 6,
+  "slug": "phase-cycle",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#qoidalar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "scenes/night.jpg",
+      "scenes/dawn.jpg",
+      "scenes/trial.jpg",
+      "scenes/verdict-confirm.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Tun tushadi: Qorashahar soati qanday yuradi",
+    "blocks": [
+      {
+        "p": "Har bir o‘yin bir xil ritmda aylanadi — tun va kun. Ritmni bilgan omon qoladi."
+      },
+      {
+        "h": "🌙 Tun"
+      },
+      {
+        "p": "Shahar uxlaydi, tungi rollar uyg‘onadi. Har kim botning shaxsiy chatida tugma bilan nishon tanlaydi (yoki `/action 3` kabi o‘rin raqamini yozadi). Tanlov sir — natijani tong ko‘rsatadi."
+      },
+      {
+        "h": "🌅 Tong"
+      },
+      {
+        "p": "Bot tunda nima bo‘lganini e’lon qiladi: kimdir soyaga aylandimi, kimnidir Doktor qutqarib qoldimi."
+      },
+      {
+        "h": "☀️ Muhokama va sud"
+      },
+      {
+        "p": "Endi gapiring, taqqoslang, ayblang. Keyin sud: guruhdagi tugmalar bilan yoki `/vote 3` deb ovoz bering. Vaqt tugaguncha fikrni o‘zgartirish mumkin — buning uchun **Fikrimdan qaytdim** tugmasi bor."
+      },
+      {
+        "h": "⚖️ Hukm tasdig‘i"
+      },
+      {
+        "p": "Eng ko‘p ovoz olgan dor ostiga turadi. Oxirgi so‘z shaharniki: **Ha — osilsin** yoki **Yo‘q — yashasin**. Ko‘pchilik «Ha» desa, arqon tortiladi. Keyin yana tun."
+      },
+      {
+        "p": "Ogohlantirish: ikki tun ketma-ket hech narsa tanlamagan tungi rol o‘yindan chiqadi. Qorashaharda uxlab qolganni kechirishmaydi."
+      },
+      {
+        "p": "To‘liq qoidalar botda: `/help`."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ночь опускается: как идут часы Qorashahar",
+    "blocks": [
+      {
+        "p": "Каждая игра крутится в одном ритме — ночь и день."
+      },
+      {
+        "list": [
+          "🌙 **Ночь.** Ночные роли выбирают цель кнопкой в личке бота (или `/action 3`).",
+          "🌅 **Рассвет.** Бот объявляет, что случилось ночью.",
+          "☀️ **Обсуждение и суд.** Голосуйте кнопками в группе или `/vote 3`; передумали — **Забираю голос**.",
+          "⚖️ **Подтверждение.** **Да — повесить** или **Нет — пусть живёт**: решает большинство."
+        ]
+      },
+      {
+        "p": "Ночная роль, пропустившая 2 ночи подряд, выбывает. Все правила — `/help`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Night falls: how Qorashahar's clock runs",
+    "blocks": [
+      {
+        "p": "Every game turns on the same rhythm — night and day."
+      },
+      {
+        "list": [
+          "🌙 **Night.** Night roles pick a target with a button in the bot's private chat (or `/action 3`).",
+          "🌅 **Dawn.** The bot announces what happened in the dark.",
+          "☀️ **Discussion and trial.** Vote with the group buttons or `/vote 3`; changed your mind — **I changed my mind**.",
+          "⚖️ **Confirmation.** **Yes — hang them** or **No — let them live**: the majority decides."
+        ]
+      },
+      {
+        "p": "A night role that sits idle for 2 nights is out. Full rules: `/help`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

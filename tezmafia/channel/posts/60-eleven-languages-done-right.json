@@ -1,0 +1,41 @@
+{
+  "id": 60,
+  "slug": "eleven-languages-done-right",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#tillar"],
+  "visual": {"type": "image", "images": ["menu/h02-help.jpg"]},
+  "uz": {
+    "title": "11 til: tarjimani ham test qiladi",
+    "blocks": [
+      {"p": "Qorashahar ko‘p tilli shahar: bir stolda Toshkentdan, Olmaotadan, Istanbuldan o‘yinchi o‘tirishi mumkin. TezMafia 11 tilda gapiradi: o‘zbek, rus, ingliz, ukrain, qozoq, qirg‘iz, tojik, ozarbayjon, turk, indonez va portugal (Braziliya)."},
+      {"p": "Ko‘p tilli bot oson buziladi: bitta tarjimada `{coins}` o‘rniga `{coin}` yozilsa yoki teg yopilmay qolsa — xabar yo xato bilan chiqadi, yo umuman chiqmaydi. Shuning uchun tarjimalar ham kod kabi tekshiriladi:"},
+      {"list": [
+        "**Hech bir kalit tushib qolmaydi.** Har bir matn 11 tilning hammasida bo‘lishi shart.",
+        "**Shakl bir xil.** Har tarjimadagi o‘rinbosarlar (`{n}`, `{name}`…) va teglar o‘zbekcha asl nusxa bilan aynan mos kelishi tekshiriladi.",
+        "**Tekshiruvning o‘zi ham tekshiriladi.** Ataylab buzilgan namuna beriladi — test uni ushlashi shart.",
+        "**21 rol va barcha bosqich nomlari** har tilda tarjima qilinganmi — alohida test."
+      ]},
+      {"p": "Bot profili ham tilingizga moslashadi: Telegram’ingiz qaysi tilda bo‘lsa, bot tavsifi va buyruqlar menyusi shu tilda ko‘rinadi. O‘yinda esa har kim taymer va xabarlarni o‘z tilida o‘qiydi."},
+      {"p": "Tilni bir bosishda almashtiring: `/settings` yoki `/lang`."}
+    ]
+  },
+  "ru": {
+    "title": "11 языков: переводы тоже тестируются",
+    "blocks": [
+      {"p": "TezMafia говорит на 11 языках: узбекском, русском, английском, украинском, казахском, кыргызском, таджикском, азербайджанском, турецком, индонезийском и португальском (Бразилия)."},
+      {"p": "Тесты следят, чтобы каждый ключ был во всех языках, а подстановки (`{n}`, `{name}`) и теги совпадали с оригиналом; сам тест проверяется на нарочно сломанном примере. Профиль бота показывается на языке вашего Telegram."},
+      {"p": "Сменить язык: `/settings` или `/lang`."}
+    ]
+  },
+  "en": {
+    "title": "11 languages: translations get tested too",
+    "blocks": [
+      {"p": "TezMafia speaks 11 languages: Uzbek, Russian, English, Ukrainian, Kazakh, Kyrgyz, Tajik, Azerbaijani, Turkish, Indonesian and Portuguese (Brazil)."},
+      {"p": "Tests make sure every key exists in every language and that placeholders (`{n}`, `{name}`) and tags match the original; the check itself is tested on a deliberately broken sample. The bot profile follows your Telegram language."},
+      {"p": "Switch language: `/settings` or `/lang`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

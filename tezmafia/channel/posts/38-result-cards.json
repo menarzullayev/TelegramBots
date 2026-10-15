@@ -1,0 +1,86 @@
+{
+  "id": 38,
+  "slug": "result-cards",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#natija",
+    "#ulashish"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🖼 Natija kartasi\nKamola — Komissar\nG‘alaba\nDaraja 4 · 23 o‘yin\n\n🏅 Yangi yutuq: Iz quvuvchi",
+          "buttons": [
+            [
+              "Ulashish"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Natija kartasi: g‘alabangizni ko‘rsating",
+    "blocks": [
+      {
+        "p": "Har o‘yin oxirida hakam har bir o‘yinchiga shaxsiy xabarda kichik plakat yuboradi — natija kartasi. 1280×720 o‘lchamda: ismingiz, rolingiz, «G‘alaba», «Mag‘lubiyat» yoki «Durang», darajangiz va o‘yinlar soni."
+      },
+      {
+        "p": "Yangi yutuq ochilgan yoki daraja ko‘tarilgan bo‘lsa, bu xabar ham kartaning tagida yoziladi — ortiqcha xabar yo‘q."
+      },
+      {
+        "h": "Qanday ulashiladi"
+      },
+      {
+        "list": [
+          "Karta ostidagi **Ulashish** tugmasini bosing.",
+          "Chatni tanlang: do‘stingiz, oilaviy guruh yoki boshqa jamoa.",
+          "Karta oxirgi natijangiz bilan boradi, ostida esa **Guruhga qo‘shish** va **Ilovani ochish** tugmalari."
+        ]
+      },
+      {
+        "p": "Yana bir yo‘l: istalgan chatda `@qorashahar_mafia_bot` deb yozing. Ikki variant chiqadi — oxirgi kartangiz va «Mafiya o‘ynaymizmi?» taklifi. Ikkinchisi do‘stlarni yangi guruhga chaqirish uchun juda qulay."
+      },
+      {
+        "p": "Keyingi g‘alabadan keyin kartani ulashing — Qorashahar shon-shuhratni yaxshi ko‘radi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Карточка результата: покажите свою победу",
+    "blocks": [
+      {
+        "p": "После каждой игры ведущий присылает в личку карточку 1280×720: имя, роль, победа, поражение или ничья, уровень и число игр. Новые достижения пишутся прямо под ней."
+      },
+      {
+        "p": "Нажмите **Поделиться** и выберите чат. Или напишите в любом чате `@qorashahar_mafia_bot` — появятся ваша последняя карточка и приглашение «Сыграем в Мафию?»."
+      }
+    ]
+  },
+  "en": {
+    "title": "Result cards: show off your win",
+    "blocks": [
+      {
+        "p": "After every game the game master DMs you a 1280×720 card: name, role, victory, defeat or draw, level and games played. New achievements are noted right under it."
+      },
+      {
+        "p": "Tap **Share** and pick a chat. Or type `@qorashahar_mafia_bot` in any chat to get your latest card and a “Play Mafia?” invite."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

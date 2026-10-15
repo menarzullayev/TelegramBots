@@ -1,0 +1,114 @@
+{
+  "id": 4,
+  "slug": "first-game",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#boshlash",
+    "#qoidalar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Aziz",
+          "text": "/game"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "📌 Stol ochildi. Kim o‘ynaydi?\nStolda: 3/23 · boshlash uchun kamida 5\n\n1. Aziz — ✅ tayyor\n2. Malika — ✅ tayyor\n3. Sardor — ⏳ botga hali /start bosmagan",
+          "buttons": [
+            [
+              "Men o‘ynayman"
+            ],
+            [
+              "O‘yinni boshlash 3/5",
+              "Men ketdim"
+            ]
+          ]
+        },
+        {
+          "from": "user",
+          "name": "Sardor",
+          "text": "Bosdim, bosdim! Hozir qaytaman 😅"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Birinchi o‘yiningiz: stoldan tungacha",
+    "blocks": [
+      {
+        "p": "Guruh yig‘ildi, kimdir allaqachon hammaga shubha bilan qarayapti. Demak, vaqt keldi."
+      },
+      {
+        "list": [
+          "Guruhda `/game` yozing — `/mafia` yoki `/newgame` ham bo‘ladi. Stol ochiladi.",
+          "**Men o‘ynayman** tugmasi sizni botga olib boradi: u yerda Start bosing va guruhga qayting. Guruhning o‘zida `/join` yozsangiz ham bo‘ladi.",
+          "Ismingiz ro‘yxatda paydo bo‘ladi. Yonida ✅ turgan bo‘lsa — konvertingiz yetib boradi.",
+          "**O‘yinni boshlash** tugmasi avval kulrang turadi va kelganlarni sanaydi: 3/5, 4/5… Beshinchi o‘yinchi o‘tirgach, u yonadi.",
+          "Stolni ochgan mezbon tugmani bosadi — va Qorashaharda chiroqlar o‘chadi."
+        ]
+      },
+      {
+        "p": "Fikringiz o‘zgardimi? O‘yin boshlanguncha **Men ketdim** tugmasi yoki `/leave` bilan stoldan turib ketishingiz mumkin. Boshlangandan keyin esa — kech."
+      },
+      {
+        "p": "Birinchi stolni hoziroq oching: botni guruhga qo‘shing va `/game` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ваша первая игра",
+    "blocks": [
+      {
+        "p": "Группа собралась, кто-то уже косится на соседей. Пора."
+      },
+      {
+        "list": [
+          "Напишите в группе `/game` (подойдут и `/mafia`, `/newgame`). Откроется стол.",
+          "Кнопка **Я играю** ведёт в бота: нажмите там Start и вернитесь в группу. Можно и написать `/join` в группе.",
+          "Ваше имя появится в списке. Галочка ✅ — значит, конверт дойдёт.",
+          "Кнопка **Начать игру** сначала серая и считает игроков: 3/5, 4/5… С пятым игроком она загорается.",
+          "Ведущий, открывший стол, нажимает её — и в Qorashahar гаснет свет."
+        ]
+      },
+      {
+        "p": "Передумали? До старта можно уйти кнопкой **Я ухожу** или `/leave`. Откройте первый стол: `/game`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Your first game",
+    "blocks": [
+      {
+        "p": "The group is here and someone is already eyeing the others. It's time."
+      },
+      {
+        "list": [
+          "Type `/game` in the group (`/mafia` or `/newgame` work too). A table opens.",
+          "**I'm in** takes you to the bot: press Start there and come back. Typing `/join` in the group also works.",
+          "Your name appears on the list. A ✅ next to it means your envelope will reach you.",
+          "**Start the game** stays grey and counts the seats: 3/5, 4/5… It lights up with the fifth player.",
+          "The host who opened the table presses it — and the lights go out in Qorashahar."
+        ]
+      },
+      {
+        "p": "Changed your mind? Before the start, leave with **I'm out** or `/leave`. Open your first table: `/game`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

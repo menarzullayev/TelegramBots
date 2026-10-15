@@ -1,0 +1,65 @@
+{
+  "id": 44,
+  "slug": "qora-bozor-coin-shop",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#qorabozor", "#iqtisod"],
+  "visual": {"type": "image", "images": ["menu/h03-shop.jpg"]},
+  "uz": {
+    "title": "Qora bozor: coin nimaga yaraydi",
+    "blocks": [
+      {"p": "Qorashaharda hech bir tun izsiz o‘tmaydi — har bir o‘yin hamyoningizda ham iz qoldiradi. Stolga o‘tirib, oxirigacha o‘ynaganingiz uchun **+10 coin**, g‘alaba uchun esa yana **+25 coin va 1 olmos**. Coin o‘yinning o‘zidan yig‘iladi: kuningiz o‘yin bilan o‘tsa, hamyon ham to‘lib boradi."},
+      {"p": "Coinlar yer ostidagi peshtaxtaga — **Qora bozor**ga olib boriladi. U yerda keyingi o‘yinda ishlaydigan buyumlar sotiladi:"},
+      {"list": [
+        "**Tungi qalqon** — 25 coin: bitta tungi hujum sizga o‘tmaydi.",
+        "**Sud qalqoni** — 30 coin: bir marta dordan qutulasiz.",
+        "**O‘q o‘tmas nimcha** — 30 coin: Jallod o‘qi sizga o‘tmaydi.",
+        "**Qora niqob** — 20 coin: o‘lsangiz ham rolingiz sir qoladi.",
+        "**Soxta hujjat** — 20 coin: Komissar sizni tinch aholi deb o‘ylaydi.",
+        "**To‘pponcha** — 40 coin: oddiy aholiga bitta o‘q, tunda bir marta.",
+        "**Rol chiptasi** — 35 coin: keyingi o‘yinda o‘zingiz tanlagan rol."
+      ]},
+      {"p": "Rol chiptasi halol ishlaydi: tanlagan rolingiz o‘sha stolda tarqatilsa — u sizniki. Stolda bunday rol bo‘lmasa yoki uni boshqa o‘yinchi egallab qo‘ysa, 35 coin hamyoningizga qaytadi."},
+      {"p": "Xarid bitta buyruq: `/shop` — peshtaxtani ochadi, `/buy niqob` — Qora niqob oladi, `/buy role komissar` — keyingi o‘yinga Komissar chiptasi. Olingan buyumlar zaxirangizda turadi va `/profile` da ko‘rinadi."},
+      {"p": "Bugun bitta o‘yin o‘ynang — birinchi coinlar shu kechayoq tushadi. Qora bozor eshigi ochiq: `/shop`."}
+    ]
+  },
+  "ru": {
+    "title": "Чёрный рынок: на что тратить монеты",
+    "blocks": [
+      {"p": "Каждая игра оставляет след в кошельке: **+10 монет** за доигранную партию и ещё **+25 монет и 1 алмаз** за победу. Монеты зарабатываются самой игрой."},
+      {"p": "На **Чёрном рынке** продаются предметы на следующую игру:"},
+      {"list": [
+        "**Ночной щит** — 25: одно ночное нападение вас не возьмёт.",
+        "**Щит от суда** — 30: один раз уйдёте от виселицы.",
+        "**Бронежилет** — 30: пуля Палача вас не возьмёт.",
+        "**Чёрная маска** — 20: роль останется тайной даже после смерти.",
+        "**Поддельные документы** — 20: Комиссар примет вас за мирного.",
+        "**Пистолет** — 40: мирному одна пуля ночью.",
+        "**Билет на роль** — 35: выбранная роль в следующей игре."
+      ]},
+      {"p": "Если выбранной роли за столом нет или её забрал другой игрок, 35 монет вернутся."},
+      {"p": "`/shop` — витрина, `/buy niqob` — маска, `/buy role komissar` — билет на Комиссара. Запас виден в `/profile`."}
+    ]
+  },
+  "en": {
+    "title": "The Black market: what coins are for",
+    "blocks": [
+      {"p": "Every game leaves a mark on your wallet: **+10 coins** for a finished game and another **+25 coins and 1 gem** for a win. Coins come from playing."},
+      {"p": "The **Black market** sells items for your next game:"},
+      {"list": [
+        "**Night shield** — 25: one night attack won't get through.",
+        "**Trial shield** — 30: you slip the gallows once.",
+        "**Bulletproof vest** — 30: the Executioner's bullet won't get through.",
+        "**Black mask** — 20: your role stays secret even if you die.",
+        "**Forged papers** — 20: the Detective sees a civilian.",
+        "**Pistol** — 40: one night shot for a plain civilian.",
+        "**Role ticket** — 35: the role you pick, next game."
+      ]},
+      {"p": "If your role isn't at the table or another player takes it, the 35 coins come back."},
+      {"p": "`/shop` opens the counter, `/buy niqob` buys the mask, `/buy role komissar` books the Detective. Your stock shows in `/profile`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

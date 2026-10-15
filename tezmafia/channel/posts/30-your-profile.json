@@ -1,0 +1,91 @@
+{
+  "id": 30,
+  "slug": "your-profile",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#profil",
+    "#rivojlanish"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "menu/h04-profile.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Sizning yashirin papkangiz: /profile",
+    "blocks": [
+      {
+        "p": "Qorashaharda har bir o‘yinchining papkasi bor. Unda kim qancha o‘ynagani, qancha yutgani va qanchalik halol ekani yozilgan. Papkani ochish uchun botga `/profile` yozing."
+      },
+      {
+        "h": "Papkada nimalar bor"
+      },
+      {
+        "list": [
+          "O‘ynagan o‘yinlaringiz va g‘alabalaringiz.",
+          "**Daraja va XP**: har o‘yin uchun 10 XP, g‘alaba uchun yana 20, oxirigacha tirik qolsangiz yana 5.",
+          "**Yutuqlar** — 15 tadan nechtasi qo‘lga kiritilgani.",
+          "**Fair-play** — 100 balli halollik reytingi.",
+          "Hamyon: coin va olmos, zaxiradagi buyumlar va keyingi o‘yinga buyurtma qilingan rol."
+        ]
+      },
+      {
+        "p": "Darajalar tobora qimmatlashadi: 2-daraja uchun 50 XP, 3-daraja uchun 200, 4-daraja uchun 450 XP kerak. Birinchi kunlarda tez ko‘tarilasiz, afsona bo‘lish esa sabr talab qiladi. Har yangi daraja haqida bot natija kartasida xabar beradi."
+      },
+      {
+        "p": "Botga `/profile` yozing yoki menyudagi **Profil** tugmasini bosing — papkangiz sizni kutyapti."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Ваше досье: /profile",
+    "blocks": [
+      {
+        "p": "У каждого игрока Qorashahar есть досье. Откройте его командой `/profile` в боте."
+      },
+      {
+        "list": [
+          "Сыгранные игры и победы.",
+          "**Уровень и XP**: 10 XP за игру, ещё 20 за победу и 5, если дожили до конца.",
+          "**Достижения** — сколько из 15 открыто.",
+          "**Честная игра** — рейтинг до 100.",
+          "Кошелёк: монеты, алмазы, предметы и заказанная роль."
+        ]
+      },
+      {
+        "p": "Уровни дорожают: 2-й — 50 XP, 3-й — 200, 4-й — 450. Напишите `/profile` или нажмите **Профиль**."
+      }
+    ]
+  },
+  "en": {
+    "title": "Your secret file: /profile",
+    "blocks": [
+      {
+        "p": "Every Qorashahar player has a file. Open yours with `/profile` in the bot."
+      },
+      {
+        "list": [
+          "Games played and wins.",
+          "**Level and XP**: 10 XP per game, 20 more for a win and 5 more for surviving to the end.",
+          "**Achievements** — how many of the 15 you have.",
+          "**Fair play** — a rating out of 100.",
+          "Wallet: coins, gems, items and your queued role."
+        ]
+      },
+      {
+        "p": "Levels get pricier: level 2 at 50 XP, level 3 at 200, level 4 at 450. Type `/profile` or tap **Profile**."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

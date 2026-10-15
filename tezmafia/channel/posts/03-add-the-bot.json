@@ -1,0 +1,94 @@
+{
+  "id": 3,
+  "slug": "add-the-bot",
+  "series": "A",
+  "segment": "admin",
+  "hashtags": [
+    "#adminlar",
+    "#boshlash"
+  ],
+  "visual": {
+    "type": "image",
+    "images": [
+      "scenes/lobby.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Botni guruhga 30 soniyada qo‘shing",
+    "blocks": [
+      {
+        "p": "Qorashaharni guruhingizga ko‘chirish uchun uzoq sozlash shart emas. Uch qadam — va stol tayyor."
+      },
+      {
+        "list": [
+          "Pastdagi **Guruhga qo‘shish** tugmasini bosing va guruhingizni tanlang.",
+          "Bot salomlashib, ikki buyruqni eslatadi: yangi o‘yin — `/game`, qoidalar — `/help`.",
+          "Botni guruhda admin qiling. Huquq yetishmasa, bot buni salomlashuv xabarida o‘zi aytadi."
+        ]
+      },
+      {
+        "h": "Admin huquqi nima uchun kerak?"
+      },
+      {
+        "p": "Tun tushganda bot chatni yopadi, o‘yindan chiqqanlarni jim qiladi va lobbini pin qiladi. Buning uchun uchta huquq yetarli: a’zolarni cheklash, xabarlarni qadash va o‘chirish. Ortiqcha hech narsa so‘ralmaydi."
+      },
+      {
+        "p": "Yana bir maslahat: guruhdagi har bir o‘yinchi botga bir marta `/start` bosib qo‘ysin. Rollar shaxsiy xabarda keladi — botni ochmagan odam konvertsiz qoladi."
+      },
+      {
+        "p": "Hammasi joyidami? Guruhda `/game` yozing — Qorashahardagi birinchi stol ochiladi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Добавьте бота в группу за 30 секунд",
+    "blocks": [
+      {
+        "p": "Чтобы перенести Qorashahar в вашу группу, долгая настройка не нужна. Три шага — и стол готов."
+      },
+      {
+        "list": [
+          "Нажмите кнопку **Добавить в группу** и выберите группу.",
+          "Бот поздоровается и напомнит две команды: новая игра — `/game`, правила — `/help`.",
+          "Сделайте бота админом. Если прав не хватит, бот сам скажет об этом."
+        ]
+      },
+      {
+        "p": "Права нужны, чтобы ночью закрывать чат, заглушать выбывших и закреплять лобби: ограничение участников, закрепление и удаление сообщений. Больше ничего."
+      },
+      {
+        "p": "Пусть каждый игрок один раз нажмёт `/start` в боте — роли приходят в личку. Готово? Напишите в группе `/game`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Add the bot in 30 seconds",
+    "blocks": [
+      {
+        "p": "Moving Qorashahar into your group takes no lengthy setup. Three steps and the table is ready."
+      },
+      {
+        "list": [
+          "Tap **Add to group** below and pick your group.",
+          "The bot says hello and points to two commands: new game — `/game`, rules — `/help`.",
+          "Make the bot a group admin. If it lacks rights, it will tell you itself."
+        ]
+      },
+      {
+        "p": "The rights let it close the chat at night, mute players who are out and pin the lobby: restrict members, pin and delete messages. Nothing more."
+      },
+      {
+        "p": "Ask every player to press `/start` in the bot once — roles arrive in private chat. All set? Type `/game` in the group."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

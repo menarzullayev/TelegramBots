@@ -1,0 +1,94 @@
+{
+  "id": 9,
+  "slug": "my-role-button",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#maslahat",
+    "#rollar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Tun 2\nChiroqlar o‘chdi. Ko‘chada faqat qadam tovushi.\nHarakatlar shaxsiy xabarda.",
+          "buttons": [
+            [
+              "Rolim"
+            ]
+          ]
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia · faqat siz ko‘rasiz",
+          "text": "Bu o‘yinda siz — Doktor.\nHar tun bitta odamni tanlang — bu tun u o‘lmaydi. O‘zingizni faqat bir marta qutqara olasiz."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "«Rolim» tugmasi: sir faqat sizniki",
+    "blocks": [
+      {
+        "p": "Uchinchi tun. Muhokama qizigan, hamma bir-birini ayblayapti — va siz bir lahzaga o‘ylanib qoldingiz: kim edim o‘zi? Doktormidim yoki Serjant?"
+      },
+      {
+        "p": "Botga o‘tib, eski xabarlarni varaqlash shart emas. Guruhdagi tun va kun xabarlari ostida **Rolim** tugmasi turadi. Bosing — rolingiz va vazifangiz shu yerning o‘zida, guruh ichida chiqadi. Lekin uni **faqat siz** ko‘rasiz. Yoningizdagi Malika ham, ro‘parangizdagi Aziz ham hech narsani sezmaydi."
+      },
+      {
+        "list": [
+          "Bu Telegram’ning yangi imkoniyati: xabar faqat tugmani bosgan odamga ko‘rinadi.",
+          "Ilovangiz eski bo‘lsa, rol nomi kichik shaxsiy oynada chiqadi — baribir faqat sizga.",
+          "O‘yinda qatnashmayotgan odam bossa, bot buni xushmuomalalik bilan aytib qo‘yadi."
+        ]
+      },
+      {
+        "p": "Qorashaharda yuz ifodangiz sizni sotib qo‘yishi mumkin. Rolingiz esa — hech qachon."
+      },
+      {
+        "p": "Keyingi o‘yinda **Rolim** tugmasini bir bosib ko‘ring. Stol ochish uchun guruhda `/game` yozing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Кнопка «Моя роль»: тайна только для вас",
+    "blocks": [
+      {
+        "p": "Третья ночь, обсуждение кипит — и вы на миг засомневались: кто я вообще, Доктор или Сержант?"
+      },
+      {
+        "p": "Листать личку не нужно. Под сообщениями ночи и дня в группе есть кнопка **Моя роль**. Нажмите — роль и задача появятся прямо в группе, но увидите их **только вы**."
+      },
+      {
+        "p": "На старых версиях Telegram название роли покажется в маленьком личном окне — тоже только вам. Попробуйте в следующей игре: `/game`."
+      }
+    ]
+  },
+  "en": {
+    "title": "The “My role” button: a secret just for you",
+    "blocks": [
+      {
+        "p": "Night three, the debate is heated — and for a moment you wonder: who am I again, the Doctor or the Sergeant?"
+      },
+      {
+        "p": "No need to scroll through the bot chat. Under the group's night and day messages there's a **My role** button. Tap it and your role and task appear right in the group — visible **only to you**."
+      },
+      {
+        "p": "On older Telegram apps the role name pops up in a small private alert, still only for you. Try it next game: `/game`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

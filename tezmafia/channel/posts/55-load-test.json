@@ -1,0 +1,55 @@
+{
+  "id": 55,
+  "slug": "load-test",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#yuklamasinovi"],
+  "visual": {"type": "none"},
+  "uz": {
+    "title": "1 000 000 foydalanuvchi, 1 000 000 o‘yin: yuklama sinovi",
+    "blocks": [
+      {"p": "Shahar kichik bo‘lsa, hamma bir-birini taniydi. Shahar kattalashganda esa hakam sekinlashmasligi kerak. Buni taxmin bilan emas, o‘lchov bilan bilish uchun biz Qorashaharni sun’iy ravishda million kishilik shaharga aylantirdik."},
+      {"p": "TezMafia **1 000 000 sintetik foydalanuvchi va 1 000 000 sintetik o‘yinda** sinovdan o‘tkazildi. O‘yinlar to‘qima emas: har biri botning haqiqiy o‘yin mexanizmi orqali boshidan oxirigacha o‘ynalgan. Keyin eng ko‘p ishlatiladigan amallar o‘lchandi, sekin joylar topildi va tuzatildi, so‘ng hammasi qayta o‘lchandi."},
+      {"table": [
+        ["O‘lchov", "Oldin", "Keyin"],
+        ["Faol o‘yinni topish (`/start`, Rolim tugmasi)", "1 560 ms", "3 ms"],
+        ["Mini App, 500 kishi bir vaqtda", "28 so‘rov/s", "171 so‘rov/s"],
+        ["1000 guruh bir vaqtda: baza xatolari", "bor edi", "0"],
+        ["1000 guruh bir vaqtda: yo‘qolgan statistika", "bor edi", "0"]
+      ]},
+      {"p": "Oddiy tilda: tugmani bosganingizda javob ko‘z ochib-yumguncha keladi, minglab stol bir vaqtda o‘ynasa ham hech kimning g‘alabasi yoki coini yo‘qolmaydi."},
+      {"p": "Muhim izoh: bu **sinov** — botda million o‘yinchi borligini anglatmaydi. Bu shuni anglatadiki, guruhingiz qanchalik katta bo‘lmasin, Qorashahar unga tayyor."},
+      {"p": "Sinovni o‘z stolingizda davom ettiring: botni guruhga qo‘shing va `/game` yozing."}
+    ]
+  },
+  "ru": {
+    "title": "1 000 000 пользователей, 1 000 000 игр: нагрузочный тест",
+    "blocks": [
+      {"p": "TezMafia **протестирован на 1 000 000 синтетических пользователей и 1 000 000 синтетических игр**, сыгранных настоящим игровым движком. Мы нашли медленные места, исправили и перемерили."},
+      {"table": [
+        ["Замер", "До", "После"],
+        ["Поиск активной игры", "1 560 мс", "3 мс"],
+        ["Mini App, 500 одновременно", "28 запр/с", "171 запр/с"],
+        ["1000 групп сразу: ошибки базы", "были", "0"],
+        ["1000 групп сразу: потерянная статистика", "была", "0"]
+      ]},
+      {"p": "Это тест, а не число игроков бота. Добавьте бота и напишите `/game`."}
+    ]
+  },
+  "en": {
+    "title": "1,000,000 users, 1,000,000 games: the load test",
+    "blocks": [
+      {"p": "TezMafia was **tested on 1,000,000 synthetic users and 1,000,000 synthetic games**, each played through the real game engine. We found the slow spots, fixed them and measured again."},
+      {"table": [
+        ["Measure", "Before", "After"],
+        ["Finding the active game", "1,560 ms", "3 ms"],
+        ["Mini App, 500 at once", "28 req/s", "171 req/s"],
+        ["1000 groups at once: database errors", "some", "0"],
+        ["1000 groups at once: lost stats", "some", "0"]
+      ]},
+      {"p": "This is a test, not the bot's player count. Add the bot and type `/game`."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}],
+  "poll": null
+}

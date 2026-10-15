@@ -1,0 +1,60 @@
+{
+  "id": 54,
+  "slug": "bot-api-10",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#texnika"],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "title": "Qorashahar kechalari",
+      "messages": [
+        {"from": "user", "name": "Dilnoza", "text": "/game"},
+        {"from": "bot", "text": "Stol ochildi. Kim o‘ynaydi?\nStolda: 3/23 · boshlash uchun kamida 5\n\n1. Dilnoza — tayyor\n2. Sardor — tayyor\n3. Kamola — botga hali /start bosmagan\n\n⏳ 2 daqiqadan so‘ng", "buttons": [["Men o‘ynayman"], ["O‘yinni boshlash 3/5"]]}
+      ]
+    }
+  },
+  "uz": {
+    "title": "Parda ortida: Telegram’ning eng yangi imkoniyatlari",
+    "blocks": [
+      {"p": "Yaxshi hakam ko‘zga tashlanmaydi — o‘yin shunchaki silliq o‘tadi. TezMafia’ni shunday qilishda Telegram Bot API’ning 10.x versiyalaridagi yangi imkoniyatlar katta yordam berdi. Ularning to‘rttasi har o‘yinda ishlaydi:"},
+      {"list": [
+        "**Faqat sizga ko‘rinadigan xabar.** Guruhda **Rolim** tugmasini bossangiz, rolingiz o‘sha yerning o‘zida chiqadi — lekin uni faqat siz ko‘rasiz. Lichkaga o‘tib qidirish shart emas.",
+        "**O‘chirilgan tugma.** **O‘yinni boshlash** tugmasi stolda 5 kishi yig‘ilguncha kulrang turadi va hisobni ko‘rsatadi: 3/5, 4/5… Bosib, “hali erta” degan javob kutish yo‘q.",
+        "**Jonli taymer.** Lobbi va bosqich vaqti Telegram’ning o‘zi sanaydigan soat bilan chiqadi: har kim uni o‘z ilovasida, o‘z tilida ko‘radi, bot esa xabarni har soniya tahrirlab chatni shovqinga to‘ldirmaydi.",
+        "**Boy jadval.** O‘yin oxirida barcha rollar bitta tartibli jadvalda keladi: kim kim edi, kim tirik qoldi."
+      ]},
+      {"p": "Bu mayda narsalar kabi ko‘rinadi, lekin aynan ular 20 kishilik stolda tartibni saqlaydi: kam xabar, kam savol, ko‘proq o‘yin."},
+      {"p": "Ko‘rish uchun eng yaxshi yo‘l — o‘ynash. Botni guruhga qo‘shing va `/game` yozing."}
+    ]
+  },
+  "ru": {
+    "title": "За кулисами: новые возможности Telegram",
+    "blocks": [
+      {"p": "TezMafia использует новинки Bot API 10.x — четыре из них работают в каждой игре:"},
+      {"list": [
+        "**Сообщение только для вас:** кнопка **Rolim** показывает роль прямо в группе, но видите её только вы.",
+        "**Неактивная кнопка:** «Начать игру» серая, пока не соберётся 5 человек, и показывает счёт 3/5.",
+        "**Живой таймер:** время считает сам Telegram, на вашем языке, без постоянных правок сообщения.",
+        "**Таблица ролей** в конце игры."
+      ]},
+      {"p": "Добавьте бота в группу и напишите `/game`."}
+    ]
+  },
+  "en": {
+    "title": "Behind the scenes: Telegram's newest features",
+    "blocks": [
+      {"p": "TezMafia runs on what's new in Bot API 10.x — four features work in every game:"},
+      {"list": [
+        "**A message only you can see:** the **Rolim** button shows your role right in the group, visible to you alone.",
+        "**A disabled button:** “Start game” stays grey until 5 players sit down, showing 3/5.",
+        "**Live timers:** Telegram itself counts down, in your language, with no constant message edits.",
+        "**A rich table** of every role at the end."
+      ]},
+      {"p": "Add the bot to your group and type `/game`."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}],
+  "poll": null
+}

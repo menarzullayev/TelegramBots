@@ -1,0 +1,42 @@
+{
+  "id": 61,
+  "slug": "how-the-raven-was-drawn",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#qarga"],
+  "visual": {"type": "image", "images": ["skins/preview.jpg"]},
+  "uz": {
+    "title": "Qarg‘a qanday chizildi",
+    "blocks": [
+      {"p": "Qorashaharning hakami — qarg‘a. Aqlli, sirli, hamma narsani kuzatadi va oxirida hukm chiqaradi. Uning belgilari uchta: qora pat, to‘q qizil sharf va shahar tasviri tushirilgan oltin medalyon."},
+      {"p": "Qarg‘a birdaniga paydo bo‘lmadi. Avval 15 xil variantli konsepsiya varag‘i chizildi, so‘ng ish **5 bosqichga** bo‘lindi — har bosqich tasdiqlangandan keyingina keyingisi boshlandi:"},
+      {"list": [
+        "1. Avatar va kichik belgi — 40 pikselda ham taniladigan siluet.",
+        "2. Banner va logotip.",
+        "3. 16 ta o‘yin sahnasi: tun, tong, sud, hukm va har bir g‘olibning o‘z yakuni.",
+        "4. 21 ta rol kartasi.",
+        "5. 5 ta menyu sarlavhasi va 8 ta stiker."
+      ]},
+      {"p": "Qat’iy qoidalar ham bor edi: fedora yo‘q, qon yo‘q, kulgili multfilm ifodasi yo‘q. Rasmlarda bironta yozuv yo‘q — shuning uchun bitta rasm 11 tilning hammasida ishlaydi, matn esa xabarning o‘zida keladi."},
+      {"h": "63 ta skin — bitta skript"},
+      {"p": "Rol kartasi uslublari qo‘lda chizilmadi. Maxsus skript 21 ta asl portretni olib, ularni Noir, Oltin va Neon uslubiga aylantiradi: 21 × 3 = **63 ta karta**. Skript har safar bir xil natija beradi, ya’ni yangi rol qo‘shilsa, uning uchta uslubi ham bir buyruqda tayyor bo‘ladi."},
+      {"p": "Qarg‘ani o‘z kartangizda ko‘ring: `/skins`."}
+    ]
+  },
+  "ru": {
+    "title": "Как рисовали Ворона",
+    "blocks": [
+      {"p": "Ворон — судья Qorashahar: чёрное перо, тёмно-красный шарф, золотой медальон с силуэтом города. Сначала — лист из 15 концептов, затем **5 этапов**, каждый утверждался перед следующим: аватар и знак, баннер и логотип, 16 игровых сцен, 21 карта ролей, 5 заголовков меню и 8 стикеров."},
+      {"p": "На картинках нет текста — одна работает на всех 11 языках. А **63 скина** (21 роль × 3 стиля) создаёт один скрипт из исходных портретов. Посмотрите: `/skins`."}
+    ]
+  },
+  "en": {
+    "title": "How the Raven was drawn",
+    "blocks": [
+      {"p": "The Raven is Qorashahar's judge: black feathers, a dark-red scarf, a gold medallion with the city on it. It started as a 15-concept sheet, then **5 stages**, each approved before the next: avatar and mark, banner and logo, 16 game scenes, 21 role cards, 5 menu headers and 8 stickers."},
+      {"p": "No text inside the art — one image works in all 11 languages. And the **63 skins** (21 roles × 3 styles) are rendered by one script from the original portraits. Take a look: `/skins`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}

@@ -1,0 +1,228 @@
+{
+  "id": 7,
+  "slug": "who-wins",
+  "series": "A",
+  "segment": "player",
+  "hashtags": [
+    "#qoidalar",
+    "#galaba"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "scenes/win-town.jpg",
+      "scenes/win-mafia.jpg",
+      "scenes/win-maniac.jpg",
+      "scenes/win-suicide.jpg",
+      "scenes/win-arsonist.jpg",
+      "scenes/win-snitch.jpg",
+      "scenes/win-mage.jpg",
+      "scenes/win-crook.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Kim yutadi? Qorashaharning 8 xil yakuni",
+    "blocks": [
+      {
+        "p": "Qorashaharda g‘alaba faqat ikki tomonniki emas. Har bir yakunning o‘z sharti bor — va o‘z sahnasi."
+      },
+      {
+        "table": [
+          [
+            "G‘olib",
+            "Shart"
+          ],
+          [
+            "Shahar",
+            "Mafiya ham, boshqa dushmanlar ham qolmasa"
+          ],
+          [
+            "Mafiya",
+            "Soni tinch odamlar bilan tenglashsa"
+          ],
+          [
+            "Manyak",
+            "Hammadan omon qolib, yolg‘iz qolsa"
+          ],
+          [
+            "Suitsid",
+            "Shahar uni sudda ossa"
+          ],
+          [
+            "Arsonist",
+            "Uch jon yonsa"
+          ],
+          [
+            "Ayg‘oqchi",
+            "Komissar bilan bir tunda bitta odamni tanlasa"
+          ],
+          [
+            "Afsungar",
+            "Oxirgi tirik odam bo‘lsa"
+          ],
+          [
+            "Firibgar",
+            "Stolda yolg‘iz qolsa"
+          ]
+        ]
+      },
+      {
+        "p": "Yana ikki yo‘l bor, unda g‘olib bo‘lmaydi. Shaharda hech kim qolmasa — durang. Uch kecha-kunduz hech kim o‘lmasa va stolda to‘rt kishi yoki undan kam qolgan bo‘lsa, shahar holdan toyadi — bu ham durang."
+      },
+      {
+        "p": "Demak, siz bilan bir stolda o‘tirgan odam boshqa maqsad sari ketayotgan bo‘lishi mumkin. Unga qarang. Diqqat bilan."
+      },
+      {
+        "p": "Pastdagi savolga javob bering, keyin botda `/help` ni ochib o‘zingizni tekshiring."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Кто побеждает? 8 финалов Qorashahar",
+    "blocks": [
+      {
+        "p": "В Qorashahar побеждают не только две стороны. У каждого финала своё условие."
+      },
+      {
+        "table": [
+          [
+            "Победитель",
+            "Условие"
+          ],
+          [
+            "Город",
+            "Не осталось ни Мафии, ни других врагов"
+          ],
+          [
+            "Мафия",
+            "Сравнялась числом с мирными"
+          ],
+          [
+            "Маньяк",
+            "Остался один"
+          ],
+          [
+            "Самоубийца",
+            "Город повесил его на суде"
+          ],
+          [
+            "Поджигатель",
+            "Сгорели три жизни"
+          ],
+          [
+            "Стукач",
+            "В одну ночь выбрал ту же цель, что Комиссар"
+          ],
+          [
+            "Чародей",
+            "Остался последним живым"
+          ],
+          [
+            "Мошенник",
+            "Остался за столом один"
+          ]
+        ]
+      },
+      {
+        "p": "Если в городе никого не осталось — ничья. Три ночи и дня без смертей при четырёх и меньше живых — тоже ничья. Ответьте на вопрос ниже и проверьте себя в `/help`."
+      }
+    ]
+  },
+  "en": {
+    "title": "Who wins? Qorashahar's 8 endings",
+    "blocks": [
+      {
+        "p": "In Qorashahar it's not just two sides that can win. Every ending has its own condition."
+      },
+      {
+        "table": [
+          [
+            "Winner",
+            "Condition"
+          ],
+          [
+            "Town",
+            "No Mafia or other enemies left"
+          ],
+          [
+            "Mafia",
+            "Its numbers draw level with the rest"
+          ],
+          [
+            "Maniac",
+            "The last one standing"
+          ],
+          [
+            "Suicide",
+            "Hanged by the town at the trial"
+          ],
+          [
+            "Arsonist",
+            "Three lives burned"
+          ],
+          [
+            "Informer",
+            "Picks the same target as the Detective on the same night"
+          ],
+          [
+            "Enchanter",
+            "The last one alive"
+          ],
+          [
+            "Swindler",
+            "Alone at the table"
+          ]
+        ]
+      },
+      {
+        "p": "If nobody is left, it's a draw. Three nights and days without a death with four or fewer alive — also a draw. Answer the quiz below, then check yourself with `/help`."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Suitsid qachon yutadi?",
+      "ru": "Когда побеждает Самоубийца?",
+      "en": "When does the Suicide win?"
+    },
+    "options": [
+      {
+        "uz": "Oxirigacha tirik qolsa",
+        "ru": "Если доживёт до конца",
+        "en": "If they survive to the end"
+      },
+      {
+        "uz": "Shahar uni sudda ossa",
+        "ru": "Если город повесит его на суде",
+        "en": "If the town hangs them at the trial"
+      },
+      {
+        "uz": "Mafiya uni tunda o‘ldirsa",
+        "ru": "Если Мафия убьёт его ночью",
+        "en": "If the Mafia kills them at night"
+      },
+      {
+        "uz": "Hech qachon — u shahar tomonida",
+        "ru": "Никогда — он за город",
+        "en": "Never — they're on the town's side"
+      }
+    ],
+    "correct": [
+      1
+    ],
+    "explanation": {
+      "uz": "Suitsidning maqsadi — dor. Sud uni tanlasa, g‘alaba uniki.",
+      "ru": "Цель Самоубийцы — виселица. Если суд выберет его, победа за ним.",
+      "en": "The Suicide wants the noose. If the trial picks them, they win."
+    }
+  }
+}

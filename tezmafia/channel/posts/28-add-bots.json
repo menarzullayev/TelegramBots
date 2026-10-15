@@ -1,0 +1,171 @@
+{
+  "id": 28,
+  "slug": "add-bots",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#botlar",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Stol ochildi. Kim o‘ynaydi?\nStolda: 3/23 · boshlash uchun kamida 5\nAziz · Dilnoza · Bekzod",
+          "buttons": [
+            [
+              "Men o‘ynayman"
+            ],
+            [
+              "O‘yinni boshlash · 3/5",
+              "Men ketdim"
+            ],
+            [
+              "Bot qo‘shish"
+            ]
+          ]
+        },
+        {
+          "from": "user",
+          "name": "Aziz",
+          "text": "/addbot 2"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Stolda: 5/23 · boshlash uchun kamida 5\nAziz · Dilnoza · Bekzod · 🤖 Robot-1 · 🤖 Robot-2",
+          "buttons": [
+            [
+              "Men o‘ynayman"
+            ],
+            [
+              "O‘yinni boshlash",
+              "Men ketdim"
+            ],
+            [
+              "Bot qo‘shish"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Beshga yetmadikmi? Robotlarni chaqiring",
+    "blocks": [
+      {
+        "p": "Kech soat o‘n bir, stolda uch kishi, qolganlar allaqachon uxlagan. Tanish manzara? Endi tongni kutish shart emas."
+      },
+      {
+        "p": "Mezbon lobbidagi **Bot qo‘shish** tugmasini bossa, bo‘sh o‘ringa robot o‘tiradi: «🤖 Robot-1», «🤖 Robot-2» va hokazo. Bir nechtasini birdan qo‘shish uchun — `/addbot 2`. Robotlarga `/start` kerak emas, ular darhol tayyor va o‘z rolini o‘ynaydi."
+      },
+      {
+        "h": "Mukofot haqiqiy odamlar soniga qarab"
+      },
+      {
+        "table": [
+          [
+            "Stolda odamlar",
+            "XP va coin"
+          ],
+          [
+            "5 va undan ko‘p",
+            "to‘liq"
+          ],
+          [
+            "3–4",
+            "yarmi"
+          ],
+          [
+            "1–2",
+            "faqat XP"
+          ]
+        ]
+      },
+      {
+        "p": "Hakam buni yashirmaydi: botli o‘yindan keyin «mukofot kamaytirilgan» degan izoh chiqadi. Robotlar — mashq va kechki sukunat uchun, coin fermasi uchun emas."
+      },
+      {
+        "p": "Robot qo‘shishni faqat stol mezboni qila oladi."
+      },
+      {
+        "p": "Guruhda `/game` yozing, odam kam bo‘lsa — **Bot qo‘shish** ni bosing."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Меньше пяти? Позовите роботов",
+    "blocks": [
+      {
+        "p": "Хозяин стола нажимает **Добавить бота** в лобби — на свободное место садится «🤖 Робот-1». Несколько сразу: `/addbot 2`. Роботам не нужен `/start`, они сразу готовы и играют свою роль."
+      },
+      {
+        "table": [
+          [
+            "Людей за столом",
+            "XP и монеты"
+          ],
+          [
+            "5 и больше",
+            "полностью"
+          ],
+          [
+            "3–4",
+            "половина"
+          ],
+          [
+            "1–2",
+            "только XP"
+          ]
+        ]
+      },
+      {
+        "p": "После игры с ботами ведущий честно пишет, что награды снижены. Добавлять ботов может только хозяин стола."
+      }
+    ]
+  },
+  "en": {
+    "title": "Fewer than five? Call in the robots",
+    "blocks": [
+      {
+        "p": "The host taps **Add a bot** in the lobby and a “🤖 Robot-1” takes a free seat. Several at once: `/addbot 2`. Robots need no `/start`; they are ready at once and play their role."
+      },
+      {
+        "table": [
+          [
+            "People at the table",
+            "XP and coins"
+          ],
+          [
+            "5 or more",
+            "full"
+          ],
+          [
+            "3–4",
+            "half"
+          ],
+          [
+            "1–2",
+            "XP only"
+          ]
+        ]
+      },
+      {
+        "p": "After a game with bots the game master says plainly that rewards were reduced. Only the host can add bots."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

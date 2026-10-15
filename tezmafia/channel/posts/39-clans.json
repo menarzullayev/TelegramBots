@@ -1,0 +1,103 @@
+{
+  "id": 39,
+  "slug": "clans",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#klan",
+    "#ijtimoiy"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/clan create Tun Qushlari"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🛡 Klan tuzildi: Tun Qushlari"
+        },
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/clan"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🛡 Klan: Tun Qushlari · a’zolar: 6/30 · bu oy g‘alabalar: 14\n\nKlanlar: /clan create Nomi (narxi 100 coin) · /clan join Nomi · /clan leave · /clan top"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "Klanlar: Qorashaharda o‘z oilangizni tuzing",
+    "blocks": [
+      {
+        "p": "Mafiyaning oilasi bor. Endi sizniki ham bo‘lishi mumkin."
+      },
+      {
+        "list": [
+          "`/clan create Nomi` — klan tuzish, narxi **100 coin**. Nom 3–20 ta harf, raqam yoki bo‘shliqdan iborat bo‘lsin.",
+          "`/clan join Nomi` — mavjud klanga qo‘shilish. Bir klanda ko‘pi bilan **30 a’zo**.",
+          "`/clan leave` — klandan chiqish.",
+          "`/clan top` — shu oyning klanlar reytingi.",
+          "`/clan` — klaningiz kartochkasi: a’zolar soni va bu oydagi g‘alabalar."
+        ]
+      },
+      {
+        "p": "A’zolar qaysi guruhda o‘ynamasin, har bir g‘alaba klanning umumiy hisobiga yoziladi. Reyting har oy noldan boshlanadi — o‘tgan oyning shon-shuhrati bu oyga o‘tmaydi."
+      },
+      {
+        "p": "Bir odam faqat bitta klanda bo‘la oladi. Sodiqlik — Qorashaharning eng eski qonuni."
+      },
+      {
+        "p": "Do‘stlaringiz bilan kelishing va `/clan create` yozing — nom tanlash eng qiziq qismi."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Кланы: соберите свою семью",
+    "blocks": [
+      {
+        "list": [
+          "`/clan create Имя` — создать клан за **100 монет** (имя 3–20 букв, цифр или пробелов).",
+          "`/clan join Имя` — вступить; в клане до **30 участников**.",
+          "`/clan leave` — выйти, `/clan top` — рейтинг кланов месяца, `/clan` — карточка клана."
+        ]
+      },
+      {
+        "p": "Победы участников в любой группе идут в общий счёт клана; рейтинг обнуляется каждый месяц. Состоять можно только в одном клане."
+      }
+    ]
+  },
+  "en": {
+    "title": "Clans: build your own family",
+    "blocks": [
+      {
+        "list": [
+          "`/clan create Name` — create a clan for **100 coins** (name: 3–20 letters, digits or spaces).",
+          "`/clan join Name` — join; up to **30 members** per clan.",
+          "`/clan leave` — leave, `/clan top` — this month's clan ranking, `/clan` — your clan's card."
+        ]
+      },
+      {
+        "p": "Members' wins in any group count towards the clan; the ranking restarts every month. You can be in only one clan."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": null
+}

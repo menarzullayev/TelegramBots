@@ -1,0 +1,119 @@
+{
+  "id": 16,
+  "slug": "lone-wolves",
+  "series": "B",
+  "segment": "player",
+  "hashtags": [
+    "#rollar",
+    "#yolgizlar"
+  ],
+  "visual": {
+    "type": "slideshow",
+    "images": [
+      "roles/maniac.jpg",
+      "roles/mage.jpg",
+      "roles/crook.jpg",
+      "roles/arsonist.jpg"
+    ]
+  },
+  "uz": {
+    "title": "Yolg‘iz bo‘rilar",
+    "blocks": [
+      {
+        "p": "Ular na shaharga, na Mafiyaga qasamyod qilgan. Ularga sherik kerak emas — ularga stol bo‘shashi kerak."
+      },
+      {
+        "list": [
+          "**Manyak** — shahar ham, Mafiya ham unga dushman. Tunda ov qiladi, kunduzi oddiy odamdek o‘tiradi. Hammadan omon qolsa — yutadi.",
+          "**Afsungar** — tunda unga qo‘l ko‘targan o‘zi o‘ladi: tungi o‘q egasiga qaytadi. Lekin suddan ehtiyot bo‘lishi kerak. Oxirgi tirik odam bo‘lsa — g‘olib.",
+          "**Firibgar** — sudda o‘z nomidan emas, o‘g‘irlangan nom bilan ovoz beradi. Tunda bir odamni tanlaydi — ertasi kuni o‘sha odam Firibgar istagan kishiga ovoz beradi. Stolda yolg‘iz qolsa — yutadi.",
+          "**Arsonist** — har tun bitta uyga benzin sepadi. O‘zini tanlagan tuni belgilangan uylarning hammasi yonadi. Uch jon yonsa — Qorashahar kulga aylanadi."
+        ]
+      },
+      {
+        "p": "Yolg‘izlarni topish eng qiyin: ular Mafiya bilan til biriktirmaydi, shahar bilan ham. Kecha kim kimni o‘ldirdi — buni tushunish uchun ba’zan ikki-uch tun kerak bo‘ladi."
+      },
+      {
+        "p": "Pastdagi savolda bittasining tavsifi yashiringan. Topa olasizmi?"
+      }
+    ]
+  },
+  "ru": {
+    "title": "Волки-одиночки",
+    "blocks": [
+      {
+        "list": [
+          "**Маньяк** — враг и городу, и Мафии. Охотится ночью; если переживёт всех — побеждает.",
+          "**Чародей** — ночная пуля возвращается к стрелку. Бережётся суда; последний живой — победитель.",
+          "**Мошенник** — крадёт чужой голос: выбранный им человек завтра проголосует за того, кого хочет Мошенник. Останется один — победит.",
+          "**Поджигатель** — каждую ночь обливает бензином один дом, а выбрав себя, поджигает все отмеченные. Сгорят три жизни — победа."
+        ]
+      },
+      {
+        "p": "В вопросе ниже спрятано описание одного из них. Угадаете?"
+      }
+    ]
+  },
+  "en": {
+    "title": "Lone wolves",
+    "blocks": [
+      {
+        "list": [
+          "**Maniac** — enemy of both the town and the Mafia. Hunts at night; outlive everyone and you win.",
+          "**Enchanter** — a night bullet returns to whoever fired it. Beware the trial; be the last one alive to win.",
+          "**Swindler** — steals a vote: the person they pick votes tomorrow for whoever the Swindler wants. Last one at the table wins.",
+          "**Arsonist** — douses one house a night and, by picking themselves, ignites every marked house. Three lives burned — victory."
+        ]
+      },
+      {
+        "p": "The quiz below hides one of them. Can you tell which?"
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Qaysi rol? «Tunda unga qo‘l ko‘targan o‘zi o‘ladi.»",
+      "ru": "Какая это роль? «Кто поднимет на него руку ночью, погибнет сам».",
+      "en": "Which role is this? “Whoever raises a hand against them at night dies instead.”"
+    },
+    "options": [
+      {
+        "uz": "Manyak",
+        "ru": "Маньяк",
+        "en": "Maniac"
+      },
+      {
+        "uz": "Afsungar",
+        "ru": "Чародей",
+        "en": "Enchanter"
+      },
+      {
+        "uz": "Firibgar",
+        "ru": "Мошенник",
+        "en": "Swindler"
+      },
+      {
+        "uz": "Arsonist",
+        "ru": "Поджигатель",
+        "en": "Arsonist"
+      }
+    ],
+    "correct": [
+      1
+    ],
+    "explanation": {
+      "uz": "Afsungar: tungi o‘q unga tegmaydi — egasiga qaytadi. Oxirgi tirik qolsa, yutadi.",
+      "ru": "Чародей: ночная пуля его не берёт и возвращается к стрелку.",
+      "en": "The Enchanter: a night bullet bounces back to whoever fired it."
+    }
+  }
+}

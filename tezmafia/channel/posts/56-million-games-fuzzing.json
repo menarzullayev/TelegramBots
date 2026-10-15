@@ -1,0 +1,64 @@
+{
+  "id": 56,
+  "slug": "million-games-fuzzing",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#pardaortida", "#qoidalar"],
+  "visual": {"type": "image", "images": ["scenes/win-arsonist.jpg"]},
+  "uz": {
+    "title": "1 000 000 o‘yin, 0 qoida buzilishi",
+    "blocks": [
+      {"p": "Qorashahar qonuni oddiy: o‘lik gapirmaydi, o‘chirilgan rol tarqatilmaydi, g‘olib esa doim aniq. Lekin bu qonun million marta ham buzilmasligini qanday bilish mumkin? Faqat million marta tekshirib."},
+      {"p": "Biz kompyuterga **1 000 000 tasodifiy o‘yin** o‘ynatdik — botning haqiqiy o‘yin mexanizmi orqali, tasodifiy rollar, tasodifiy ovozlar va tasodifiy tun harakatlari bilan. Har bir qadamdan keyin qoidalar tekshirildi:"},
+      {"list": [
+        "o‘lgan o‘yinchi hech qachon harakat qilmaydi;",
+        "har bir o‘lim o‘yin xronikasida yoziladi;",
+        "g‘olib o‘yin holatiga mos keladi;",
+        "guruhda o‘chirilgan rol hech qachon tarqatilmaydi."
+      ]},
+      {"p": "Natija: **0 qoida buzilishi**. Ammo sinov ikki kamdan-kam holatni topdi, unda o‘yin hech qachon tugamas edi:"},
+      {"list": [
+        "**Hamma o‘lgan** — shaharda tirik jon qolmagan, g‘olib yo‘q. Endi bu **durang**.",
+        "**Yolg‘iz Arsonist** (o‘t qo‘yuvchi) — oxirida faqat u qolsa, g‘alaba qozonmas edi. Endi u yolg‘iz o‘zi g‘olib."
+      ]},
+      {"p": "Ikkalasi ham tuzatildi va sinov qayta o‘tkazildi — yana 0 buzilish. Bunday holatni jonli stolda uchratish qiyin, lekin bitta qotib qolgan o‘yin ham bitta ortiqcha edi."},
+      {"p": "Pastdagi viktorinada o‘zingizni sinang, keyin `/help` da barcha g‘alaba shartlarini o‘qing."}
+    ]
+  },
+  "ru": {
+    "title": "1 000 000 игр, 0 нарушений правил",
+    "blocks": [
+      {"p": "Мы прогнали **1 000 000 случайных игр** через настоящий движок и после каждого шага проверяли правила: мёртвые не действуют, каждая смерть в хронике, победитель верный, отключённые роли не раздаются."},
+      {"p": "Итог: **0 нарушений**. Но нашлись два редких случая, когда игра не заканчивалась: **все мертвы** — теперь это ничья; **одинокий поджигатель** — теперь он побеждает. После исправления — снова 0 нарушений."},
+      {"p": "Проверьте себя в викторине, а условия побед — в `/help`."}
+    ]
+  },
+  "en": {
+    "title": "1,000,000 games, 0 rule violations",
+    "blocks": [
+      {"p": "We ran **1,000,000 random games** through the real engine and checked the rules after every step: the dead never act, every death is in the chronicle, the winner is right, switched-off roles are never dealt."},
+      {"p": "Result: **0 violations**. But two rare cases never ended: **everyone dead** — now a draw; **the lone arsonist** — now wins alone. After the fix: 0 violations again."},
+      {"p": "Try the quiz, then read every win condition in `/help`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Million o‘yinlik sinov qaysi holatda o‘yin tugamasligini topdi?",
+      "ru": "Какой случай тест на миллион игр нашёл бесконечным?",
+      "en": "Which case did the million-game test find never ended?"
+    },
+    "options": [
+      {"uz": "Shaharda hamma o‘lgan", "ru": "В городе все мертвы", "en": "Everyone in town is dead"},
+      {"uz": "Komissar Donni topgan", "ru": "Комиссар нашёл Дона", "en": "The Detective found the Don"},
+      {"uz": "Hokim ikki marta ovoz bergan", "ru": "Мэр проголосовал дважды", "en": "The Mayor voted twice"}
+    ],
+    "correct": [0],
+    "explanation": {
+      "uz": "Hamma o‘lsa, g‘olib yo‘q edi. Endi bunday o‘yin durang bilan tugaydi.",
+      "ru": "Если погибли все, победителя не было. Теперь это ничья.",
+      "en": "With everyone dead there was no winner. Now it ends in a draw."
+    }
+  }
+}

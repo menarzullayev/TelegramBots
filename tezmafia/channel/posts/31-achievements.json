@@ -1,0 +1,160 @@
+{
+  "id": 31,
+  "slug": "achievements",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#yutuqlar",
+    "#rivojlanish"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "🏅 Yangi yutuq: Oq xalat\n⭐ Daraja oshdi: 4"
+        },
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/profile"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Kamola\nO‘ynagan o‘yinlari: 23\nG‘alabalar: 11\nDaraja 4 · XP 520\nYutuqlar: 7/15\nFair-play: 100/100"
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "15 yutuq: Qorashahar kimni eslab qoladi",
+    "blocks": [
+      {
+        "p": "Shahar hamma narsani yozib boradi. Ba’zi ishlar shunchaki statistika bo‘lib qoladi, ba’zilari — yutuqqa aylanadi. Jami 15 ta."
+      },
+      {
+        "h": "Sadoqat va tajriba"
+      },
+      {
+        "list": [
+          "**Birinchi stol** — birinchi o‘yin.",
+          "**10 o‘yin**, **50 o‘yin**, **100 o‘yin** — stolga qayta-qayta qaytganlar uchun.",
+          "**5-daraja** va **10-daraja** — yig‘ilgan XP uchun."
+        ]
+      },
+      {
+        "h": "G‘alabalar"
+      },
+      {
+        "list": [
+          "**Birinchi g‘alaba**, **10 g‘alaba**, **50 g‘alaba**.",
+          "**Omon qoldi** — yutgan o‘yinda oxirigacha tirik qolish."
+        ]
+      },
+      {
+        "h": "Rol bilan"
+      },
+      {
+        "list": [
+          "**Qora bitim** — Mafiya tomonida g‘alaba.",
+          "**Don** — Don bo‘lib yutish.",
+          "**Iz quvuvchi** — Komissar bo‘lib yutish.",
+          "**Oq xalat** — Doktor bo‘lib yutish.",
+          "**Yolg‘iz bo‘ri** — yakka g‘olib bo‘lish: Manyak, Suitsid, Arsonist, Ayg‘oqchi, Afsungar yoki Firibgar sifatida."
+        ]
+      },
+      {
+        "p": "Yangi yutuq ochilganda bot buni natija kartasi bilan birga aytadi, hisob esa `/profile` da: «Yutuqlar: 7/15»."
+      },
+      {
+        "p": "Qaysi yutuq qaysi rolga tegishli? Pastdagi viktorinada o‘zingizni sinang."
+      }
+    ]
+  },
+  "ru": {
+    "title": "15 достижений: кого запомнит Qorashahar",
+    "blocks": [
+      {
+        "p": "Город всё записывает. Всего 15 достижений."
+      },
+      {
+        "list": [
+          "**Первый стол**, **10 игр**, **50 игр**, **100 игр**, **Уровень 5**, **Уровень 10**.",
+          "**Первая победа**, **10 побед**, **50 побед**, **Выживший** (победить и дожить до конца).",
+          "**Чёрная сделка** (победа за Мафию), **Дон**, **Ищейка** (Комиссар), **Белый халат** (Доктор), **Одинокий волк** (одиночная победа)."
+        ]
+      },
+      {
+        "p": "Новое достижение приходит вместе с карточкой результата, счёт — в `/profile`. Проверьте себя в викторине ниже."
+      }
+    ]
+  },
+  "en": {
+    "title": "15 achievements: who Qorashahar remembers",
+    "blocks": [
+      {
+        "p": "The town writes everything down. There are 15 achievements."
+      },
+      {
+        "list": [
+          "**First table**, **10 games**, **50 games**, **100 games**, **Level 5**, **Level 10**.",
+          "**First win**, **10 wins**, **50 wins**, **Survivor** (win and stay alive to the end).",
+          "**Black deal** (win as Mafia), **The Don**, **Bloodhound** (Detective), **White coat** (Doctor), **Lone wolf** (a solo win)."
+        ]
+      },
+      {
+        "p": "A new achievement arrives with your result card; the count is in `/profile`. Test yourself in the quiz below."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Botni ochish",
+      "ru": "Открыть бота",
+      "en": "Open the bot",
+      "url": "https://t.me/qorashahar_mafia_bot"
+    }
+  ],
+  "poll": {
+    "type": "quiz",
+    "question": {
+      "uz": "Doktor bo‘lib yutgan o‘yinchi qaysi yutuqni oladi?",
+      "ru": "Какое достижение получает победивший Доктор?",
+      "en": "Which achievement does a winning Doctor get?"
+    },
+    "options": [
+      {
+        "uz": "Iz quvuvchi",
+        "ru": "Ищейка",
+        "en": "Bloodhound"
+      },
+      {
+        "uz": "Oq xalat",
+        "ru": "Белый халат",
+        "en": "White coat"
+      },
+      {
+        "uz": "Omon qoldi",
+        "ru": "Выживший",
+        "en": "Survivor"
+      },
+      {
+        "uz": "Qora bitim",
+        "ru": "Чёрная сделка",
+        "en": "Black deal"
+      }
+    ],
+    "correct": [
+      1
+    ],
+    "explanation": {
+      "uz": "«Oq xalat» — Doktor rolidagi g‘alaba uchun. «Iz quvuvchi» esa Komissarniki.",
+      "ru": "«Белый халат» — за победу Доктором. «Ищейка» — за Комиссара.",
+      "en": "White coat is for winning as the Doctor. Bloodhound belongs to the Detective."
+    }
+  }
+}

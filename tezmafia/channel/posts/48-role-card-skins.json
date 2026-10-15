@@ -1,0 +1,54 @@
+{
+  "id": 48,
+  "slug": "role-card-skins",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#skin", "#olmos"],
+  "visual": {"type": "image", "images": ["skins/preview.jpg"]},
+  "uz": {
+    "title": "Rol kartasi uslublari: Noir, Oltin, Neon",
+    "blocks": [
+      {"p": "Tun tushadi, telefoningiz titraydi — bot rolingizni shaxsiy xabarda yuboradi. Endi o‘sha konvertning ko‘rinishini o‘zingiz tanlaysiz."},
+      {"list": [
+        "**🖤 Noir** — eski kino kadridek qora-oq: soya, tutun va oq hoshiya.",
+        "**🟨 Oltin** — hukm va g‘alaba rangi: iliq oltin tus va oltin ramka.",
+        "**💜 Neon** — tungi shahar chirog‘idek binafsha-moviy nur."
+      ]},
+      {"p": "Har uslub **20 olmos**. Tanlangan uslub ikki joyda ko‘rinadi: rolingiz kartasida (shaxsiy xabar) va o‘yin oxiridagi natija kartangizda. Uslub barcha 21 rolga birdek chizilgan — Komissar bo‘lasizmi, Don bo‘lasizmi, karta bir xil uslubda keladi."},
+      {"p": "Bu sof bezak: uslub rolni ham, o‘yin kuchini ham o‘zgartirmaydi. Bir marta olingan uslub sizda qoladi — xohlagan payt boshqasini **kiyish** yoki **Asl uslubga qaytish** mumkin."},
+      {"p": "Uslublar Mini App’ning **Uslublar** bo‘limida ham bor."},
+      {"p": "Qaysi biri sizniki? Pastdagi so‘rovda ovoz bering, keyin botda `/skins` ni oching."}
+    ]
+  },
+  "ru": {
+    "title": "Стили карт ролей: Нуар, Золото, Неон",
+    "blocks": [
+      {"p": "Роль приходит в личку — теперь вы выбираете, как выглядит эта карта: **🖤 Нуар**, **🟨 Золото** или **💜 Неон**."},
+      {"p": "Каждый стиль — **20 алмазов**. Он виден на карте роли и на вашей карте результата, нарисован для всех 21 роли."},
+      {"p": "Чистое украшение: на роль и силу в игре не влияет. Купленный стиль остаётся у вас, можно переключать или вернуть исходный."},
+      {"p": "Голосуйте в опросе и откройте `/skins`."}
+    ]
+  },
+  "en": {
+    "title": "Role-card skins: Noir, Gold, Neon",
+    "blocks": [
+      {"p": "Your role arrives by DM — now you choose how that card looks: **🖤 Noir**, **🟨 Gold** or **💜 Neon**."},
+      {"p": "Each skin costs **20 gems**. It shows on your role card and your result card, drawn for all 21 roles."},
+      {"p": "Pure decoration: no effect on your role or your odds. A skin you buy stays yours; switch any time or go back to the original."},
+      {"p": "Vote in the poll, then open `/skins`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": {
+    "type": "regular",
+    "question": {"uz": "Qaysi uslub sizniki?", "ru": "Какой стиль ваш?", "en": "Which skin is yours?"},
+    "options": [
+      {"uz": "🖤 Noir", "ru": "🖤 Нуар", "en": "🖤 Noir"},
+      {"uz": "🟨 Oltin", "ru": "🟨 Золото", "en": "🟨 Gold"},
+      {"uz": "💜 Neon", "ru": "💜 Неон", "en": "💜 Neon"},
+      {"uz": "Asl uslub — klassika", "ru": "Исходный — классика", "en": "The original — a classic"}
+    ],
+    "correct": [],
+    "explanation": null
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "id": 43,
+  "slug": "mini-app-tour",
+  "series": "D",
+  "segment": "player",
+  "hashtags": [
+    "#ilova"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Siz",
+          "text": "/app"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "Profil, yutuqlar, reyting va do‘kon — bitta ilovada.",
+          "buttons": [
+            [
+              "Ilovani ochish"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "TezMafia ilovasi: butun Qorashahar bir ekranda",
+    "blocks": [
+      {
+        "p": "Buyruqlarni yodlab yurish shart emas. Botga `/app` yozing va **Ilovani ochish** tugmasini bosing — ilova Telegram ichida ochiladi, login ham, parol ham kerak emas."
+      },
+      {
+        "h": "Ichkarida nima bor"
+      },
+      {
+        "list": [
+          "**Profil** — daraja va keyingisigacha qolgan XP, o‘yinlar, g‘alabalar, hamyon, yutuqlar soni va fair-play.",
+          "**Yutuqlar** — 15 yutuq: qaysilari ochilgan, qaysilari hali kutmoqda.",
+          "**Reyting** — Qorashahar afsonalari: mavsum va hamma vaqt.",
+          "**O‘yinlarim** — so‘nggi o‘yinlar xronikasi, niqoblar ortida kim bo‘lgani bilan.",
+          "**Qora bozor** — coin to‘plamlari, VIP, olmos belgilari va rol kartasi uslublari."
+        ]
+      },
+      {
+        "p": "Guruhda `/app` yozsangiz, bot tugma bilan sizni shaxsiy chatga yo‘naltiradi — ilova o‘sha yerda ochiladi."
+      },
+      {
+        "p": "Pastdagi tugmani bosing — Qorashahar sizni kutyapti."
+      }
+    ]
+  },
+  "ru": {
+    "title": "Приложение TezMafia: весь Qorashahar на одном экране",
+    "blocks": [
+      {
+        "p": "Напишите боту `/app` и нажмите **Открыть приложение** — оно откроется внутри Telegram, без логина и пароля."
+      },
+      {
+        "list": [
+          "**Профиль** — уровень, XP, игры, победы, кошелёк, достижения и честная игра.",
+          "**Достижения** — все 15.",
+          "**Рейтинг** — сезон и за всё время.",
+          "**Мои игры** — хроника последних игр.",
+          "**Чёрный рынок** — пакеты монет, VIP, значки и стили карт ролей."
+        ]
+      }
+    ]
+  },
+  "en": {
+    "title": "The TezMafia app: all of Qorashahar on one screen",
+    "blocks": [
+      {
+        "p": "Type `/app` in the bot and tap **Open the app** — it opens inside Telegram, no login or password."
+      },
+      {
+        "list": [
+          "**Profile** — level, XP, games, wins, wallet, achievements and fair play.",
+          "**Achievements** — all 15.",
+          "**Ranking** — season and all time.",
+          "**My games** — the chronicle of recent games.",
+          "**Black market** — coin packs, VIP, badges and role-card styles."
+        ]
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Ilovani ochish",
+      "ru": "Открыть приложение",
+      "en": "Open the app",
+      "url": "https://t.me/qorashahar_mafia_bot?start=app"
+    }
+  ],
+  "poll": null
+}

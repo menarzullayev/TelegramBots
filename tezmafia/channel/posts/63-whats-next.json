@@ -1,0 +1,63 @@
+{
+  "id": 63,
+  "slug": "whats-next",
+  "series": "F",
+  "segment": "player",
+  "hashtags": ["#keyingiqadam", "#jamoa"],
+  "visual": {"type": "image", "images": ["banner.jpg"]},
+  "uz": {
+    "title": "Keyingi tun nima olib keladi",
+    "blocks": [
+      {"p": "Biz Qorashaharni tanishuvdan boshlab, rollar, adminlar paneli, iqtisod va parda ortigacha birga aylanib chiqdik. 21 rol, 11 til, 4 rejim, 15 yutuq — bularning hammasi bugun ishlayapti. Lekin shahar hech qachon uxlamaydi."},
+      {"h": "Yaqin kunlarda"},
+      {"list": [
+        "**1-noyabr — Qorashahar pass.** Birinchi mavsumiy zinapoya: bepul yo‘lak hammaga, pullik yo‘lakda uslub va 🎟 belgisi. Shundan keyin har oy — yangi mavsum.",
+        "**Yangi rasmlar.** Qarg‘a olami kengayishda davom etadi: brend ustidagi ish to‘xtamaydi.",
+        "**Jamoa.** Bu kanal — yangiliklar, qoidalar sirlari va eng yaxshi stollar hikoyalari uchun. Qarg‘a stikerlari esa allaqachon sizni kutmoqda."
+      ]},
+      {"p": "Eng muhimi — Qorashaharni siz qurasiz. Har bir taklif, har bir topilgan xato o‘yinni yaxshiroq qiladi. Pastdagi so‘rovda keyingi navbatda nimani ko‘rishni xohlashingizni belgilang: ovozlar rejani tuzishda hisobga olinadi."},
+      {"p": "Ovoz bering, botni guruhingizga qo‘shing va bugun kechqurun stol oching: `/game`. Tun tushmoqda."}
+    ]
+  },
+  "ru": {
+    "title": "Что принесёт следующая ночь",
+    "blocks": [
+      {"p": "21 роль, 11 языков, 4 режима, 15 достижений — всё это уже работает. Дальше:"},
+      {"list": [
+        "**1 ноября — Qorashahar pass**, затем новый сезон каждый месяц.",
+        "**Новые рисунки** — мир Ворона продолжает расти.",
+        "**Сообщество** — этот канал и стикеры Ворона."
+      ]},
+      {"p": "Проголосуйте в опросе — голоса учтём при планировании. И откройте стол: `/game`."}
+    ]
+  },
+  "en": {
+    "title": "What the next night brings",
+    "blocks": [
+      {"p": "21 roles, 11 languages, 4 modes, 15 achievements — all live today. Next up:"},
+      {"list": [
+        "**1 November — the Qorashahar pass**, then a new season every month.",
+        "**New art** — the Raven's world keeps growing.",
+        "**Community** — this channel and the Raven stickers."
+      ]},
+      {"p": "Vote in the poll — we'll weigh it when planning. And open a table: `/game`."}
+    ]
+  },
+  "buttons": [{"uz": "Guruhga qo‘shish", "ru": "Добавить в группу", "en": "Add to group", "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"}, {"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": {
+    "type": "regular",
+    "question": {
+      "uz": "Qorashaharda keyingi navbatda nima bo‘lsin?",
+      "ru": "Что добавить в Qorashahar дальше?",
+      "en": "What should come next in Qorashahar?"
+    },
+    "options": [
+      {"uz": "Yangi rollar", "ru": "Новые роли", "en": "New roles"},
+      {"uz": "Yangi karta uslublari", "ru": "Новые стили карт", "en": "New card skins"},
+      {"uz": "Klanlar o‘rtasida turnir", "ru": "Турнир кланов", "en": "Clan tournaments"},
+      {"uz": "Yangi o‘yin rejimi", "ru": "Новый режим игры", "en": "A new game mode"}
+    ],
+    "correct": [],
+    "explanation": null
+  }
+}

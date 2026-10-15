@@ -1,0 +1,118 @@
+{
+  "id": 23,
+  "slug": "scheduled-games",
+  "series": "C",
+  "segment": "admin",
+  "hashtags": [
+    "#rejalashtirish",
+    "#adminlar"
+  ],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "group",
+      "messages": [
+        {
+          "from": "user",
+          "name": "Sardor",
+          "text": "/schedule 21:00"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "📅 O‘yin rejalashtirildi: 15.10 21:00. Eslatma olish uchun tugmani bosing.",
+          "buttons": [
+            [
+              "Eslatib qo‘y"
+            ]
+          ]
+        },
+        {
+          "from": "user",
+          "name": "Kamola",
+          "text": "Men bor 🙋‍♀️"
+        },
+        {
+          "from": "bot",
+          "name": "TezMafia",
+          "text": "⏰ 21:00 da o‘yin boshlanadi! Qo‘shilishga tayyorlaning."
+        }
+      ]
+    }
+  },
+  "uz": {
+    "title": "21:00 da Qorashaharda: o‘yinni oldindan belgilang",
+    "blocks": [
+      {
+        "p": "Eng yaxshi o‘yinlar tasodifan emas, kelishib boshlanadi. Guruh admini vaqtni belgilaydi — qolganini hakam eslab qoladi."
+      },
+      {
+        "h": "Qanday ishlaydi"
+      },
+      {
+        "list": [
+          "Admin guruhda `/schedule 21:00` yozadi. Bu vaqt bugun o‘tib ketgan bo‘lsa, o‘yin ertaga shu soatga qo‘yiladi.",
+          "Bot xabar ostiga **Eslatib qo‘y** tugmasini qo‘yadi. O‘ynamoqchi bo‘lganlar uni bosadi.",
+          "Boshlanishga taxminan 15 daqiqa qolganda tugmani bosganlarga shaxsiy xabar keladi, guruhga ham ogohlantirish chiqadi.",
+          "Belgilangan vaqtda stol o‘zi ochiladi — hech kim `/game` yozishini kutish shart emas."
+        ]
+      },
+      {
+        "p": "Reja o‘zgardimi? `/schedule off` — rejalashtirilgan o‘yin bekor qilinadi. Vaqt Telegram’da har kimga o‘z soatida ko‘rsatiladi, shuning uchun boshqa shahardagi do‘stlar ham adashmaydi."
+      },
+      {
+        "p": "Shaxsiy eslatma kelishi uchun botga oldindan `/start` bosib qo‘ying — Qorashahar yopiq eshikka xat tashlamaydi."
+      },
+      {
+        "p": "Bugun kechqurun kim bo‘sh? `/schedule 21:00` yozing va **Eslatib qo‘y** tugmasini guruhga qoldiring."
+      }
+    ]
+  },
+  "ru": {
+    "title": "В 21:00 в Qorashahar: назначьте игру заранее",
+    "blocks": [
+      {
+        "p": "Лучшие игры начинаются по договорённости. Админ назначает время — ведущий запомнит остальное."
+      },
+      {
+        "list": [
+          "Админ пишет `/schedule 21:00`. Если время сегодня уже прошло — игра будет завтра.",
+          "Под сообщением появляется кнопка **Напомнить**.",
+          "Примерно за 15 минут нажавшим придёт личное сообщение, а в группе — объявление.",
+          "В назначенное время стол открывается сам."
+        ]
+      },
+      {
+        "p": "Отмена: `/schedule off`. Чтобы получить напоминание, заранее нажмите `/start` в боте."
+      }
+    ]
+  },
+  "en": {
+    "title": "Qorashahar at 21:00: schedule the game",
+    "blocks": [
+      {
+        "p": "The best games start by agreement. An admin sets the time — the game master remembers the rest."
+      },
+      {
+        "list": [
+          "The admin types `/schedule 21:00`. If that time has passed today, the game is set for tomorrow.",
+          "A **Remind me** button appears under the message.",
+          "About 15 minutes before, everyone who tapped it gets a DM, and the group gets a notice.",
+          "At the set time the table opens by itself."
+        ]
+      },
+      {
+        "p": "Cancel with `/schedule off`. To receive the reminder, press `/start` in the bot beforehand."
+      }
+    ]
+  },
+  "buttons": [
+    {
+      "uz": "Guruhga qo‘shish",
+      "ru": "Добавить в группу",
+      "en": "Add to group",
+      "url": "https://t.me/qorashahar_mafia_bot?startgroup=true"
+    }
+  ],
+  "poll": null
+}

@@ -1,0 +1,58 @@
+{
+  "id": 46,
+  "slug": "vip",
+  "series": "E",
+  "segment": "player",
+  "hashtags": ["#vip", "#qorabozor"],
+  "visual": {
+    "type": "mock",
+    "mock": {
+      "chat": "bot",
+      "messages": [
+        {"from": "user", "text": "/shop"},
+        {"from": "bot", "text": "Qora bozor\nHamyon: $120 · olmos 3\n💎 VIP 30 kun: har o‘yinda +50% coin va ism yonida 💎 belgisi.", "buttons": [["100 coin — 25⭐", "450 coin — 100⭐"], ["1200 coin — 250⭐", "2600 coin — 500⭐"], ["VIP 30 kun — 150⭐"], ["Olmos do‘koni"]]},
+        {"from": "bot", "text": "VIP obunani rasmiylashtirish uchun tugmani bosing:", "buttons": [["TezMafia VIP"]]}
+      ]
+    }
+  },
+  "uz": {
+    "title": "VIP: har o‘yinda +50% coin",
+    "blocks": [
+      {"p": "Qorashaharning eski mijozlari bor — ularni bozor ham, stol ham tanib qoladi. **VIP** aynan shular uchun: 30 kunlik obuna, narxi **150⭐**."},
+      {"list": [
+        "**+50% coin** har o‘yinda: oddiy o‘yin uchun 10 emas 15 coin, g‘alabali o‘yin uchun 35 emas 52 coin.",
+        "Stolda ismingiz yonida **💎** belgisi — kim kelganini hamma ko‘radi.",
+        "Muddat `/profile` da ko‘rinadi: “VIP: … gacha”."
+      ]},
+      {"p": "VIP — Telegram obunasi. U har 30 kunda o‘zi yangilanadi, bekor qilish esa Telegram sozlamalarida bir bosishda: to‘langan davr oxirigacha VIP ishlayveradi."},
+      {"h": "Qanday ulanadi"},
+      {"list": [
+        "Botga shaxsiy chatda `/start` bosing.",
+        "`/shop` → **VIP 30 kun — 150⭐**.",
+        "Bot shaxsiy chatga **TezMafia VIP** tugmasini yuboradi — obuna o‘sha yerda rasmiylashadi."
+      ]},
+      {"p": "VIP coin ko‘proq beradi, coin esa Qora bozorda buyum va rol chiptasiga sarflanadi. Shartlar — `/terms`, to‘lov bo‘yicha savol — `/paysupport`."},
+      {"p": "Tayyor bo‘lsangiz, peshtaxtaga yo‘l oching: `/shop`."}
+    ]
+  },
+  "ru": {
+    "title": "VIP: +50% монет за каждую игру",
+    "blocks": [
+      {"p": "**VIP** — подписка на 30 дней за **150⭐**: **+50% монет** за каждую игру и значок **💎** у имени. Срок виден в `/profile`."},
+      {"p": "Это подписка Telegram: продлевается сама каждые 30 дней, отменяется в настройках Telegram и действует до конца оплаченного периода."},
+      {"p": "Как подключить: `/start` в личке бота → `/shop` → **VIP 30 дней — 150⭐** → кнопка **TezMafia VIP** придёт в личку."},
+      {"p": "Условия — `/terms`, вопросы по оплате — `/paysupport`."}
+    ]
+  },
+  "en": {
+    "title": "VIP: +50% coins every game",
+    "blocks": [
+      {"p": "**VIP** is a 30-day subscription for **150⭐**: **+50% coins** every game and a **💎** mark by your name. The end date shows in `/profile`."},
+      {"p": "It's a Telegram subscription: it renews every 30 days, you cancel it in Telegram settings, and it runs to the end of the paid period."},
+      {"p": "How: `/start` in the bot's DM → `/shop` → **VIP 30 days — 150⭐** → a **TezMafia VIP** button arrives in your DM."},
+      {"p": "Terms — `/terms`, payment questions — `/paysupport`."}
+    ]
+  },
+  "buttons": [{"uz": "Botni ochish", "ru": "Открыть бота", "en": "Open the bot", "url": "https://t.me/qorashahar_mafia_bot"}],
+  "poll": null
+}
