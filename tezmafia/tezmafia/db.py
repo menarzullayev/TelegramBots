@@ -699,6 +699,12 @@ class Store:
                 return None  # a parallel claim won
         return {"streak": streak, "coins": coins, "gems": gems}
 
+    async def daily_state(self, user_id: int) -> tuple[str, int]:
+        """(last claimed day, streak) without claiming anything."""
+        async with self.session() as s:
+            row = await s.get(UserStat, user_id)
+            return (row.daily_last or "", row.daily_streak or 0) if row else ("", 0)
+
     async def streaks_at_risk(self, yesterday: str, min_streak: int = 2) -> list[tuple[int, int]]:
         """Users who claimed yesterday (streak >= min) and not yet today."""
         async with self.session() as s:

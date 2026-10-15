@@ -5,65 +5,194 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TezMafia</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=PT+Mono&display=swap" rel="stylesheet">
 <style>
+  /* Qorashahar case file: ivory paper sheets on a dark investigator's desk. */
   :root {
-    --bg: var(--tg-theme-bg-color, #101116);
-    --card: var(--tg-theme-secondary-bg-color, #1A1C23);
-    --text: var(--tg-theme-text-color, #F1E9DB);
-    --hint: var(--tg-theme-hint-color, #9A958C);
-    --accent: var(--tg-theme-button-color, #C83D46);
-    --accent-text: var(--tg-theme-button-text-color, #F1E9DB);
+    --desk: #101116;
+    --folder: #1A1C23;
+    --folder-edge: #2A2C35;
+    --paper: #F1E9DB;
+    --paper-shade: #E4DAC6;
+    --ink: #22201C;
+    --ink-soft: #5E574C;
+    --burgundy: #721F2B;
+    --stamp: #C83D46;
     --gold: #C5A15A;
-    --red: #D9545C;
+    --ash: #9A958C;
+    --serif: "Old Standard TT", Georgia, "Times New Roman", serif;
+    --type: "PT Mono", "Courier New", monospace;
+    --nav-h: 66px;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
-         padding: 12px 16px calc(24px + env(safe-area-inset-bottom)); }
-  nav { display: flex; gap: 6px; position: sticky; top: 0; background: var(--bg); padding: 4px 0 10px; z-index: 2; overflow-x: auto; }
-  nav button { flex: 1 0 auto; border: 0; border-radius: 10px; padding: 9px 12px; background: var(--card); color: var(--hint); font: inherit; font-weight: 600; }
-  nav button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
-  section { display: none; } section.on { display: block; }
-  .card { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
-  .name { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
-  .muted { color: var(--hint); font-size: 13px; }
-  .bar { height: 8px; border-radius: 4px; background: rgba(127,127,127,.25); overflow: hidden; margin-top: 8px; }
-  .bar > i { display: block; height: 100%; background: var(--gold); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-  .ach { background: var(--card); border-radius: 12px; padding: 10px; font-weight: 600; }
-  .ach.off { opacity: .4; }
-  .ach::before { content: "🏅 "; } .ach.off::before { content: "🔒 "; }
-  table { width: 100%; border-collapse: collapse; }
-  td { padding: 7px 4px; border-bottom: 1px solid rgba(127,127,127,.18); }
-  td:first-child { width: 2em; color: var(--hint); } td:last-child { text-align: right; color: var(--gold); white-space: nowrap; }
-  .seg { display: flex; gap: 6px; margin-bottom: 8px; }
-  .seg button, .buy { border: 0; border-radius: 10px; padding: 10px 12px; font: inherit; font-weight: 600; background: var(--card); color: var(--text); }
-  .seg button.on { outline: 2px solid var(--accent); }
-  .buy { width: 100%; text-align: left; margin-bottom: 8px; background: var(--accent); color: var(--accent-text); }
-  .buy.alt { background: var(--card); color: var(--text); }
-  .buy.worn { outline: 2px solid var(--gold); }
-  .err { color: var(--red); text-align: center; margin-top: 40px; }
-  .card.won { box-shadow: inset 3px 0 0 var(--gold); }
-  .chr { margin: 8px 0 0; padding-left: 0; list-style: none; font-size: 14px; }
-  .chr li { padding: 3px 0; border-top: 1px solid rgba(127,127,127,.15); }
+  html { background: var(--desk); }
+  body {
+    margin: 0; min-height: 100vh; color: var(--paper); font: 17px/1.5 var(--serif);
+    background:
+      radial-gradient(120% 60% at 50% -10%, rgba(114, 31, 43, .28), transparent 60%),
+      radial-gradient(80% 50% at 100% 100%, rgba(197, 161, 90, .07), transparent 70%),
+      var(--desk);
+    padding: calc(14px + env(safe-area-inset-top)) 16px calc(var(--nav-h) + 26px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* desk header: the folder tab with the case number */
+  .folder-tab {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    font-family: var(--type); font-size: 13px; color: var(--ash); margin: 0 4px 12px;
+  }
+  .folder-tab strong { font-family: var(--serif); font-size: 21px; color: var(--paper); }
+
+  section { display: none; }
+  section.on { display: block; }
+
+  /* a paper sheet with faint ruled lines */
+  .sheet {
+    position: relative; background: var(--paper); color: var(--ink); border-radius: 3px;
+    padding: 22px 20px 20px; margin: 0 0 18px;
+    box-shadow: 0 1px 0 var(--paper-shade) inset, 0 18px 30px -18px rgba(0, 0, 0, .8), 0 2px 0 rgba(0, 0, 0, .35);
+    background-image: repeating-linear-gradient(transparent 0 31px, rgba(34, 32, 28, .055) 31px 32px);
+  }
+  .sheet h2 { font-weight: 700; font-size: 24px; line-height: 1.15; margin: 0 0 12px; }
+  .sheet h3 { font-weight: 700; font-size: 19px; line-height: 1.2; margin: 18px 0 8px; }
+  .sheet p { margin: 0 0 10px; }
+  .note { font-family: var(--type); font-size: 13px; color: var(--ink-soft); }
+
+  /* the dossier: a clipped photo, typed fields and one stamp */
+  .dossier { display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: start; min-height: 250px; }
+  .photo { position: relative; transform: rotate(-2.2deg); }
+  .photo img { width: 112px; height: 140px; object-fit: cover; display: block; border: 5px solid #fff; box-shadow: 0 6px 14px rgba(0, 0, 0, .35); }
+  .photo::before {
+    content: ""; position: absolute; top: -12px; left: 40px; width: 16px; height: 38px; border: 3px solid #8b8f99;
+    border-radius: 10px; border-bottom-color: transparent; z-index: 2;
+  }
+  .fields { display: grid; gap: 9px; margin: 0; min-width: 0; }
+  .field dt { font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
+  .field dd { margin: 0; font-family: var(--type); font-size: 15px; overflow-wrap: anywhere; }
+  .field dd.big { font-family: var(--serif); font-size: 22px; font-weight: 700; line-height: 1.15; }
+  .xp { display: flex; gap: 3px; margin-top: 5px; }
+  .xp i { flex: 1; height: 8px; background: rgba(34, 32, 28, .14); }
+  .xp i.on { background: var(--ink); }
+  .stamp {
+    position: absolute; left: 34px; bottom: 22px; transform: rotate(-8deg); pointer-events: none;
+    font-family: var(--type); font-size: 12px; color: var(--stamp); border: 2.5px solid var(--stamp); border-radius: 4px;
+    padding: 4px 8px; opacity: .85; text-align: center; line-height: 1.15; z-index: 3; background: rgba(241, 233, 219, .35);
+  }
+  .stamp b { display: block; font-family: var(--serif); font-size: 26px; }
+  .stamp.hit { animation: stamp .42s cubic-bezier(.2, 1.6, .4, 1) .3s both; }
+  @keyframes stamp { from { transform: rotate(-8deg) scale(2.4); opacity: 0; } to { transform: rotate(-8deg) scale(1); opacity: .85; } }
+
+  /* buttons: an ink action and a quiet outlined one */
+  .act {
+    display: block; width: 100%; text-align: left; border: 0; border-radius: 3px; padding: 13px 14px; margin: 8px 0 0;
+    background: var(--ink); color: var(--paper); font-family: var(--type); font-size: 15px;
+  }
+  .act.quiet { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px rgba(34, 32, 28, .35); }
+  .act.chosen { background: transparent; box-shadow: inset 0 0 0 2px var(--burgundy); color: var(--burgundy); }
+  .act:active { transform: translateY(1px); }
+
+  /* quests: a typed checklist */
+  .task { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed rgba(34, 32, 28, .2); font-family: var(--type); font-size: 14px; }
+  .box { width: 18px; height: 18px; border: 1.5px solid var(--ink); display: grid; place-items: center; font-size: 13px; line-height: 1; }
+  .task.done .box { background: var(--ink); color: var(--paper); }
+  .task.done .what { text-decoration: line-through; color: var(--ink-soft); }
+
+  /* achievements: wax seals */
+  .seals { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 14px 10px; }
+  .seal { text-align: center; font-size: 13px; line-height: 1.25; }
+  .seal::before {
+    content: ""; display: block; width: 46px; height: 46px; margin: 0 auto 6px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #b8404c, var(--burgundy) 60%, #4a121b);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .25), inset 0 -3px 6px rgba(0, 0, 0, .35);
+  }
+  .seal.off { color: var(--ink-soft); }
+  .seal.off::before { background: none; border: 1.5px dashed rgba(34, 32, 28, .35); box-shadow: none; }
+
+  /* role index cards */
+  .intro { font-family: var(--type); font-size: 13px; color: var(--ash); margin: 0 4px 14px; }
+  .roles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .role { background: var(--paper); color: var(--ink); border: 0; padding: 0 0 10px; border-radius: 3px; text-align: left; overflow: hidden; box-shadow: 0 10px 18px -12px rgba(0, 0, 0, .9); }
+  .role img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--folder); }
+  .role span { display: block; padding: 8px 10px 0; font-weight: 700; font-size: 17px; line-height: 1.2; }
+  .role small { display: block; padding: 2px 10px 0; font-family: var(--type); font-size: 12px; color: var(--ink-soft); }
+  .role.side-mafia small { color: var(--stamp); }
+  dialog { border: 0; padding: 0; background: transparent; max-width: min(92vw, 460px); width: 100%; }
+  dialog::backdrop { background: rgba(10, 10, 14, .8); }
+  dialog .sheet { margin: 0; max-height: 84vh; overflow: auto; }
+  dialog img { width: 100%; display: block; margin: 0 0 14px; }
+
+  /* wanted board */
+  .seg { display: flex; gap: 8px; margin: 0 0 14px; }
+  .seg button { flex: 1; border: 0; padding: 10px; border-radius: 3px; background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px rgba(34, 32, 28, .3); font-family: var(--type); font-size: 14px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); box-shadow: none; }
+  ol.board { list-style: none; margin: 0; padding: 0; counter-reset: rank; }
+  ol.board li { counter-increment: rank; display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: baseline; padding: 9px 4px; border-bottom: 1px solid rgba(34, 32, 28, .14); }
+  ol.board li::before { content: counter(rank); font-weight: 700; font-size: 20px; color: var(--burgundy); }
+  ol.board li:nth-child(-n+3)::before { color: var(--stamp); }
+  ol.board li.me { background: rgba(197, 161, 90, .2); }
+  ol.board .who { overflow-wrap: anywhere; }
+  ol.board .val { font-family: var(--type); font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
+
+  /* case log */
+  .entry header { display: flex; justify-content: space-between; gap: 10px; font-family: var(--type); font-size: 12px; color: var(--ink-soft); margin: 0 0 6px; }
+  .entry.won { box-shadow: inset 4px 0 0 var(--gold), 0 18px 30px -18px rgba(0, 0, 0, .8); }
+  .entry ul { list-style: none; margin: 10px 0 0; padding: 0; }
+  .entry li { font-family: var(--type); font-size: 13.5px; padding: 6px 0; border-top: 1px dashed rgba(34, 32, 28, .2); }
+
+  /* market ledger */
+  .ware { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; margin: 10px 0 0; }
+  .ware img { width: 56px; height: 56px; object-fit: cover; border-radius: 2px; }
+  .ware .act { margin: 0; }
+
+  /* bottom navigation: folder tabs */
+  nav.tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(5, 1fr);
+    background: var(--folder); border-top: 1px solid var(--folder-edge);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  }
+  nav.tabs button { border: 0; background: transparent; color: var(--ash); display: grid; justify-items: center; align-content: center; gap: 3px; padding: 4px 2px; border-radius: 6px 6px 0 0; font-family: var(--type); font-size: 11px; }
+  nav.tabs svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+  nav.tabs button[aria-selected="true"] { color: var(--desk); background: var(--paper); }
+  .err { text-align: center; margin-top: 40px; color: var(--ash); font-family: var(--type); }
+
+  @media (prefers-reduced-motion: reduce) { .stamp.hit { animation: none; } }
+  @media (min-width: 640px) { body { max-width: 640px; margin: 0 auto; } }
 </style>
 </head>
 <body>
-<nav role="tablist" id="tabs"></nav>
-<main id="root"><p class="muted" style="text-align:center;margin-top:40px">…</p></main>
+<header class="folder-tab" id="head"></header>
+<main id="root"><p class="err">…</p></main>
+<nav class="tabs" role="tablist" id="tabs"></nav>
+<dialog id="card"></dialog>
 <script>
 "use strict";
 const tg = window.Telegram && window.Telegram.WebApp;
 const auth = { headers: { "Authorization": "tma " + (tg ? tg.initData : "") } };
-let S = null, topView = "season";
+let S = null, topView = "season", stamped = false;
 
 const el = (tag, attrs = {}, ...kids) => {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
+    if (v === false || v == null) continue;
     if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v);
   }
-  for (const k of kids) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
+  for (const k of kids.flat()) if (k !== "" && k != null) n.append(k instanceof Node ? k : document.createTextNode(String(k)));
   return n;
 };
+const icon = d => { const s = document.createElementNS("http://www.w3.org/2000/svg", "svg"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true"); s.innerHTML = d; return s; };
+const ICONS = {
+  dossier: '<path d="M3 6h7l2 2h9v11H3z"/><path d="M3 10h18"/>',
+  roles: '<rect x="4" y="3" width="11" height="15" rx="1"/><path d="M9 7h12v14H9"/>',
+  wanted: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+  log: '<path d="M5 3h11l3 3v15H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>',
+  market: '<path d="M12 3v18M5 7h14"/><path d="M5 7l-3 6h6zM19 7l-3 6h6z"/>',
+};
+const haptic = kind => tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(kind);
+const say = text => (tg && tg.showAlert ? tg.showAlert(text) : window.alert(text));
 
 async function api(path, body) {
   const opts = body ? { method: "POST", headers: { ...auth.headers, "Content-Type": "application/json" }, body: JSON.stringify(body) } : auth;
@@ -72,111 +201,148 @@ async function api(path, body) {
   return r.json();
 }
 
-function tabs() {
-  const names = [["profile", S.strings["btn.profile"]], ["ach", S.strings["app.tab_ach"]], ["top", S.strings["app.tab_top"]], ["games", S.strings["app.tab_games"]], ["shop", S.strings["btn.shop"]]];
-  if (S.admin) names.push(["admin", S.admin.tab]);
-  const nav = document.getElementById("tabs"); nav.replaceChildren();
-  for (const [id, label] of names) nav.append(el("button", { role: "tab", "data-id": id, onclick: () => show(id) }, label));
+function tabs(active) {
+  const names = [["dossier", "app.tab_dossier"], ["roles", "app.tab_roles"], ["wanted", "app.tab_wanted"], ["log", "app.tab_log"], ["market", "app.tab_market"]];
+  document.getElementById("tabs").replaceChildren(...names.map(([id, key]) =>
+    el("button", { role: "tab", "data-id": id, "aria-selected": String(id === active), onclick: () => show(id) }, icon(ICONS[id]), S.strings[key])));
 }
-
 function show(id) {
-  for (const b of document.querySelectorAll("nav button")) b.setAttribute("aria-selected", b.dataset.id === id);
+  for (const b of document.querySelectorAll("nav.tabs button")) b.setAttribute("aria-selected", String(b.dataset.id === id));
   for (const s of document.querySelectorAll("section")) s.classList.toggle("on", s.id === id);
-  if (tg) tg.HapticFeedback && tg.HapticFeedback.selectionChanged();
+  window.scrollTo(0, 0);
 }
 
-function render(active = "profile") {
-  const p = S.profile, L = p.lines;
-  const span = Math.max(1, p.level_to - p.level_from), pct = Math.min(100, Math.round(100 * (p.xp - p.level_from) / span));
-  const profile = el("section", { id: "profile" },
-    el("div", { class: "card" },
-      el("p", { class: "name" }, (p.badge ? p.badge + " " : "") + p.name),
-      el("div", {}, L.level), el("div", { class: "bar" }, el("i", { style: `width:${pct}%` })),
-      el("p", { class: "muted" }, `${p.xp} / ${p.level_to} XP`)),
-    el("div", { class: "card" }, el("div", {}, L.games), el("div", {}, L.wins), el("div", {}, L.wallet), el("div", {}, L.ach), el("div", {}, L.fair)));
+function dossier() {
+  const p = S.profile, L = p.lines, span = Math.max(1, p.level_to - p.level_from);
+  const filled = Math.round(10 * Math.min(1, Math.max(0, (p.xp - p.level_from) / span)));
+  const portrait = (S.roles.items.find(r => r.key === "mafia") || {}).image || "";
+  const stamp = el("div", { class: "stamp" + (stamped ? "" : " hit"), "aria-hidden": "true" }, S.strings["app.stamp"], el("b", {}, p.level));
+  stamped = true;
+  const field = (label, value, big) => el("div", { class: "field" }, el("dt", {}, label), el("dd", { class: big ? "big" : "" }, value));
+  const xp = el("div", { class: "xp", role: "img", "aria-label": `${p.xp} / ${p.level_to} XP` },
+    Array.from({ length: 10 }, (_, i) => el("i", { class: i < filled ? "on" : "" })));
+  const card = el("article", { class: "sheet" }, stamp, el("div", { class: "dossier" },
+    el("div", { class: "photo" }, el("img", { src: portrait, alt: "" })),
+    el("dl", { class: "fields" },
+      field(S.strings["app.field_name"], (p.badge ? p.badge + " " : "") + p.name, true),
+      el("div", { class: "field" }, el("dt", {}, S.strings["app.field_rank"]), el("dd", {}, `${p.level} · ${p.xp} / ${p.level_to} XP`), xp),
+      field(S.strings["app.field_record"], L.record),
+      field(S.strings["app.field_wallet"], L.purse),
+      field(S.strings["app.field_fair"], `${L.fair_score} / 100`))));
 
-  const ach = el("section", { id: "ach" }, el("div", { class: "grid" },
-    ...S.achievements.map(a => el("div", { class: "ach" + (a.unlocked ? "" : " off") }, a.title))));
+  const d = S.daily;
+  const daily = el("article", { class: "sheet" }, el("h2", {}, d.title), el("p", { class: "note" }, d.streak_text),
+    d.claimed ? el("p", { class: "note" }, d.done) : el("button", { class: "act", onclick: claimDaily }, (d.gem ? "💎 " : "") + d.button));
 
-  const topBox = el("div", { class: "card" });
-  const drawTop = () => {
-    const v = S.top[topView]; topBox.replaceChildren(el("p", { class: "name" }, v.title));
-    if (!v.rows.length) { topBox.append(el("p", { class: "muted" }, S.strings["top.empty"])); return; }
-    topBox.append(el("table", {}, ...v.rows.map((r, i) => el("tr", {}, el("td", {}, i + 1), el("td", {}, r.name), el("td", {}, `${r.wins} / ${r.games}`)))));
+  const q = S.quests;
+  const quests = el("article", { class: "sheet" }, el("h2", {}, q.title),
+    q.items.map(x => el("div", { class: "task" + (x.done ? " done" : "") },
+      el("span", { class: "box", "aria-hidden": "true" }, x.done ? "✓" : ""), el("span", { class: "what" }, x.title), el("span", {}, `${x.progress}/${x.target}`))),
+    el("p", { class: "note", style: "margin:12px 0 0" }, q.reward));
+
+  const seals = el("article", { class: "sheet" }, el("h2", {}, S.strings["app.seals"]), el("p", { class: "note" }, L.ach),
+    el("div", { class: "seals" }, S.achievements.map(a => el("div", { class: "seal" + (a.unlocked ? "" : " off") }, a.title))));
+
+  const admin = S.admin ? el("article", { class: "sheet" }, el("h2", {}, S.admin.title), S.admin.lines.map(x => el("p", { class: "note" }, x))) : "";
+  return el("section", { id: "dossier" }, card, daily, quests, seals, admin);
+}
+
+function roles() {
+  const dlg = document.getElementById("card");
+  const open = r => {
+    dlg.replaceChildren(el("article", { class: "sheet" }, el("img", { src: r.image, alt: "" }), el("h2", {}, r.title), el("p", {}, r.body),
+      el("button", { class: "act quiet", onclick: () => dlg.close() }, "✕")));
+    dlg.showModal();
   };
-  const seg = el("div", { class: "seg" },
-    ...[["season", S.strings["btn.top_season"]], ["all", S.strings["btn.top_all"]]].map(([k, label]) =>
-      el("button", { class: topView === k ? "on" : "", onclick: e => { topView = k; for (const b of seg.children) b.classList.remove("on"); e.target.classList.add("on"); drawTop(); } }, label)));
-  drawTop();
-  const top = el("section", { id: "top" }, seg, topBox);
+  return el("section", { id: "roles" }, el("p", { class: "intro" }, S.roles.intro),
+    el("div", { class: "roles" }, S.roles.items.map(r => el("button", { class: "role side-" + r.side, onclick: () => open(r) },
+      el("img", { src: r.image, alt: "", loading: "lazy" }), el("span", {}, r.title)))));
+}
 
+function board(rows, value, mark) {
+  return el("ol", { class: "board" }, rows.map(r => el("li", { class: mark && mark(r) ? "me" : "" }, el("span", { class: "who" }, r.name), el("span", { class: "val" }, value(r)))));
+}
+
+function wanted() {
+  const box = el("div");
+  const draw = () => {
+    const v = S.top[topView];
+    box.replaceChildren(el("h2", {}, v.title), v.rows.length ? board(v.rows, r => `${r.wins} / ${r.games}`) : el("p", { class: "note" }, S.strings["top.empty"]));
+  };
+  const seg = el("div", { class: "seg" }, [["season", "btn.top_season"], ["all", "btn.top_all"]].map(([k, key]) =>
+    el("button", { "aria-pressed": String(topView === k), onclick: e => {
+      topView = k; for (const b of seg.children) b.setAttribute("aria-pressed", String(b === e.currentTarget)); draw();
+    } }, S.strings[key])));
+  draw();
+  const t = S.tournament, c = S.clan;
+  const tour = el("article", { class: "sheet" }, el("h2", {}, t.title), el("p", { class: "note" }, t.me),
+    t.rows.length ? board(t.rows, r => r.points, r => r.me) : el("p", { class: "note" }, S.strings["top.empty"]));
+  const clan = el("article", { class: "sheet" }, el("h2", {}, c.title),
+    c.mine ? [el("p", {}, el("b", {}, c.mine.name)), el("p", { class: "note" }, c.mine.line)] : el("p", { class: "note" }, c.none),
+    c.top.length ? [el("h3", {}, c.top_title), board(c.top, r => `${r.wins} · 👥 ${r.members}`)] : "");
+  return el("section", { id: "wanted" }, el("article", { class: "sheet" }, seg, box), tour, clan);
+}
+
+function caseLog() {
   const pad = n => String(n).padStart(2, "0");
   const fmt = ts => { const d = new Date(ts * 1000); return `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
-  const games = el("section", { id: "games" },
-    ...(S.games.length ? S.games.map(g => el("div", { class: "card" + (g.won ? " won" : "") },
-      el("p", { class: "muted" }, `${fmt(g.at)} · 👥 ${g.players}`),
-      el("p", { class: "name" }, g.result),
-      g.you ? el("p", {}, g.you) : "",
-      el("ul", { class: "chr" }, ...g.events.map(e => el("li", {}, e)))))
-      : [el("div", { class: "card muted" }, S.strings["chr.empty"])]));
-
-  const shop = el("section", { id: "shop" },
-    el("div", { class: "card" },
-      ...S.shop.packs.map(x => el("button", { class: "buy", onclick: () => buy(x.key) }, x.label)),
-      el("button", { class: "buy", onclick: () => buy("vip") }, "💎 " + S.shop.vip.label),
-      el("p", { class: "muted" }, S.strings["stars.vip_desc"]),
-      el("p", { class: "muted" }, S.strings["stars.note"])),
-    el("div", { class: "card" },
-      el("p", { class: "name" }, S.strings["btn.gems_shop"]), el("p", { class: "muted" }, S.gems_body),
-      ...S.badges.map(b => el("button", { class: "buy alt" + (b.worn ? " worn" : ""), onclick: () => badge(b.key) },
-        (b.worn ? "✓ " : "") + b.label)),
-      p.badge ? el("button", { class: "buy alt", onclick: () => badge("off") }, S.strings["btn.badge_off"]) : ""),
-    el("div", { class: "card" },
-      el("p", { class: "name" }, S.strings["skins.title"]), el("p", { class: "muted" }, S.skins.body),
-      ...S.skins.items.map(k => el("button", { class: "buy alt" + (k.worn ? " worn" : ""), onclick: () => skin(k.key) },
-        (k.worn ? "✓ " : "") + k.label)),
-      S.skins.worn ? el("button", { class: "buy alt", onclick: () => skin("off") }, S.strings["btn.skin_off"]) : ""));
-
-  document.getElementById("root").replaceChildren(profile, ach, top, games, shop,
-    S.admin ? el("section", { id: "admin" }, el("div", { class: "card" }, el("p", { class: "name" }, S.admin.title),
-      ...S.admin.lines.map(x => el("div", {}, x)))) : "");
-  tabs(); show(active);
+  return el("section", { id: "log" }, S.games.length ? S.games.map(g => el("article", { class: "sheet entry" + (g.won ? " won" : "") },
+    el("header", {}, el("span", {}, fmt(g.at)), el("span", {}, `👥 ${g.players}`)),
+    el("h2", { style: "font-size:21px" }, g.result), g.you ? el("p", { class: "note" }, g.you) : "",
+    el("ul", {}, g.events.map(e => el("li", {}, e)))))
+    : el("article", { class: "sheet" }, el("p", {}, S.strings["chr.empty"])));
 }
 
+function market() {
+  const p = S.profile;
+  const stars = el("article", { class: "sheet" }, el("h2", {}, S.strings["app.stars"]),
+    S.shop.packs.map(x => el("button", { class: "act", onclick: () => buy(x.key) }, x.label)),
+    el("button", { class: "act", onclick: () => buy("vip") }, "💎 " + S.shop.vip.label),
+    el("p", { class: "note", style: "margin-top:12px" }, S.strings["stars.vip_desc"]),
+    el("p", { class: "note" }, S.strings["stars.note"]));
+  const skins = el("article", { class: "sheet" }, el("h2", {}, S.strings["skins.title"]), el("p", { class: "note" }, S.skins.body),
+    S.skins.items.map(k => el("div", { class: "ware" }, el("img", { src: `/assets/raven/skins/${k.key}/mafia.jpg`, alt: "" }),
+      el("button", { class: "act " + (k.worn ? "chosen" : "quiet"), onclick: () => cosmetic("/api/skin", k.key) }, (k.worn ? "✓ " : "") + k.label))),
+    S.skins.worn ? el("button", { class: "act quiet", onclick: () => cosmetic("/api/skin", "off") }, S.strings["btn.skin_off"]) : "");
+  const badges = el("article", { class: "sheet" }, el("h2", {}, S.strings["app.badges"]), el("p", { class: "note" }, S.gems_body),
+    S.badges.map(b => el("button", { class: "act " + (b.worn ? "chosen" : "quiet"), onclick: () => cosmetic("/api/badge", b.key) }, (b.worn ? "✓ " : "") + b.label)),
+    p.badge ? el("button", { class: "act quiet", onclick: () => cosmetic("/api/badge", "off") }, S.strings["btn.badge_off"]) : "");
+  return el("section", { id: "market" }, stars, skins, badges);
+}
+
+function render(active = "dossier") {
+  document.getElementById("head").replaceChildren(el("strong", {}, "TezMafia"), el("span", {}, S.case));
+  document.getElementById("root").replaceChildren(dossier(), roles(), wanted(), caseLog(), market());
+  tabs(active); show(active);
+}
+
+async function claimDaily() {
+  try { const r = await api("/api/daily", {}); S = r.state; render("dossier"); haptic(r.result === "claimed" ? "success" : "warning"); }
+  catch (e) { say(S.strings["app.error"]); }
+}
 async function buy(product) {
   try {
     const { link } = await api("/api/invoice", { product });
-    tg.openInvoice(link, async status => {
-      if (status === "paid") { tg.showAlert(S.strings["app.paid"]); await load("shop"); }
-    });
-  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
+    tg.openInvoice(link, async status => { if (status === "paid") { say(S.strings["app.paid"]); await load("market"); } });
+  } catch (e) { say(S.strings["app.error"]); }
 }
-
-async function badge(key) {
+async function cosmetic(path, key) {
   try {
-    const r = await api("/api/badge", { key });
-    S = r.state; render("shop");
-    if (r.result === "no_gems") tg.showAlert(S.strings["gems.no_gems"]);
-    else tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success");
-  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
+    const r = await api(path, { key });
+    S = r.state; render("market");
+    if (r.result === "no_gems") say(S.strings["gems.no_gems"]); else haptic("success");
+  } catch (e) { say(S.strings["app.error"]); }
 }
-
-async function skin(key) {
-  try {
-    const r = await api("/api/skin", { key });
-    S = r.state; render("shop");
-    if (r.result === "no_gems") tg.showAlert(S.strings["gems.no_gems"]);
-    else tg.HapticFeedback && tg.HapticFeedback.notificationOccurred("success");
-  } catch (e) { tg && tg.showAlert(S.strings["app.error"]); }
-}
-
 async function load(active) {
   try { S = await api("/api/state"); document.documentElement.lang = S.lang; render(active); }
   catch (e) { document.getElementById("root").replaceChildren(el("p", { class: "err" }, "⚠️")); }
 }
 
-if (tg) { tg.ready(); tg.expand(); }
-load("profile");
+if (tg) {
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor("#101116"); tg.setBackgroundColor("#101116"); if (tg.setBottomBarColor) tg.setBottomBarColor("#1A1C23"); } catch (e) { /* older clients */ }
+}
+load("dossier");
 </script>
 </body>
 </html>

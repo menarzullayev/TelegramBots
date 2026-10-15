@@ -101,6 +101,9 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "btn.profile", "app.tab_ach", "app.tab_top", "btn.shop", "btn.gems_shop", "btn.top_season", "btn.top_all",
                 "stars.vip_desc", "stars.note", "app.paid", "app.error", "gems.no_gems", "gems.bought", "btn.badge_off",
                 "top.empty", "cmd.privacy", "cmd.terms", "app.tab_games", "chr.empty", "skins.title", "btn.skin_off",
+                "app.tab_dossier", "app.tab_roles", "app.tab_wanted", "app.tab_log", "app.tab_market",
+                "app.stamp", "app.field_name", "app.field_rank", "app.field_record", "app.field_wallet", "app.field_fair",
+                "app.seals", "app.badges", "app.stars",
             )
         },
         "profile": {
@@ -122,6 +125,9 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "level": plain_t(lang, "profile.level", level=level, xp=acc["xp"]),
                 "ach": plain_t(lang, "profile.ach", n=len(unlocked), total=len(ACHIEVEMENTS)),
                 "fair": plain_t(lang, "profile.fair", score=await app.store.fair_play(uid)),
+                "fair_score": str(await app.store.fair_play(uid)),
+                "record": plain_t(lang, "app.record", games=acc["games"], wins=acc["wins"]),
+                "purse": plain_t(lang, "app.wallet", coins=acc["coins"], gems=acc["gems"]),
             },
         },
         "achievements": [{"key": k, "title": plain_t(lang, f"ach.{k}"), "unlocked": k in unlocked} for k in ACHIEVEMENTS],
@@ -148,7 +154,88 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         "games": [chronicle_entry(g, uid, lang) for g in await app.store.user_games(uid, limit=10)],
         "admin": await admin_state(app, uid, lang),
         "skins": await skins_state(app, uid, lang, acc["gems"]),
+        "case": plain_t(lang, "app.case", n=f"{uid % 100000:05d}"),
+        "daily": await daily_state(app, uid, lang),
+        "quests": await quests_state(app, uid, lang),
+        "roles": await roles_state(app, uid, lang),
+        "clan": await clan_state(app, uid, lang, season),
+        "tournament": await tournament_state(app, uid, lang),
     }
+
+
+def _today() -> tuple[str, str]:
+    return time.strftime("%Y-%m-%d"), time.strftime("%Y-%m-%d", time.localtime(time.time() - 86400))
+
+
+async def daily_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
+    from tezmafia.retention import daily_reward, next_streak
+
+    today, yesterday = _today()
+    last, streak = await app.store.daily_state(uid)
+    nxt = next_streak(last, today, yesterday, streak)
+    coins, gems = daily_reward(nxt or streak or 1)
+    return {
+        "title": plain(t(lang, "app.daily")),
+        "claimed": nxt is None,
+        "streak": streak if nxt is None else (nxt - 1),
+        "streak_text": plain(t(lang, "app.streak", n=streak if nxt is None else max(0, nxt - 1))),
+        "button": plain(t(lang, "app.daily_claim", coins=coins)),
+        "done": plain(t(lang, "app.daily_done")),
+        "gem": bool(gems),
+    }
+
+
+async def quests_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
+    from tezmafia.retention import QUEST_COINS, QUEST_XP, QUESTS, todays_quests
+
+    day = time.strftime("%Y-%m-%d")
+    state = await app.store.quest_state(day, uid)
+    items = []
+    for key in todays_quests(day):
+        target = QUESTS[key][0]
+        progress, done = state.get(key, (0, False))
+        items.append({"key": key, "title": plain(t(lang, f"q.{key}")), "progress": min(progress, target),
+                      "target": target, "done": bool(done)})
+    return {"title": plain(t(lang, "quests.title")), "items": items,
+            "reward": plain(t(lang, "quests.reward", coins=QUEST_COINS, xp=QUEST_XP))}
+
+
+async def roles_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
+    from tezmafia.brand import role_card
+    from tezmafia.i18n import role_card_body, role_title
+    from tezmafia.roles import ROLE_FACTION, Role
+
+    skin = (await app.store.skins_of(uid))[0]
+    items = [
+        {"key": r.value, "title": plain(role_title(lang, r.value)), "body": plain(role_card_body(lang, r.value)),
+         "side": ROLE_FACTION[r].value, "image": "/assets/" + (role_card(r.value, skin) or "")}
+        for r in Role
+    ]
+    return {"intro": plain(t(lang, "app.roles_intro")), "items": items}
+
+
+async def clan_state(app: Any, uid: int, lang: str, season: str) -> dict[str, Any]:
+    from tezmafia.social import CLAN_MAX
+
+    clan = await app.store.clan_of(uid)
+    mine = None
+    if clan:
+        members, wins = await app.store.clan_stats(clan.id, season)
+        mine = {"name": clan.name, "line": plain(t(lang, "app.clan_line", n=members, max=CLAN_MAX, wins=wins))}
+    top = await app.store.cached(("clan_top", season), lambda: app.store.clan_top(season))
+    return {"title": plain(t(lang, "app.clan")), "mine": mine, "none": plain(t(lang, "app.no_clan")),
+            "top_title": plain(t(lang, "app.clans_top")),
+            "top": [{"name": n, "members": m, "wins": w} for n, m, w in top[:5]]}
+
+
+async def tournament_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
+    from tezmafia.social import week_key
+
+    week = week_key()
+    rows = await app.store.cached(("week", week), lambda: app.store.week_top(week))
+    mine = next((p for u, _n, p in rows if u == uid), 0)
+    return {"title": plain(t(lang, "app.tournament", week=week)), "me": plain(t(lang, "app.my_points", n=mine)),
+            "rows": [{"name": n, "points": p, "me": u == uid} for u, n, p in rows[:10]]}
 
 
 async def skins_state(app: Any, uid: int, lang: str, gems: int) -> dict[str, Any]:
@@ -272,6 +359,26 @@ async def skin(request: web.Request) -> web.Response:
     return web.json_response({"result": result, "state": await build_state(app, user)})
 
 
+async def daily(request: web.Request) -> web.Response:
+    user = _user(request)
+    app: App = request.app[APP_KEY]  # type: ignore[assignment]
+    if not request.app["limits"].allow(user["id"]):
+        raise web.HTTPTooManyRequests()
+    today, yesterday = _today()
+    got = await app.store.claim_daily(user["id"], user["first_name"], today, yesterday)
+    return web.json_response({"result": "claimed" if got else "already", "got": got, "state": await build_state(app, user)})
+
+
+async def asset(request: web.Request) -> web.FileResponse:
+    """Role portraits (and skins) for the role index; the route pattern only matches those files."""
+    from tezmafia.brand import ASSETS
+
+    path = ASSETS / request.match_info["path"]
+    if not path.is_file():
+        raise web.HTTPNotFound()
+    return web.FileResponse(path, headers={"Cache-Control": "public, max-age=604800"})
+
+
 @web.middleware
 async def security_headers(request: web.Request, handler: Any) -> web.StreamResponse:
     resp = await handler(request)
@@ -291,6 +398,8 @@ def build_app(app: App) -> web.Application:
             web.post("/api/invoice", invoice),
             web.post("/api/badge", badge),
             web.post("/api/skin", skin),
+            web.post("/api/daily", daily),
+            web.get("/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\\.jpg}", asset),
         ]
     )
     return web_app

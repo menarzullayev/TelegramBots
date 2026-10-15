@@ -7,13 +7,14 @@ from __future__ import annotations
 
 import asyncio
 import tempfile
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
 from aiohttp import web
 
 from tezmafia.db import Store
-from tezmafia.webapp.server import STATIC, build_state
+from tezmafia.webapp.server import STATIC, asset, build_state
 
 
 async def main(port: int = 8797) -> None:
@@ -26,6 +27,17 @@ async def main(port: int = 8797) -> None:
             await store.bump_season("2026-10", -1, uid, name, i < wins)
     await store.credit_wallet(7, "Saidakbar", coins=320, gems=9)
     await store.buy_badge(7, "Saidakbar", "rose")
+    await store.buy_skin(7, "Saidakbar", "gold", 0)
+    await store.quest_advance(time.strftime("%Y-%m-%d"), 7, {"play_2": 1, "play_3": 1, "win_1": 1, "win_2": 1,
+                              "survive_1": 1, "win_town": 1})
+    await store.credit_wallet(8, "Nodir", coins=200)
+    await store.create_clan(7, "Saidakbar", "Qora Qarg‘a", 0)
+    await store.join_clan(8, "qora qarg‘a", 30)
+    from tezmafia.social import week_key
+
+    for uid, name, pts in [(7, "Saidakbar", 22), (8, "Nodir", 17), (9, "Dilnoza", 9)]:
+        for _ in range(pts // 4):
+            await store.bump_week(week_key(), uid, name, True, 4)
     await store.award(7, {"first_game", "games_10", "first_win", "survivor", "win_mafia"})
     from tezmafia.engine import Phase, join, mark_dm_ok, new_game, start
 
@@ -49,7 +61,10 @@ async def main(port: int = 8797) -> None:
         return web.json_response(await build_state(fake_app, user))  # type: ignore[arg-type]
 
     app = web.Application()
-    app.add_routes([web.get("/", index), web.get("/api/state", state)])
+    app.add_routes([
+        web.get("/", index), web.get("/api/state", state),
+        web.get(r"/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\.jpg}", asset),
+    ])
     runner = web.AppRunner(app)
     await runner.setup()
     await web.TCPSite(runner, "127.0.0.1", port).start()
