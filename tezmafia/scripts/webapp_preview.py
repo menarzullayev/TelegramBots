@@ -14,7 +14,7 @@ from types import SimpleNamespace
 from aiohttp import web
 
 from tezmafia.db import Store
-from tezmafia.webapp.server import STATIC, asset, build_state
+from tezmafia.webapp.server import STATIC, asset, build_state, font
 
 
 async def main(port: int = 8797) -> None:
@@ -69,8 +69,18 @@ async def main(port: int = 8797) -> None:
         await store.set_theme(7, key)
         return web.json_response({"result": "ok", "state": await build_state(fake_app, user)})  # type: ignore[arg-type]
 
+    async def lang(r: web.Request) -> web.Response:
+        from tezmafia.i18n import ALLOWED
+
+        code = (await r.json()).get("lang")
+        if code not in ALLOWED:
+            raise web.HTTPBadRequest()
+        await store.set_lang(7, code)
+        return web.json_response({"result": "ok", "state": await build_state(fake_app, user)})  # type: ignore[arg-type]
+
     app = web.Application()
     app.add_routes([
+        web.post("/api/lang", lang), web.get(r"/assets/fonts/{name:[a-z0-9-]+\.woff2}", font),
         web.get("/", index), web.get("/api/state", state), web.post("/api/theme", theme),
         web.get(r"/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\.jpg}", asset),
     ])
