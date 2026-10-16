@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from tezmafia.engine import Game, from_dict, to_dict
+from tezmafia.retention import RefTier
 from tezmafia.shop import (
     BADGES,
     ITEMS,
@@ -198,6 +199,43 @@ class Referral(Base):
     referrer_id: Mapped[int] = mapped_column(BigInteger, index=True)
     at: Mapped[float] = mapped_column(Float, default=time.time)
     rewarded: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    # when the referral became "qualified" (paid out); NULL for unpaid rows. Drives the monthly recruiters ranking.
+    rewarded_at: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class ReferralTier(Base):
+    """A tier bonus already paid to an inviter; the primary key makes each tier pay once."""
+
+    __tablename__ = "referral_tiers"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    tier: Mapped[int] = mapped_column(Integer, primary_key=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class RecruiterHidden(Base):
+    """Users who opted out of the recruiters leaderboard (and so out of its prizes)."""
+
+    __tablename__ = "recruiter_hidden"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+
+
+class RecruiterAward(Base):
+    __tablename__ = "recruiter_awards"
+
+    month: Mapped[str] = mapped_column(String(7), primary_key=True)
+    at: Mapped[float] = mapped_column(Float, default=time.time)
+
+
+class UserSource(Base):
+    """Where a user first came from: the normalized deep-link payload of their first /start."""
+
+    __tablename__ = "user_sources"
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    source: Mapped[str] = mapped_column(String(32))
+    at: Mapped[float] = mapped_column(Float, default=time.time)
 
 
 class Schedule(Base):
@@ -319,6 +357,11 @@ class Store:
                 "ALTER TABLE cosmetics ADD COLUMN theme VARCHAR(16) DEFAULT ''",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
+                "ALTER TABLE referrals ADD COLUMN rewarded_at FLOAT",
+                # referrals paid before rewarded_at existed: count them from the day they were invited
+                "UPDATE referrals SET rewarded_at = at WHERE rewarded = 1 AND rewarded_at IS NULL",
+                "CREATE INDEX IF NOT EXISTS ix_referrals_rewarded_at ON referrals (rewarded_at) WHERE rewarded = 1",
+                "CREATE INDEX IF NOT EXISTS ix_user_sources_at ON user_sources (at)",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
                 # Load test (1M users, 1M games): these turn full scans of the big tables into index lookups.
                 "CREATE INDEX IF NOT EXISTS ix_games_active ON games (chat_id, version) WHERE status != 'finished'",
@@ -439,6 +482,8 @@ class Store:
             await s.execute(delete(QuestProgress).where(QuestProgress.user_id == user_id))
             await s.execute(delete(WeeklyStat).where(WeeklyStat.user_id == user_id))
             await s.execute(delete(LastCard).where(LastCard.user_id == user_id))
+            await s.execute(delete(UserSource).where(UserSource.user_id == user_id))
+            await s.execute(delete(RecruiterHidden).where(RecruiterHidden.user_id == user_id))
             game_ids = (await s.execute(select(GamePlayer.game_id).where(GamePlayer.user_id == user_id))).scalars().all()
             await s.execute(delete(GamePlayer).where(GamePlayer.user_id == user_id))
             await s.execute(delete(FairPlay).where(FairPlay.user_id == user_id))
@@ -758,7 +803,8 @@ class Store:
         """Referrer id the first time this referred user is rewarded; None otherwise."""
         async with self.session() as s:
             res = await s.execute(
-                text("UPDATE referrals SET rewarded = 1 WHERE user_id = :u AND rewarded = 0"), {"u": user_id}
+                text("UPDATE referrals SET rewarded = 1, rewarded_at = :t WHERE user_id = :u AND rewarded = 0"),
+                {"u": user_id, "t": time.time()},
             )
             if not res.rowcount:
                 return None
@@ -771,6 +817,162 @@ class Store:
             return (
                 await s.execute(select(func.count()).select_from(Referral).where(Referral.referrer_id == referrer_id))
             ).scalar_one()
+
+    async def qualified_count(self, referrer_id: int) -> int:
+        """Referrals that were paid out, i.e. whose player finished a first full game."""
+        async with self.session() as s:
+            return (
+                await s.execute(
+                    text("SELECT COUNT(*) FROM referrals WHERE referrer_id = :r AND rewarded = 1"), {"r": referrer_id}
+                )
+            ).scalar_one()
+
+    async def claim_ref_tiers(self, referrer_id: int) -> list[RefTier]:
+        """Pay every reached tier not yet paid; returns the tiers paid by this call.
+
+        The tier rows and the wallet/badge writes share one transaction, and the primary key of
+        referral_tiers lets only one concurrent caller win each tier.
+        """
+        from tezmafia.retention import REF_TIERS
+
+        if referrer_id <= 0:  # bot seats never earn tiers
+            return []
+        count = await self.qualified_count(referrer_id)
+        paid: list[RefTier] = []
+        async with self.session() as s:
+            for tier in REF_TIERS:
+                if count < tier.invites:
+                    continue
+                await self._ensure(s, referrer_id, "")
+                res = await s.execute(
+                    text("INSERT OR IGNORE INTO referral_tiers (user_id, tier, at) VALUES (:u, :n, :t)"),
+                    {"u": referrer_id, "n": tier.invites, "t": time.time()},
+                )
+                if not res.rowcount:
+                    continue
+                await s.execute(
+                    text(
+                        "UPDATE stats SET coins = COALESCE(coins, 0) + :c, gems = COALESCE(gems, 0) + :g WHERE user_id = :u"
+                    ),
+                    {"c": tier.coins, "g": tier.gems, "u": referrer_id},
+                )
+                if tier.badge:
+                    await self._add_badge(s, referrer_id, tier.badge, SPECIAL_BADGES[tier.badge][0])
+                paid.append(tier)
+            await s.commit()
+        return paid
+
+    async def _add_badge(self, s: AsyncSession, user_id: int, key: str, emoji: str) -> None:
+        """Own a special badge; it is worn at once only when the user wears nothing."""
+        row = (await s.execute(text("SELECT badges, badge FROM stats WHERE user_id = :u"), {"u": user_id})).one_or_none()
+        if row is None:
+            return
+        owned = json.loads(row[0] or "[]")
+        if key not in owned:
+            owned.append(key)
+        await s.execute(
+            text("UPDATE stats SET badges = :b, badge = :w WHERE user_id = :u"),
+            {"b": json.dumps(owned), "w": row[1] or emoji, "u": user_id},
+        )
+
+    async def has_ref_title(self, user_id: int) -> bool:
+        """True once the top referral tier (the "Qorashahar recruiter" title) was reached."""
+        from tezmafia.retention import REF_TITLE_TIER
+
+        async with self.session() as s:
+            return await s.get(ReferralTier, (user_id, REF_TITLE_TIER)) is not None
+
+    async def next_ref_tier(self, user_id: int) -> tuple[int, RefTier | None]:
+        """(qualified invites, the next tier still ahead or None at the top)."""
+        from tezmafia.retention import REF_TIERS
+
+        count = await self.qualified_count(user_id)
+        return count, next((tr for tr in REF_TIERS if tr.invites > count), None)
+
+    async def set_recruiter_hidden(self, user_id: int, hidden: bool) -> None:
+        async with self.session() as s:
+            if hidden:
+                await s.execute(text("INSERT OR IGNORE INTO recruiter_hidden (user_id) VALUES (:u)"), {"u": user_id})
+            else:
+                await s.execute(text("DELETE FROM recruiter_hidden WHERE user_id = :u"), {"u": user_id})
+            await s.commit()
+
+    async def recruiter_hidden(self, user_id: int) -> bool:
+        async with self.session() as s:
+            return await s.get(RecruiterHidden, user_id) is not None
+
+    @staticmethod
+    def _month_bounds(month: str) -> tuple[float, float]:
+        """Local-time [start, end) epoch seconds of a 'YYYY-MM' month."""
+        year, mon = int(month[:4]), int(month[5:7])
+        end_year, end_mon = (year + 1, 1) if mon == 12 else (year, mon + 1)
+        return (
+            time.mktime((year, mon, 1, 0, 0, 0, 0, 0, -1)),
+            time.mktime((end_year, end_mon, 1, 0, 0, 0, 0, 0, -1)),
+        )
+
+    async def recruiter_top(self, month: str, limit: int = 10) -> list[tuple[int, str, int, bool]]:
+        """(user_id, name, qualified invites in the month, has the recruiter title), best first.
+
+        Ties go to whoever reached the count first (earlier latest qualifying invite). Bots and users who
+        hid themselves are left out, so the same call decides the monthly prizes.
+        """
+        from tezmafia.retention import REF_TITLE_TIER
+
+        start, end = self._month_bounds(month)
+        async with self.session() as s:
+            q = await s.execute(
+                text(
+                    "SELECT r.referrer_id, COALESCE(st.name, ''), COUNT(*) AS n, MAX(r.rewarded_at) AS last,"
+                    " EXISTS(SELECT 1 FROM referral_tiers t WHERE t.user_id = r.referrer_id AND t.tier = :tt)"
+                    " FROM referrals r LEFT JOIN stats st ON st.user_id = r.referrer_id"
+                    " WHERE r.rewarded = 1 AND r.rewarded_at >= :a AND r.rewarded_at < :b"
+                    " AND r.referrer_id > 0 AND r.user_id > 0"
+                    " AND r.referrer_id NOT IN (SELECT user_id FROM recruiter_hidden)"
+                    " GROUP BY r.referrer_id ORDER BY n DESC, last ASC, r.referrer_id LIMIT :l"
+                ),
+                {"tt": REF_TITLE_TIER, "a": start, "b": end, "l": limit},
+            )
+            return [(int(r[0]), r[1], int(r[2]), bool(r[4])) for r in q.all()]
+
+    async def claim_recruiter_month(self, month: str) -> bool:
+        """True only the first time a month's recruiter prizes are handed out."""
+        async with self.session() as s:
+            res = await s.execute(
+                text("INSERT OR IGNORE INTO recruiter_awards (month, at) VALUES (:m, :t)"), {"m": month, "t": time.time()}
+            )
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def record_source(self, user_id: int, source: str) -> bool:
+        """Remember the source of a brand-new user's first /start; later /starts and old players change nothing."""
+        async with self.session() as s:
+            if await s.get(UserStat, user_id) is not None:
+                return False
+            res = await s.execute(
+                text("INSERT OR IGNORE INTO user_sources (user_id, source, at) VALUES (:u, :s, :t)"),
+                {"u": user_id, "s": source[:32], "t": time.time()},
+            )
+            await s.commit()
+            return bool(res.rowcount)
+
+    async def source_funnel(self, since: float, until: float | None = None, limit: int = 15) -> list[dict[str, Any]]:
+        """Per source for users who first arrived in the window: new → played a game → finished a full game.
+
+        A full game leaves a weekly_stats row (tables with bots write none).
+        """
+        until = until or time.time()
+        async with self.session() as s:
+            q = await s.execute(
+                text(
+                    "SELECT u.source, COUNT(*) AS new_users, COALESCE(SUM(COALESCE(st.games, 0) >= 1), 0),"
+                    " COALESCE(SUM(EXISTS(SELECT 1 FROM weekly_stats w WHERE w.user_id = u.user_id)), 0)"
+                    " FROM user_sources u LEFT JOIN stats st ON st.user_id = u.user_id"
+                    " WHERE u.at >= :a AND u.at < :b GROUP BY u.source ORDER BY new_users DESC, u.source LIMIT :l"
+                ),
+                {"a": since, "b": until, "l": limit},
+            )
+            return [{"source": r[0], "new": int(r[1]), "played": int(r[2]), "full": int(r[3])} for r in q.all()]
 
     async def create_schedule(self, chat_id: int, at: float, created_by: int, name: str) -> int:
         async with self.session() as s:

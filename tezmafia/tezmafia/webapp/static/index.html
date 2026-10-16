@@ -508,7 +508,7 @@ function dossier() {
   const card = el("article", { class: "sheet" }, stamp, el("div", { class: "dossier" },
     el("div", { class: "photo" }, el("img", { src: portrait, alt: "" })),
     el("dl", { class: "fields" },
-      field(S.strings["app.field_name"], (p.badge ? p.badge + " " : "") + p.name, true),
+      field(S.strings["app.field_name"], (p.badge ? p.badge + " " : "") + p.name + (p.title ? " · " + p.title : ""), true),
       el("div", { class: "field" }, el("dt", {}, S.strings["app.field_rank"]), el("dd", {}, `${p.level} · ${p.xp} / ${p.level_to} XP`), xp),
       field(S.strings["app.field_record"], L.record),
       field(S.strings["app.field_wallet"], L.purse),
@@ -564,7 +564,10 @@ function wanted() {
   const clan = el("article", { class: "sheet" }, el("h2", {}, c.title),
     c.mine ? [el("p", {}, el("b", {}, c.mine.name)), el("p", { class: "note" }, c.mine.line)] : el("p", { class: "note" }, c.none),
     c.top.length ? [el("h3", {}, c.top_title), board(c.top, r => `${r.wins} · 👥 ${r.members}`)] : "");
-  return el("section", { id: "wanted" }, el("article", { class: "sheet" }, seg, box), tour, clan);
+  const rc = S.recruiters;
+  const recruit = el("article", { class: "sheet" }, el("h2", {}, rc.title),
+    rc.rows.length ? board(rc.rows, r => r.n, r => r.me) : el("p", { class: "note" }, S.strings["top.recruit_empty"]));
+  return el("section", { id: "wanted" }, el("article", { class: "sheet" }, seg, box), tour, recruit, clan);
 }
 
 function caseLog() {

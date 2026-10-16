@@ -77,6 +77,8 @@ SPECIAL_BADGES: dict[str, tuple[str, int]] = {
     "trophy": ("🏆", 0),
     "founder": ("🎖", 0),
     "pass": ("🎟", 0),
+    "recruiter": ("🤝", 0),
+    "recruiter_month": ("🏅", 0),
 }
 # Role-card styles (DECISION-17): pre-rendered by scripts/make_skins.py, bought with gems.
 SKINS: dict[str, str] = {"noir": "🖤", "gold": "🟨", "neon": "💜"}

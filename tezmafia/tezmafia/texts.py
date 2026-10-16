@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from tezmafia.emoji import ce
 from tezmafia.engine import Game
 from tezmafia.i18n import item_desc, item_title, lang_label, role_card_body, role_dm_body, role_title, t
@@ -361,6 +363,7 @@ def profile_text(
     xp: int = 0,
     achievements: int = 0,
     fair: int | None = None,
+    recruiter: bool = False,
 ) -> str:
     from html import escape
 
@@ -382,6 +385,8 @@ def profile_text(
         lines.append(f"🏅 {t(lang, 'profile.ach', n=achievements, total=len(ACHIEVEMENTS))}")
     if fair is not None:
         lines.append(f"🤝 {t(lang, 'profile.fair', score=fair)}")
+    if recruiter:
+        lines.append(f"📣 {t(lang, 'profile.recruiter', title=t(lang, 'recruiter.title'))}")
     bag = []
     for key, n in (inventory or {}).items():
         title = item_title(lang, key) if key in ITEMS else key
@@ -431,6 +436,56 @@ def top_text(rows: list[tuple[str, int, int]], lang: str = "uz", title: str | No
     for i, (name, games, wins) in enumerate(rows, start=1):
         lines.append(t(lang, "top.row", i=i, name=escape(name), wins=wins, games=games))
     return "\n".join(lines)
+
+
+def recruiter_tag(titled: bool, lang: str = "uz") -> str:
+    """' 🤝 Qorashahar recruiter' next to a name, or nothing."""
+    return f" 🤝 {t(lang, 'recruiter.title')}" if titled else ""
+
+
+def recruiters_text(rows: list[tuple[int, str, int, bool]], month: str, lang: str = "uz") -> str:
+    from html import escape
+
+    title = f"{ce('star')} <b>{t(lang, 'top.recruit', month=month)}</b>"
+    if not rows:
+        return f"{title}\n{t(lang, 'top.recruit_empty')}"
+    lines = [title]
+    for i, (_uid, name, n, titled) in enumerate(rows, start=1):
+        lines.append(t(lang, "top.recruit_row", i=i, name=escape(name or "—"), tag=recruiter_tag(titled, lang), n=n))
+    return "\n".join(lines)
+
+
+def tier_rewards(tier: Any, lang: str = "uz") -> str:
+    """'+150 coins, 🤝 badge' for one referral tier."""
+    from tezmafia.shop import SPECIAL_BADGES
+
+    parts = []
+    if tier.coins:
+        parts.append(t(lang, "reward.coins", n=tier.coins))
+    if tier.gems:
+        parts.append(t(lang, "reward.gems", n=tier.gems))
+    if tier.badge:
+        parts.append(t(lang, "reward.badge", icon=SPECIAL_BADGES[tier.badge][0]))
+    if tier.title:
+        parts.append(t(lang, "reward.title", title=t(lang, "recruiter.title")))
+    return ", ".join(parts)
+
+
+def invite_progress(qualified: int, nxt: Any, lang: str = "uz") -> str:
+    if nxt is None:
+        return t(lang, "invite.progress_max", q=qualified)
+    return t(lang, "invite.progress", q=qualified, next=nxt.invites, rewards=tier_rewards(nxt, lang))
+
+
+def source_lines(rows: list[dict], lang: str = "uz") -> list[str]:
+    from html import escape
+
+    if not rows:
+        return [t(lang, "funnel.sources_empty")]
+    return [
+        t(lang, "funnel.source_row", source=escape(r["source"]), new=r["new"], played=r["played"], full=r["full"])
+        for r in rows
+    ]
 
 
 def history_text(games: list[Game], lang: str = "uz") -> str:
