@@ -647,8 +647,8 @@ class App:
                 if all(state.get(k, (0, False))[1] for k in todays_quests(day)):
                     await retry(lambda uid=uid, name=name: self.store.credit_wallet(uid, name, gems=1))
                 quest_notes[uid] = done_quests
-            if totals["games"] == 1:
-                await retry(lambda uid=uid, name=name: self.reward_referral(uid, name))
+            # First full game pays the referral; take_referral pays once, so bot-table games played earlier don't lose it.
+            await retry(lambda uid=uid, name=name: self.reward_referral(uid, name))
             keys = earned(outcome)
             fresh = await retry(lambda uid=uid, keys=keys: self.store.award(uid, keys))
             before, after = level_of(totals["xp"] - xp_for(won, p.alive)), level_of(totals["xp"])
