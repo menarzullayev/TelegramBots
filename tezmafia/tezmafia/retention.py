@@ -38,6 +38,7 @@ REF_TIERS: tuple[RefTier, ...] = (
 REF_TITLE_TIER = 25
 RECRUITER_MONTH_GEMS = (3, 2, 1)  # monthly recruiters leaderboard prizes, places 1-3
 RECRUITER_TOP = 10
+RECRUITER_MONTH_MIN = 3  # qualified invites a month needs before it can win a prize
 SOURCE_MAX = 32
 
 

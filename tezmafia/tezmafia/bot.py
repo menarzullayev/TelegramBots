@@ -798,14 +798,15 @@ class App:
 
     async def award_recruiters(self, month: str | None = None) -> list[int]:
         """Pay the top three recruiters of a finished month once (default: last month)."""
-        from tezmafia.retention import RECRUITER_MONTH_GEMS
+        from tezmafia.retention import RECRUITER_MONTH_GEMS, RECRUITER_MONTH_MIN
 
         if month is None:
             now = time.localtime()
             month = f"{now.tm_year - (now.tm_mon == 1)}-{(now.tm_mon - 2) % 12 + 1:02d}"
         if not await self.store.claim_recruiter_month(month):
             return []
-        winners = await self.store.recruiter_top(month, limit=len(RECRUITER_MONTH_GEMS))
+        top = await self.store.recruiter_top(month, limit=len(RECRUITER_MONTH_GEMS))
+        winners = [row for row in top if row[2] >= RECRUITER_MONTH_MIN]
         emoji = SPECIAL_BADGES["recruiter_month"][0]
         for place, ((uid, name, _n, _titled), gems) in enumerate(zip(winners, RECRUITER_MONTH_GEMS, strict=False), start=1):
             await self.store.credit_wallet(uid, name, gems=gems)

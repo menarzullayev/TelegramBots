@@ -260,24 +260,23 @@ async def test_top_view_lists_recruiters_with_the_title(app: App) -> None:
 async def test_month_prizes_are_paid_once(app: App) -> None:
     await _month_fixture(app)
     month = _month_key()
-    assert await app.award_recruiters(month) == [10, 11, 12]
-    for uid, gems in ((10, 3), (11, 2), (12, 1)):
+    assert await app.award_recruiters(month) == [10, 11]  # Cy is third but has 2 invites, under the minimum of 3
+    for uid, gems in ((10, 3), (11, 2), (12, 0), (13, 0)):
         assert (await app.store.get_account(uid))["gems"] == gems
-    assert (await app.store.get_account(13))["gems"] == 0
     assert "recruiter_month" in await app.store.owned_badges(10)
     assert (await app.store.get_account(10))["badge"] == SPECIAL_BADGES["recruiter_month"][0] == "🏅"
     assert "recruiter_month" not in await app.store.owned_badges(11)
-    assert app.dm.await_count == 3
+    assert app.dm.await_count == 2
     assert await app.award_recruiters(month) == []  # a second run, e.g. after a restart, pays nothing
     assert await app.award_recruiters(month) == []
-    assert (await app.store.get_account(10))["gems"] == 3 and app.dm.await_count == 3
+    assert (await app.store.get_account(10))["gems"] == 3 and app.dm.await_count == 2
 
 
 @pytest.mark.asyncio
 async def test_hidden_recruiters_are_not_paid(app: App) -> None:
     await _month_fixture(app)
     await app.store.set_recruiter_hidden(10, True)
-    assert await app.award_recruiters(_month_key()) == [11, 12, 13]
+    assert await app.award_recruiters(_month_key()) == [11]  # Cy (2) and Di (1) are under the minimum
     assert (await app.store.get_account(10))["gems"] == 0
     assert (await app.store.get_account(11))["gems"] == 3
     assert "recruiter_month" in await app.store.owned_badges(11)
