@@ -177,3 +177,21 @@ async def test_a_full_game_with_bots_runs_to_the_end(app: App) -> None:
     final = await app.store.load(g.id)
     assert final.phase == Phase.FINISHED and final.winner
     assert (await app.store.get_account(100))["games"] == 1
+
+
+@pytest.mark.asyncio
+async def test_referral_still_pays_after_a_first_game_with_bots(app: App) -> None:
+    from tezmafia.retention import REF_INVITER_COINS
+
+    app.dm = AsyncMock(return_value=True)  # type: ignore[method-assign]
+    assert await app.store.add_referral(3000, 77)
+    for people, bots in ((3, 2), (5, 0)):  # a half-reward table first, then a full one
+        g = _table(people, bots, base=3000)
+        start(g, random.Random(people))
+        g.winner, g.phase = "town", Phase.FINISHED
+        await app.persist(g)
+        await app.record_stats(g)
+        if bots:
+            assert (await app.store.get_account(77))["coins"] == 0  # no payout at a table with bots
+    assert (await app.store.get_account(3000))["games"] == 2
+    assert (await app.store.get_account(77))["coins"] == REF_INVITER_COINS
