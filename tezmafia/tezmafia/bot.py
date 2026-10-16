@@ -767,7 +767,11 @@ class App:
                 )
             except TelegramAPIError:
                 log.warning("weekly channel post failed", exc_info=True)
-        report = "\n".join([f"<b>{t('uz', 'funnel.title')}</b>", *texts.funnel_lines(f, "uz")])
+        sources = await self.store.source_funnel(start)
+        report = "\n".join([
+            f"<b>{t('uz', 'funnel.title')}</b>", *texts.funnel_lines(f, "uz"),
+            f"<b>{t('uz', 'funnel.sources')}</b>", *texts.source_lines(sources, "uz"),
+        ])
         if post and self.settings.owner_id:
             await self.dm(self.settings.owner_id, report)
         return text + "\n\n" + report
@@ -781,9 +785,48 @@ class App:
             return
         await self.store.credit_wallet(user_id, name, coins=REF_NEW_COINS)
         await self.store.credit_wallet(referrer, "", coins=REF_INVITER_COINS)
-        await self.dm(
-            referrer, t(await self.lang(referrer), "invite.reward", name=escape(name), coins=REF_INVITER_COINS)
-        )
+        claimed = await self.store.retry(lambda: self.store.claim_ref_tiers(referrer))
+        lang = await self.lang(referrer)
+        lines = [t(lang, "invite.reward", name=escape(name), coins=REF_INVITER_COINS)]
+        if claimed:
+            qualified = await self.store.qualified_count(referrer)
+            lines += [
+                t(lang, "invite.tier", n=tier.invites, count=qualified, rewards=texts.tier_rewards(tier, lang))
+                for tier in claimed
+            ]
+        await self.dm(referrer, "\n".join(lines))
+
+    async def award_recruiters(self, month: str | None = None) -> list[int]:
+        """Pay the top three recruiters of a finished month once (default: last month)."""
+        from tezmafia.retention import RECRUITER_MONTH_GEMS
+
+        if month is None:
+            now = time.localtime()
+            month = f"{now.tm_year - (now.tm_mon == 1)}-{(now.tm_mon - 2) % 12 + 1:02d}"
+        if not await self.store.claim_recruiter_month(month):
+            return []
+        winners = await self.store.recruiter_top(month, limit=len(RECRUITER_MONTH_GEMS))
+        emoji = SPECIAL_BADGES["recruiter_month"][0]
+        for place, ((uid, name, _n, _titled), gems) in enumerate(zip(winners, RECRUITER_MONTH_GEMS, strict=False), start=1):
+            await self.store.credit_wallet(uid, name, gems=gems)
+            lang = await self.lang(uid)
+            if place == 1:
+                await self.store.grant_badge(uid, "recruiter_month", emoji)
+                await self.dm(uid, t(lang, "recruiter.month_first", month=month, gems=gems))
+            else:
+                await self.dm(uid, t(lang, "recruiter.month_won", month=month, place=place, gems=gems))
+        if winners:
+            await self.alerts.send(f"recruit:{month}", f"🏅 Recruiters {month}: " + ", ".join(n for _, n, _, _ in winners))
+        return [uid for uid, _, _, _ in winners]
+
+    async def recruiter_loop(self) -> None:
+        """Hourly check; the claim row makes last month's prizes go out once, even if the bot was down on the 1st."""
+        while True:
+            try:
+                await self.award_recruiters()
+            except Exception:
+                log.exception("recruiter awards failed")
+            await asyncio.sleep(3600)
 
     async def scheduler_loop(self, interval: float = 30.0) -> None:
         while True:
@@ -1336,6 +1379,9 @@ async def _top_view(view: str, chat_id: int, lang: str) -> str:
     season = time.strftime("%Y-%m")
     if view == "all":
         return texts.top_text(await app.store.cached(("top_all",), app.store.top_stats), lang, t(lang, "btn.top_all"))
+    if view == "recruit":
+        recruiters = await app.store.cached(("recruit", season), lambda: app.store.recruiter_top(season, 10))
+        return texts.recruiters_text(recruiters, season, lang)
     if view == "group":
         rows = await app.store.cached(("season", season, chat_id), lambda: app.store.season_top(season, chat_id))
         return texts.top_text(rows, lang, t(lang, "top.group"))
@@ -1354,7 +1400,7 @@ async def cmd_top(message: Message) -> None:
 @router.callback_query(F.data.startswith("top:"))
 async def cb_top(query: CallbackQuery) -> None:
     parts = _cb_parts(query.data, 2)
-    if not parts or parts[1] not in {"season", "group", "all"} or not query.message:
+    if not parts or parts[1] not in {"season", "group", "all", "recruit"} or not query.message:
         await query.answer()
         return
     chat = query.message.chat
@@ -1402,6 +1448,7 @@ async def cmd_profile(message: Message) -> None:
             xp=acc.get("xp", 0),
             achievements=await app.store.achievement_count(message.from_user.id),
             fair=await app.store.fair_play(message.from_user.id),
+            recruiter=await app.store.has_ref_title(message.from_user.id),
             lang=await _lang(message.chat.id),
         )
     )
@@ -1493,7 +1540,29 @@ async def cmd_settings(message: Message) -> None:
     if _is_group(message) and message.from_user and not await _is_admin(message.chat.id, message.from_user.id):
         await message.answer(t(lang, "lang.admin_only"))
         return
-    await message.answer(texts.settings_text(lang), reply_markup=lang_kb(lang))
+    await message.answer(texts.settings_text(lang), reply_markup=await _settings_kb(message, lang))
+
+
+async def _settings_kb(message: Message, lang: str) -> InlineKeyboardMarkup:
+    """Language buttons, plus the recruiters-list visibility toggle in a private chat."""
+    private = message.chat.type == ChatType.PRIVATE and message.from_user is not None
+    hidden = await app.store.recruiter_hidden(message.chat.id) if private else None
+    return lang_kb(lang, hidden)
+
+
+@router.callback_query(F.data == "rec:toggle")
+async def cb_recruiter_toggle(query: CallbackQuery) -> None:
+    if not query.from_user or not query.message or query.message.chat.type != ChatType.PRIVATE:
+        await query.answer()
+        return
+    lang = await _lang(query.from_user.id)
+    hidden = not await app.store.recruiter_hidden(query.from_user.id)
+    await app.store.set_recruiter_hidden(query.from_user.id, hidden)
+    await query.answer(t(lang, "recruit.hidden_on" if hidden else "recruit.hidden_off"), show_alert=True)
+    try:
+        await query.message.edit_reply_markup(reply_markup=lang_kb(lang, hidden))
+    except TelegramAPIError:
+        pass
 
 
 @router.message(Command("help"))
@@ -1680,8 +1749,10 @@ async def cmd_invite(message: Message) -> None:
     lang = await _lang(message.chat.id)
     link = f"https://t.me/{app.settings.bot_username}?start=ref_{message.from_user.id}"
     n = await app.store.referral_count(message.from_user.id)
+    qualified, nxt = await app.store.next_ref_tier(message.from_user.id)
     await message.answer(
-        t(lang, "invite.text", you=REF_INVITER_COINS, them=REF_NEW_COINS, n=n, link=link),
+        t(lang, "invite.text", you=REF_INVITER_COINS, them=REF_NEW_COINS, n=n, link=link)
+        + "\n\n" + texts.invite_progress(qualified, nxt, lang),
         reply_markup=invite_kb(link, lang),
         link_preview_options=NO_PREVIEW,
     )
@@ -2319,6 +2390,9 @@ async def cmd_start(message: Message, command: CommandObject) -> None:
         await cmd_mafia(message)
         return
     lang = await _lang(message.chat.id)
+    from tezmafia.retention import normalize_source
+
+    await app.store.record_source(message.from_user.id, normalize_source(payload))
     if payload.startswith("ref_") and payload[4:].isdigit():
         from tezmafia.retention import REF_NEW_COINS
 
@@ -2613,6 +2687,7 @@ async def cb_menu(query: CallbackQuery) -> None:
                 badge=acc.get("badge", ""),
                 xp=acc.get("xp", 0),
                 achievements=await app.store.achievement_count(query.from_user.id),
+                recruiter=await app.store.has_ref_title(query.from_user.id),
                 lang=lang,
             )
         )
@@ -2635,7 +2710,9 @@ async def cb_menu(query: CallbackQuery) -> None:
         await query.message.answer(texts.gems_text(acc["gems"], lang), reply_markup=gems_kb(owned, acc["badge"], lang))
         return
     if action == "lang":
-        await query.message.answer(texts.settings_text(lang), reply_markup=lang_kb(lang))
+        private = query.message.chat.type == ChatType.PRIVATE
+        hidden = await app.store.recruiter_hidden(query.from_user.id) if private else None
+        await query.message.answer(texts.settings_text(lang), reply_markup=lang_kb(lang, hidden))
         return
     if action == "chats":
         games = await app.store.games_for_user(query.from_user.id)
@@ -3115,6 +3192,7 @@ async def run() -> None:
         asyncio.create_task(app.scheduler_loop()),
         asyncio.create_task(app.streak_reminder_loop()),
         asyncio.create_task(app.tournament_loop()),
+        asyncio.create_task(app.recruiter_loop()),
     ]
     web_runner = None
     if settings.webapp_port:

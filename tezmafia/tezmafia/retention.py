@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import random
+import re
 from collections.abc import Callable
+from typing import NamedTuple
 
 from tezmafia.progress import Outcome
 
@@ -13,8 +15,40 @@ DAILY_MAX = 40
 QUEST_COINS = 15
 QUEST_XP = 10
 REF_INVITER_COINS = 50
-REF_NEW_COINS = 25
+REF_NEW_COINS = 50
 QUESTS_PER_DAY = 3
+
+
+class RefTier(NamedTuple):
+    """One-time bonus for the inviter on reaching `invites` qualified invites (a paid-out referral)."""
+
+    invites: int
+    coins: int
+    gems: int
+    badge: str = ""  # key in shop.SPECIAL_BADGES
+    title: bool = False  # the "Qorashahar recruiter" profile title
+
+
+REF_TIERS: tuple[RefTier, ...] = (
+    RefTier(1, 0, 1),
+    RefTier(3, 150, 0, badge="recruiter"),
+    RefTier(10, 300, 3),
+    RefTier(25, 700, 8, title=True),
+)
+REF_TITLE_TIER = 25
+RECRUITER_MONTH_GEMS = (3, 2, 1)  # monthly recruiters leaderboard prizes, places 1-3
+RECRUITER_TOP = 10
+SOURCE_MAX = 32
+
+
+def normalize_source(payload: str) -> str:
+    """Traffic source of a first /start: referral links collapse to 'ref', junk is stripped, empty is 'direct'."""
+    payload = (payload or "").strip()
+    if payload.startswith("ref_") and payload[4:].isdigit():
+        return "ref"
+    if payload.startswith("g_"):  # a game join link carries a random id, not a campaign
+        return "game"
+    return re.sub(r"[^A-Za-z0-9_-]", "", payload)[:SOURCE_MAX].lower() or "direct"
 
 
 def daily_reward(streak: int) -> tuple[int, int]:

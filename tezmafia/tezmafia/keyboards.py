@@ -256,16 +256,19 @@ def lynch_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
     )
 
 
-def lang_kb(lang: str = "uz") -> InlineKeyboardMarkup:
-    from tezmafia.i18n import LANGS
+def lang_kb(lang: str = "uz", recruiter_hidden: bool | None = None) -> InlineKeyboardMarkup:
+    """Language buttons; in a private chat `recruiter_hidden` adds the leaderboard visibility toggle."""
+    from tezmafia.i18n import LANGS, t
 
     current = lang if lang in LANGS else "uz"
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [_btn(label, callback_data=f"lang:{code}", style="primary" if code == current else None)]
-            for code, label in LANGS.items()
-        ]
-    )
+    rows = [
+        [_btn(label, callback_data=f"lang:{code}", style="primary" if code == current else None)]
+        for code, label in LANGS.items()
+    ]
+    if recruiter_hidden is not None:
+        key = "btn.recruit_hidden" if recruiter_hidden else "btn.recruit_shown"
+        rows.append([_btn(t(lang, key), callback_data="rec:toggle")])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def vote_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
@@ -339,7 +342,7 @@ def rematch_kb(game: Game, lang: str = "uz") -> InlineKeyboardMarkup:
 def top_kb(view: str, in_group: bool, lang: str = "uz") -> InlineKeyboardMarkup:
     from tezmafia.i18n import t
 
-    views = ["season", "group", "all"] if in_group else ["season", "all"]
+    views = ["season", "group", "all", "recruit"] if in_group else ["season", "all", "recruit"]
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
