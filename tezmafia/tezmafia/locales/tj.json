@@ -535,5 +535,12 @@
   "app.my_points": "Холҳои шумо: {n}",
   "app.clans_top": "Кланҳо",
   "app.badges": "Нишонҳо",
-  "app.stars": "Бастаҳои coin ва VIP"
+  "app.stars": "Бастаҳои coin ва VIP",
+  "theme.title": "🎨 Тарҳ",
+  "theme.hint": "Намуди Mini App-ро интихоб кунед. Ҳама ройгон.",
+  "theme.dossier": "Парванда",
+  "theme.neon": "Неон-нуар",
+  "theme.deco": "Ар-деко",
+  "theme.day": "Рӯз",
+  "theme.comic": "Комикс-нуар"
 }

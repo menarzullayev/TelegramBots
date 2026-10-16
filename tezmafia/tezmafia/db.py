@@ -132,6 +132,7 @@ class Cosmetic(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     skin: Mapped[str] = mapped_column(String(16), default="", server_default="")
     skins: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+    theme: Mapped[str] = mapped_column(String(16), default="", server_default="")  # Mini App design theme ("" = dossier)
 
 
 class Clan(Base):
@@ -315,6 +316,7 @@ class Store:
                 "ALTER TABLE stats ADD COLUMN xp INTEGER DEFAULT 0",
                 "ALTER TABLE stats ADD COLUMN daily_last VARCHAR(10) DEFAULT ''",
                 "ALTER TABLE stats ADD COLUMN daily_streak INTEGER DEFAULT 0",
+                "ALTER TABLE cosmetics ADD COLUMN theme VARCHAR(16) DEFAULT ''",
                 "ALTER TABLE games ADD COLUMN created_at FLOAT",
                 "ALTER TABLE games ADD COLUMN updated_at FLOAT",
                 "CREATE INDEX IF NOT EXISTS ix_games_updated_at ON games (updated_at)",
@@ -1000,6 +1002,21 @@ class Store:
             row.skin = key
             await s.commit()
             return result
+
+    async def theme_of(self, user_id: int) -> str:
+        """The Mini App design theme the user picked ('' when never chosen)."""
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            return (row.theme or "") if row else ""
+
+    async def set_theme(self, user_id: int, theme: str) -> None:
+        async with self.session() as s:
+            row = await s.get(Cosmetic, user_id)
+            if row is None:
+                s.add(Cosmetic(user_id=user_id, skin="", skins="[]", theme=theme))
+            else:
+                row.theme = theme
+            await s.commit()
 
     async def grant_skin(self, user_id: int, key: str) -> None:
         """Give a skin for free (season pass reward) without wearing it."""
