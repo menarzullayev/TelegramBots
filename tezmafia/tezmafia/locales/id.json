@@ -564,5 +564,7 @@
   "reward.coins": "+{n} koin",
   "reward.gems": "+{n} permata",
   "top.recruit_row": "{i}. {name}{tag} — {n}",
-  "funnel.source_row": "{source}: {new} → {played} → {full}"
+  "funnel.source_row": "{source}: {new} → {played} → {full}",
+  "lang.title": "Bahasa",
+  "app.close": "Tutup"
 }
