@@ -579,11 +579,11 @@ def resolve_night(game: Game) -> dict[str, Any]:
 
     afk: list[int] = []
     for p in list(game.alive_players()):
+        if p.user_id in acted:
+            p.idle_nights = 0  # also for a spent pistol: the count must not outlive the duty
+            continue
         night_duty = (p.role and Role(p.role) in NIGHT_ROLES) or p.shop_gun
         if not night_duty:
-            continue
-        if p.user_id in acted:
-            p.idle_nights = 0
             continue
         p.idle_nights += 1
         if p.idle_nights >= 2 and _try_kill(game, p, "afk"):
@@ -735,7 +735,9 @@ def resolve_lynch(game: Game) -> dict[str, Any]:
     confirmed = yes > no
     if confirmed and game.lynch_seat:
         eliminated = game.by_seat(game.lynch_seat)
-        if eliminated and game.lawyer_cover == eliminated.seat:
+        if eliminated and not eliminated.alive:
+            eliminated = None  # the accused was kicked while the trial was open: nobody is hanged
+        elif eliminated and game.lawyer_cover == eliminated.seat:
             eliminated = None
         elif eliminated and eliminated.shop_vote_shield:
             eliminated.shop_vote_shield = False
