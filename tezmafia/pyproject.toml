@@ -34,7 +34,7 @@ tezmafia = ["locales/*.json", "legal_urls.json", "webapp/static/*.html"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 pythonpath = ["."]
-markers = ["qa: JIRA QA board ticket"]
+markers = ["qa: JIRA QA board ticket", "discrepancy: engine behaviour that differs from or is not covered by the player-facing text (docs/RULES-VERIFICATION.md)"]
 
 [tool.ruff]
 line-length = 120
