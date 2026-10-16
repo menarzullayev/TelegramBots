@@ -106,12 +106,13 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "top.empty", "cmd.privacy", "cmd.terms", "app.tab_games", "chr.empty", "skins.title", "btn.skin_off",
                 "app.tab_dossier", "app.tab_roles", "app.tab_wanted", "app.tab_log", "app.tab_market",
                 "app.stamp", "app.field_name", "app.field_rank", "app.field_record", "app.field_wallet", "app.field_fair",
-                "app.seals", "app.badges", "app.stars", "theme.title", "theme.hint",
+                "app.seals", "app.badges", "app.stars", "theme.title", "theme.hint", "top.recruit_empty",
             )
         },
         "profile": {
             "name": acc["name"] or user["first_name"],
             "badge": acc["badge"],
+            "title": plain_t(lang, "recruiter.title") if await app.store.has_ref_title(uid) else "",
             "games": acc["games"],
             "wins": acc["wins"],
             "coins": acc["coins"],
@@ -165,6 +166,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         "roles": await roles_state(app, uid, lang),
         "clan": await clan_state(app, uid, lang, season),
         "tournament": await tournament_state(app, uid, lang),
+        "recruiters": await recruiters_state(app, uid, lang, season),
     }
 
 
@@ -241,6 +243,13 @@ async def tournament_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
     mine = next((p for u, _n, p in rows if u == uid), 0)
     return {"title": plain(t(lang, "app.tournament", week=week)), "me": plain(t(lang, "app.my_points", n=mine)),
             "rows": [{"name": n, "points": p, "me": u == uid} for u, n, p in rows[:10]]}
+
+
+async def recruiters_state(app: Any, uid: int, lang: str, month: str) -> dict[str, Any]:
+    rows = await app.store.cached(("recruit", month), lambda: app.store.recruiter_top(month, 10))
+    tag = plain(t(lang, "recruiter.title"))
+    return {"title": plain(t(lang, "top.recruit", month=month)),
+            "rows": [{"name": (n or "—") + (f" 🤝 {tag}" if titled else ""), "n": c, "me": u == uid} for u, n, c, titled in rows]}
 
 
 async def theme_of(app: Any, uid: int) -> str:
