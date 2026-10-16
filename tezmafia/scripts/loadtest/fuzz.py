@@ -12,8 +12,12 @@ from collections import Counter
 from multiprocessing import Pool
 
 
-def _batch(seeds: range) -> tuple[int, int, Counter, Counter, dict, Counter, Counter]:
+def _batch(job: tuple[range, bool]) -> tuple[int, int, Counter, Counter, dict, Counter, Counter, Counter, Counter]:
     from scripts.loadtest.sim import play
+
+    seeds, extras = job
+    notes: Counter = Counter()
+    shape: Counter = Counter()
 
     nights = 0
     stalled = 0
@@ -23,7 +27,12 @@ def _batch(seeds: range) -> tuple[int, int, Counter, Counter, dict, Counter, Cou
     winners: Counter = Counter()
     sizes: Counter = Counter()
     for s in seeds:
-        r = play(s)
+        r = play(s, extras=extras)
+        notes.update(r.notes)
+        shape["with_bots"] += r.bots > 0
+        shape["bots_total"] += r.bots
+        shape["games_with_kicks"] += r.kicks > 0
+        shape["kicks_total"] += r.kicks
         nights += r.nights
         sizes[len(r.game.players)] += 1
         winners[r.game.winner or "-"] += 1
@@ -37,7 +46,7 @@ def _batch(seeds: range) -> tuple[int, int, Counter, Counter, dict, Counter, Cou
                 sorted(p.role for p in r.game.alive_players()))
             stall_kind[kind] += 1
             examples.setdefault(kind, s)
-    return nights, stalled, viol, stall_kind, examples, winners, sizes
+    return nights, stalled, viol, stall_kind, examples, winners, sizes, notes, shape
 
 
 def main() -> None:
@@ -45,6 +54,7 @@ def main() -> None:
     ap.add_argument("--games", type=int, default=1_000_000)
     ap.add_argument("--workers", type=int, default=22)
     ap.add_argument("--json")
+    ap.add_argument("--classic", action="store_true", help="only the original simulator (no bots/kicks/tickets/...)")
     args = ap.parse_args()
     step = 2000
     t0 = time.perf_counter()
@@ -53,11 +63,14 @@ def main() -> None:
     stall_kind: Counter = Counter()
     winners: Counter = Counter()
     sizes: Counter = Counter()
+    notes: Counter = Counter()
+    shape: Counter = Counter()
     examples: dict = {}
     with Pool(args.workers) as pool:
-        for i, (n, st, v, sk, ex, w, sz) in enumerate(
-            pool.imap_unordered(_batch, [range(a, min(args.games, a + step)) for a in range(0, args.games, step)])
-        ):
+        jobs = [(range(a, min(args.games, a + step)), not args.classic) for a in range(0, args.games, step)]
+        for i, (n, st, v, sk, ex, w, sz, nt, sh) in enumerate(pool.imap_unordered(_batch, jobs)):
+            notes.update(nt)
+            shape.update(sh)
             nights += n
             stalled += st
             viol.update(v)
@@ -75,6 +88,7 @@ def main() -> None:
         "avg_nights": round(nights / args.games, 2), "stalled": stalled,
         "violations": dict(viol.most_common()), "stalled_kinds": dict(stall_kind.most_common(15)),
         "winners": dict(winners.most_common()), "examples(seed)": examples,
+        "extras": not args.classic, "notes": dict(notes.most_common()), "shape": dict(shape),
     }
     print(json.dumps(out, indent=1, ensure_ascii=False))
     if args.json:
