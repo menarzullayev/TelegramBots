@@ -564,5 +564,7 @@
   "reward.coins": "+{n} coins",
   "reward.gems": "+{n} gems",
   "top.recruit_row": "{i}. {name}{tag} — {n}",
-  "funnel.source_row": "{source}: {new} → {played} → {full}"
+  "funnel.source_row": "{source}: {new} → {played} → {full}",
+  "lang.title": "Language",
+  "app.close": "Close"
 }

@@ -19,7 +19,7 @@ from aiogram.types import LabeledPrice
 from aiogram.utils.web_app import safe_parse_webapp_init_data
 from aiohttp import web
 
-from tezmafia.i18n import normalize_lang, t
+from tezmafia.i18n import ALLOWED, normalize_lang, t
 from tezmafia.progress import ACHIEVEMENTS, XP_PER_LEVEL_STEP, level_of
 from tezmafia.shop import BADGES, SPECIAL_BADGES, STAR_PACKS, VIP_PERIOD, VIP_STARS
 
@@ -73,6 +73,12 @@ def plain(text: str) -> str:
     return html.unescape(_TAG.sub("", text))
 
 
+# Native names, never translated; the order is the order of the picker.
+LANG_NAMES = {
+    "uz": "O‘zbekcha", "en": "English", "ru": "Русский", "az": "Azərbaycan", "br": "Português (BR)", "id": "Bahasa Indonesia",
+    "kg": "Кыргызча", "kz": "Қазақша", "tj": "Тоҷикӣ", "tr": "Türkçe", "ua": "Українська",
+}
+FONT_DIR = "fonts"
 THEMES = ("dossier", "neon", "deco", "day", "comic")  # all free; "dossier" is the default
 
 
@@ -82,8 +88,9 @@ def _next_level_xp(level: int) -> int:
 
 async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
     uid = user["id"]
-    stored = await app.store.get_lang(uid)
-    lang = stored if stored != "uz" or not user.get("language_code") else normalize_lang(user["language_code"])
+    # A language saved with /lang or the picker always wins (even "uz"); Telegram's language_code is only the first guess.
+    stored = await app.store.lang_pref(uid)
+    lang = stored or normalize_lang(user.get("language_code") or "")
     acc = await app.store.get_account(uid)
     owned_badges = await app.store.owned_badges(uid)
     unlocked = await app.store.achievement_keys(uid)
@@ -98,6 +105,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
 
     return {
         "lang": lang,
+        "languages": [{"code": k, "name": n} for k, n in LANG_NAMES.items()],
         "strings": {
             key: plain_t(lang, key)
             for key in (
@@ -107,6 +115,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "app.tab_dossier", "app.tab_roles", "app.tab_wanted", "app.tab_log", "app.tab_market",
                 "app.stamp", "app.field_name", "app.field_rank", "app.field_record", "app.field_wallet", "app.field_fair",
                 "app.seals", "app.badges", "app.stars", "theme.title", "theme.hint", "top.recruit_empty",
+                "lang.title", "app.close",
             )
         },
         "profile": {
@@ -313,7 +322,8 @@ def _user(request: web.Request) -> dict[str, Any]:
 
 
 async def index(_request: web.Request) -> web.FileResponse:
-    return web.FileResponse(STATIC / "index.html", headers={"Cache-Control": "no-cache"})
+    # FileResponse adds ETag + Last-Modified and answers If-None-Match with 304; a minute of max-age skips even that.
+    return web.FileResponse(STATIC / "index.html", headers={"Cache-Control": "public, max-age=60, must-revalidate"})
 
 
 async def state(request: web.Request) -> web.Response:
@@ -394,6 +404,22 @@ async def theme(request: web.Request) -> web.Response:
     return web.json_response({"result": "ok", "state": await build_state(app, user)})
 
 
+async def set_language(request: web.Request) -> web.Response:
+    user = _user(request)
+    app: App = request.app[APP_KEY]  # type: ignore[assignment]
+    if not request.app["limits"].allow(user["id"]):
+        raise web.HTTPTooManyRequests()
+    try:
+        body = await request.json()
+    except ValueError:
+        raise web.HTTPBadRequest(text="bad json") from None
+    code = body.get("lang") if isinstance(body, dict) else None
+    if not isinstance(code, str) or code not in ALLOWED:
+        raise web.HTTPBadRequest(text="unknown language")
+    await app.store.set_lang(user["id"], code)  # same store call as the bot's /lang buttons
+    return web.json_response({"result": "ok", "state": await build_state(app, user)})
+
+
 async def daily(request: web.Request) -> web.Response:
     user = _user(request)
     app: App = request.app[APP_KEY]  # type: ignore[assignment]
@@ -412,6 +438,19 @@ async def asset(request: web.Request) -> web.FileResponse:
     if not path.is_file():
         raise web.HTTPNotFound()
     return web.FileResponse(path, headers={"Cache-Control": "public, max-age=604800"})
+
+
+async def font(request: web.Request) -> web.FileResponse:
+    """Self-hosted woff2 files; the route pattern allows only a flat [a-z0-9-].woff2 name, so no path can escape."""
+    from tezmafia.brand import ASSETS
+
+    root = (ASSETS / FONT_DIR).resolve()
+    path = (root / request.match_info["name"]).resolve()
+    if path.parent != root or not path.is_file():
+        raise web.HTTPNotFound()
+    return web.FileResponse(
+        path, headers={"Cache-Control": "public, max-age=31536000, immutable", "Content-Type": "font/woff2"}
+    )
 
 
 @web.middleware
@@ -435,6 +474,8 @@ def build_app(app: App) -> web.Application:
             web.post("/api/skin", skin),
             web.post("/api/theme", theme),
             web.post("/api/daily", daily),
+            web.post("/api/lang", set_language),
+            web.get("/assets/fonts/{name:[a-z0-9-]+\\.woff2}", font),
             web.get("/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\\.jpg}", asset),
         ]
     )

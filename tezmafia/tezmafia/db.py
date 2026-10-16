@@ -1814,6 +1814,12 @@ class Store:
             row = await s.get(ChatPref, chat_id)
             return row.lang if row else "uz"
 
+    async def lang_pref(self, chat_id: int) -> str | None:
+        """The language explicitly saved with /lang or the Mini App picker, or None if never chosen."""
+        async with self.session() as s:
+            row = await s.get(ChatPref, chat_id)
+            return row.lang if row else None
+
     async def games_for_user(self, user_id: int) -> list[Game]:
         found: list[Game] = []
         for game in await self.unfinished():

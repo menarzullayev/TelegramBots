@@ -564,5 +564,7 @@
   "reward.coins": "+{n} монет",
   "reward.gems": "+{n} алмазов",
   "top.recruit_row": "{i}. {name}{tag} — {n}",
-  "funnel.source_row": "{source}: {new} → {played} → {full}"
+  "funnel.source_row": "{source}: {new} → {played} → {full}",
+  "lang.title": "Язык",
+  "app.close": "Закрыть"
 }
