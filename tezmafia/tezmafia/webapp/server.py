@@ -7,6 +7,7 @@ or spend another user's wallet by guessing ids.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -482,12 +483,27 @@ def build_app(app: App) -> web.Application:
     return web_app
 
 
+_tasks: set[asyncio.Task[None]] = set()  # strong refs so background tasks are not collected mid-run
+
+
 async def start_server(app: App, port: int) -> web.AppRunner:
     runner = web.AppRunner(build_app(app), access_log=None)
     await runner.setup()
     await web.TCPSite(runner, "127.0.0.1", port).start()
     log.info("mini app listening on 127.0.0.1:%s", port)
+    _tasks.add(task := asyncio.create_task(warm_cache(app)))
+    task.add_done_callback(_tasks.discard)
     return runner
+
+
+async def warm_cache(app: App) -> None:
+    """Fill the shared ranking caches (and the owner's admin funnel) once at start, so the first opens are fast."""
+    try:
+        started = time.monotonic()
+        await build_state(app, {"id": app.settings.owner_id or 0, "first_name": ""})
+        log.info("mini app cache warmed in %.1fs", time.monotonic() - started)
+    except Exception:
+        log.exception("mini app cache warm-up failed")  # requests still compute it on demand
 
 
 def dumps(data: Any) -> str:  # pragma: no cover - debugging helper

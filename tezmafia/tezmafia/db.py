@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import time
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, literal_column, select, text
+from sqlalchemy import BigInteger, Float, Integer, String, Text, delete, event, func, select, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -27,6 +28,7 @@ from tezmafia.shop import (
     empty_flags,
 )
 
+log = logging.getLogger(__name__)
 
 class Base(DeclarativeBase):
     pass
@@ -338,6 +340,7 @@ class Store:
         # Read-through cache for rankings; 0 disables it (tests), the running bot sets 60 s.
         self.cache_ttl = 0.0
         self._cache: dict[Any, tuple[float, Any]] = {}
+        self._refreshing: dict[Any, asyncio.Task[Any]] = {}
 
     async def init(self) -> None:
         async with self.engine.begin() as conn:
@@ -420,14 +423,27 @@ class Store:
     async def cached(self, key: Any, fn: Callable[[], Awaitable[Any]]) -> Any:
         if self.cache_ttl <= 0:
             return await fn()
-        now = time.monotonic()
         hit = self._cache.get(key)
-        if hit and now - hit[0] < self.cache_ttl:
-            return hit[1]
+        if hit is None:
+            return await self._refresh(key, fn)
+        if time.monotonic() - hit[0] >= self.cache_ttl and key not in self._refreshing:
+            # Stale: answer with the old value now and recompute in the background, so no request waits on a
+            # slow ranking query once it has been computed once.
+            task = asyncio.create_task(self._refresh(key, fn))
+            self._refreshing[key] = task
+            task.add_done_callback(lambda t, key=key: self._refreshed(key, t))
+        return hit[1]
+
+    def _refreshed(self, key: Any, task: asyncio.Task[Any]) -> None:
+        self._refreshing.pop(key, None)
+        if not task.cancelled() and task.exception() is not None:
+            log.warning("background refresh of %r failed: %r", key, task.exception())  # the stale value stays
+
+    async def _refresh(self, key: Any, fn: Callable[[], Awaitable[Any]]) -> Any:
         value = await fn()
         if len(self._cache) > 5000:
             self._cache.clear()
-        self._cache[key] = (now, value)
+        self._cache[key] = (time.monotonic(), value)
         return value
 
     async def retry(self, fn: Callable[[], Awaitable[Any]], attempts: int = 3) -> Any:
@@ -1271,7 +1287,6 @@ class Store:
     async def funnel(self, since: float, until: float | None = None) -> dict[str, int]:
         """Bot added → lobby → started → finished → played again, for games created in the window."""
         until = until or time.time()
-        window = (GameRow.created_at >= since, GameRow.created_at < until)
         async with self.session() as s:
             added = (
                 await s.execute(
@@ -1280,28 +1295,20 @@ class Store:
                     )
                 )
             ).scalar_one()
-            lobbies, started, finished = (
+            # One pass over the window: each payload's JSON is parsed once (MATERIALIZED), not once per figure.
+            lobbies, started, finished, repeat = (
                 await s.execute(
-                    select(
-                        func.count(),
-                        # started = reached a night or got a winner (a day-first game can end before night 1)
-                        # written as SQL: the same OR built with SQLAlchemy operators summed wrongly on aiosqlite
-                        literal_column(
-                            "COALESCE(SUM(json_extract(games.payload, '$.night_no') >= 1"
-                            " OR json_extract(games.payload, '$.winner') IS NOT NULL), 0)"
-                        ),
-                        func.count(func.json_extract(GameRow.payload, "$.winner")),
-                    ).where(*window)
+                    text(
+                        "WITH w AS MATERIALIZED (SELECT chat_id, json_extract(payload, '$.night_no') AS night,"
+                        " json_extract(payload, '$.winner') AS winner FROM games"
+                        " WHERE created_at >= :a AND created_at < :b)"
+                        " SELECT COUNT(*), COALESCE(SUM(night >= 1 OR winner IS NOT NULL), 0), COUNT(winner),"
+                        " (SELECT COUNT(*) FROM (SELECT chat_id FROM w WHERE winner IS NOT NULL"
+                        " GROUP BY chat_id HAVING COUNT(*) >= 2)) FROM w"
+                    ),
+                    {"a": since, "b": until},
                 )
             ).one()
-            per_chat = (
-                select(GameRow.chat_id)
-                .where(*window, func.json_extract(GameRow.payload, "$.winner").is_not(None))
-                .group_by(GameRow.chat_id)
-                .having(func.count() >= 2)
-                .subquery()
-            )
-            repeat = (await s.execute(select(func.count()).select_from(per_chat))).scalar_one()
         return {"added": added, "lobbies": lobbies, "started": int(started), "finished": finished, "repeat": repeat}
 
     async def week_players(self, week: str) -> int:

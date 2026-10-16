@@ -159,6 +159,8 @@ async def test_cache_is_off_by_default_and_expires(app: App) -> None:
     assert await app.store.cached("k", value) == 3
     assert await app.store.cached("k", value) == 3  # served from cache
     await asyncio.sleep(0.15)
+    assert await app.store.cached("k", value) == 3  # expired: the stale value now, a refresh in the background
+    await asyncio.sleep(0.05)
     assert await app.store.cached("k", value) == 4
 
 
