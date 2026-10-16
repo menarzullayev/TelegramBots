@@ -535,5 +535,12 @@
   "app.my_points": "Sizning ochkoingiz: {n}",
   "app.clans_top": "Klanlar",
   "app.badges": "Belgilar",
-  "app.stars": "Coin paketlari va VIP"
+  "app.stars": "Coin paketlari va VIP",
+  "theme.title": "🎨 Dizayn",
+  "theme.hint": "Mini App ko‘rinishini tanlang. Hammasi bepul.",
+  "theme.dossier": "Dosye",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art-deko",
+  "theme.day": "Kunduz",
+  "theme.comic": "Komiks noir"
 }

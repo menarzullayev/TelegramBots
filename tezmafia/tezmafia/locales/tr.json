@@ -535,5 +535,12 @@
   "app.my_points": "Puanın: {n}",
   "app.clans_top": "Klanlar",
   "app.badges": "Rozetler",
-  "app.stars": "Coin paketleri ve VIP"
+  "app.stars": "Coin paketleri ve VIP",
+  "theme.title": "🎨 Görünüm",
+  "theme.hint": "Mini App görünümünü seçin. Hepsi ücretsiz.",
+  "theme.dossier": "Dosya",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art Deco",
+  "theme.day": "Gün ışığı",
+  "theme.comic": "Çizgi roman noir"
 }

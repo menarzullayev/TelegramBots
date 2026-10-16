@@ -535,5 +535,12 @@
   "app.my_points": "Poinmu: {n}",
   "app.clans_top": "Klan",
   "app.badges": "Lencana",
-  "app.stars": "Paket koin dan VIP"
+  "app.stars": "Paket koin dan VIP",
+  "theme.title": "🎨 Tampilan",
+  "theme.hint": "Pilih tampilan Mini App. Semuanya gratis.",
+  "theme.dossier": "Berkas",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art Deco",
+  "theme.day": "Siang",
+  "theme.comic": "Noir komik"
 }

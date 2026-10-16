@@ -535,5 +535,12 @@
   "app.my_points": "Ваши очки: {n}",
   "app.clans_top": "Кланы",
   "app.badges": "Значки",
-  "app.stars": "Пакеты монет и VIP"
+  "app.stars": "Пакеты монет и VIP",
+  "theme.title": "🎨 Оформление",
+  "theme.hint": "Выберите вид Mini App. Всё бесплатно.",
+  "theme.dossier": "Досье",
+  "theme.neon": "Неон-нуар",
+  "theme.deco": "Ар-деко",
+  "theme.day": "День",
+  "theme.comic": "Комикс-нуар"
 }
