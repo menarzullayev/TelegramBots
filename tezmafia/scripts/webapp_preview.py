@@ -60,9 +60,18 @@ async def main(port: int = 8797) -> None:
     async def state(_r: web.Request) -> web.Response:
         return web.json_response(await build_state(fake_app, user))  # type: ignore[arg-type]
 
+    async def theme(r: web.Request) -> web.Response:
+        from tezmafia.webapp.server import THEMES
+
+        key = (await r.json()).get("theme")
+        if key not in THEMES:
+            raise web.HTTPBadRequest()
+        await store.set_theme(7, key)
+        return web.json_response({"result": "ok", "state": await build_state(fake_app, user)})  # type: ignore[arg-type]
+
     app = web.Application()
     app.add_routes([
-        web.get("/", index), web.get("/api/state", state),
+        web.get("/", index), web.get("/api/state", state), web.post("/api/theme", theme),
         web.get(r"/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\.jpg}", asset),
     ])
     runner = web.AppRunner(app)

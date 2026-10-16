@@ -73,6 +73,9 @@ def plain(text: str) -> str:
     return html.unescape(_TAG.sub("", text))
 
 
+THEMES = ("dossier", "neon", "deco", "day", "comic")  # all free; "dossier" is the default
+
+
 def _next_level_xp(level: int) -> int:
     return XP_PER_LEVEL_STEP * level * level
 
@@ -103,7 +106,7 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
                 "top.empty", "cmd.privacy", "cmd.terms", "app.tab_games", "chr.empty", "skins.title", "btn.skin_off",
                 "app.tab_dossier", "app.tab_roles", "app.tab_wanted", "app.tab_log", "app.tab_market",
                 "app.stamp", "app.field_name", "app.field_rank", "app.field_record", "app.field_wallet", "app.field_fair",
-                "app.seals", "app.badges", "app.stars",
+                "app.seals", "app.badges", "app.stars", "theme.title", "theme.hint",
             )
         },
         "profile": {
@@ -154,6 +157,8 @@ async def build_state(app: App, user: dict[str, Any]) -> dict[str, Any]:
         "games": [chronicle_entry(g, uid, lang) for g in await app.store.user_games(uid, limit=10)],
         "admin": await admin_state(app, uid, lang),
         "skins": await skins_state(app, uid, lang, acc["gems"]),
+        "theme": await theme_of(app, uid),
+        "themes": [{"id": k, "name": plain_t(lang, f"theme.{k}")} for k in THEMES],
         "case": plain_t(lang, "app.case", n=f"{uid % 100000:05d}"),
         "daily": await daily_state(app, uid, lang),
         "quests": await quests_state(app, uid, lang),
@@ -236,6 +241,11 @@ async def tournament_state(app: Any, uid: int, lang: str) -> dict[str, Any]:
     mine = next((p for u, _n, p in rows if u == uid), 0)
     return {"title": plain(t(lang, "app.tournament", week=week)), "me": plain(t(lang, "app.my_points", n=mine)),
             "rows": [{"name": n, "points": p, "me": u == uid} for u, n, p in rows[:10]]}
+
+
+async def theme_of(app: Any, uid: int) -> str:
+    chosen = await app.store.theme_of(uid)
+    return chosen if chosen in THEMES else THEMES[0]
 
 
 async def skins_state(app: Any, uid: int, lang: str, gems: int) -> dict[str, Any]:
@@ -359,6 +369,22 @@ async def skin(request: web.Request) -> web.Response:
     return web.json_response({"result": result, "state": await build_state(app, user)})
 
 
+async def theme(request: web.Request) -> web.Response:
+    user = _user(request)
+    app: App = request.app[APP_KEY]  # type: ignore[assignment]
+    if not request.app["limits"].allow(user["id"]):
+        raise web.HTTPTooManyRequests()
+    try:
+        body = await request.json()
+    except ValueError:
+        raise web.HTTPBadRequest(text="bad json") from None
+    key = body.get("theme") if isinstance(body, dict) else None
+    if not isinstance(key, str) or key not in THEMES:
+        raise web.HTTPBadRequest(text="unknown theme")
+    await app.store.set_theme(user["id"], key)
+    return web.json_response({"result": "ok", "state": await build_state(app, user)})
+
+
 async def daily(request: web.Request) -> web.Response:
     user = _user(request)
     app: App = request.app[APP_KEY]  # type: ignore[assignment]
@@ -398,6 +424,7 @@ def build_app(app: App) -> web.Application:
             web.post("/api/invoice", invoice),
             web.post("/api/badge", badge),
             web.post("/api/skin", skin),
+            web.post("/api/theme", theme),
             web.post("/api/daily", daily),
             web.get("/assets/{path:raven/(?:roles|skins/(?:noir|gold|neon))/[a-z_]+\\.jpg}", asset),
         ]

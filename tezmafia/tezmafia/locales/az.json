@@ -535,5 +535,12 @@
   "app.my_points": "Sizin xalınız: {n}",
   "app.clans_top": "Klanlar",
   "app.badges": "Nişanlar",
-  "app.stars": "Coin paketləri və VIP"
+  "app.stars": "Coin paketləri və VIP",
+  "theme.title": "🎨 Dizayn",
+  "theme.hint": "Mini App görünüşünü seçin. Hamısı pulsuzdur.",
+  "theme.dossier": "Dosye",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art-deko",
+  "theme.day": "Gündüz",
+  "theme.comic": "Komiks noir"
 }

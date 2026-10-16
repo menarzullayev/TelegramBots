@@ -535,5 +535,12 @@
   "app.my_points": "Your points: {n}",
   "app.clans_top": "Clans",
   "app.badges": "Badges",
-  "app.stars": "Coin packs and VIP"
+  "app.stars": "Coin packs and VIP",
+  "theme.title": "🎨 Customize",
+  "theme.hint": "Pick a look for the Mini App. All free.",
+  "theme.dossier": "Dossier",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art Deco",
+  "theme.day": "Daylight",
+  "theme.comic": "Comic noir"
 }

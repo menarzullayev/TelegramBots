@@ -535,5 +535,12 @@
   "app.my_points": "Seus pontos: {n}",
   "app.clans_top": "Clãs",
   "app.badges": "Selos",
-  "app.stars": "Pacotes de moedas e VIP"
+  "app.stars": "Pacotes de moedas e VIP",
+  "theme.title": "🎨 Personalizar",
+  "theme.hint": "Escolha o visual do Mini App. Tudo grátis.",
+  "theme.dossier": "Dossiê",
+  "theme.neon": "Neon noir",
+  "theme.deco": "Art Déco",
+  "theme.day": "Dia",
+  "theme.comic": "Noir em quadrinhos"
 }

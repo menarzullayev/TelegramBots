@@ -535,5 +535,12 @@
   "app.my_points": "Сиздин упайыңыз: {n}",
   "app.clans_top": "Кландар",
   "app.badges": "Белгилер",
-  "app.stars": "Coin пакеттери жана VIP"
+  "app.stars": "Coin пакеттери жана VIP",
+  "theme.title": "🎨 Дизайн",
+  "theme.hint": "Mini App көрүнүшүн тандаңыз. Баары акысыз.",
+  "theme.dossier": "Папка",
+  "theme.neon": "Неон-нуар",
+  "theme.deco": "Ар-деко",
+  "theme.day": "Күндүз",
+  "theme.comic": "Комикс-нуар"
 }
