@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     )
 
     bot_token: str
+    # Only the production machine sets TEZMAFIA_PRODUCTION=1; without it the bot never polls, so a cloud or dev copy
+    # holding the real token cannot knock the live bot off Telegram (409 Conflict) or answer players twice.
+    tezmafia_production: bool = False
     bot_username: str = "qorashahar_mafia_bot"
     owner_id: int | None = None
     database_url: str = "sqlite+aiosqlite:///./data/tezmafia.db"

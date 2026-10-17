@@ -541,6 +541,7 @@ async def test_run_recovers_and_polls(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("BOT_TOKEN", "1:TEST")
     monkeypatch.setenv("DATABASE_URL", f"sqlite+aiosqlite:///{tmp_path}/data/run.db")
     monkeypatch.setenv("WEBAPP_PORT", "0")  # never bind the production Mini App port from a test
+    monkeypatch.setenv("TEZMAFIA_PRODUCTION", "1")  # the dummies below stand in for Telegram
 
     class DummyBot:
         def __init__(self, *a, **k):

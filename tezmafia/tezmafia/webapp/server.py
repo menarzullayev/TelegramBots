@@ -11,6 +11,7 @@ import asyncio
 import json
 import logging
 import re
+import subprocess
 import time
 from collections import defaultdict, deque
 from pathlib import Path
@@ -469,6 +470,7 @@ def build_app(app: App) -> web.Application:
     web_app.add_routes(
         [
             web.get("/", index),
+            web.get("/health", health),
             web.get("/api/state", state),
             web.post("/api/invoice", invoice),
             web.post("/api/badge", badge),
@@ -482,6 +484,25 @@ def build_app(app: App) -> web.Application:
     )
     return web_app
 
+
+
+def _commit() -> str:
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=Path(__file__).resolve().parent,
+                             capture_output=True, text=True, timeout=5)
+        return out.stdout.strip() or "unknown"
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+
+
+COMMIT = _commit()
+STARTED = time.time()
+
+
+async def health(request: web.Request) -> web.Response:
+    """Public liveness for deploy checks: which commit runs and since when. No user data, no secrets."""
+    return web.json_response({"ok": True, "commit": COMMIT, "started_at": int(STARTED), "uptime_s": int(time.time() - STARTED)},
+                             headers={"Cache-Control": "no-store"})
 
 _tasks: set[asyncio.Task[None]] = set()  # strong refs so background tasks are not collected mid-run
 
