@@ -32,6 +32,14 @@ ruff check tezmafia tests scripts
 
 On the owner's Windows PC the interpreter is `.venv-win/Scripts/python.exe` (pytest/ruff next to it).
 
+## Cloud environment
+
+- Setup script: `cd tezmafia && pip install -e ".[dev]"`. Python 3.12. Network access to PyPI and GitHub is enough.
+- Environment variables the owner may add (production keys) are for reading/measuring only. The bot will not
+  start there because `TEZMAFIA_PRODUCTION` is absent — keep it that way.
+- Local-only tools (Telegram accounts, Chrome, ChatGPT) are not available in the cloud; ask the owner to run
+  those steps in a local session.
+
 ## Rules for changes
 
 - New user-facing strings go into **all 11 locales**, written with a script using
