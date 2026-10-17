@@ -140,6 +140,7 @@ DAY_CHOICES = (60, 90, 120)
 WORDS_SECONDS = 90  # how long an eliminated player may send last words
 NIGHT_CHOICES = (30, 45, 60)
 ALREADY_RUNNING = 75
+NOT_PRODUCTION = 78  # not 75: the supervisor keeps retrying, so a missing flag on the live box is loud, not fatal
 
 
 def _photo(name: str) -> FSInputFile | None:
@@ -3167,6 +3168,9 @@ async def run() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
         handlers=handlers,
     )
+    if not settings.tezmafia_production:
+        log.error("TEZMAFIA_PRODUCTION is not set: refusing to poll Telegram (only the production machine may)")
+        raise SystemExit(NOT_PRODUCTION)
     instance = InstanceLock(Path("data") / ".instance.lock")
     if not instance.acquire():
         # Exit code 75 tells the autostart wrappers not to restart: the other copy is the live one.
