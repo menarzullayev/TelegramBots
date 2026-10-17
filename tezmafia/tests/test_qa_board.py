@@ -437,7 +437,11 @@ async def qa_24(tmp, mp):
     for _ in range(5):
         await app.refresh_vote(g)
     assert not any(c[0] == "edit" for c in app.bot.calls)
-    await asyncio.sleep(0.2)
+    for _ in range(60):  # slow CI runners: wait for the deferred edit instead of a fixed 0.2 s
+        await asyncio.sleep(0.05)
+        if any(c[0] == "edit" for c in app.bot.calls):
+            break
+    await asyncio.sleep(0.2)  # and give a wrongly scheduled second edit time to show up
     assert sum(c[0] == "edit" for c in app.bot.calls) == 1
 
 
