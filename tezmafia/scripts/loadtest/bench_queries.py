@@ -1,6 +1,6 @@
 """Time every hot Store call (and the Mini App state) against a big database.
 
-    python -m scripts.loadtest.bench_queries --db PATH [--runs 30] [--json out.json]
+    python -m scripts.loadtest.bench_queries [--db data/loadtest.db] [--runs 30] [--json out.json]
 
 Reads use random synthetic users/chats each run, so the cache cannot hide a missing index.
 Writes go to synthetic rows only. Prints p50 / p95 / max in milliseconds per call.
@@ -17,17 +17,19 @@ import time
 from types import SimpleNamespace
 
 from scripts.loadtest.generate import FAKE_CHAT, FAKE_USER
+from scripts.loadtest.safety import DEFAULT_DB, checked_db
 
 OWNER = 1808327630
 
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", required=True)
+    ap.add_argument("--db", default=DEFAULT_DB, help="separate test database (never the live one)")
     ap.add_argument("--runs", type=int, default=30)
     ap.add_argument("--json")
     ap.add_argument("--with-delete", action="store_true", help="also time delete_user (scans every finished game)")
     args = ap.parse_args()
+    args.db = checked_db(args.db)
 
     from tezmafia.db import Store
     from tezmafia.engine import join, mark_dm_ok, new_game, start

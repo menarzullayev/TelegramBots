@@ -1,8 +1,11 @@
 # Load and correctness test — 1M users, 1M games (2026-10-14)
 
 Run against the **production** database on the owner's request (synthetic ids only: users `9e12+`,
-chats `-9e12-`, so the bot never messages them; the owner keeps the data as a permanent fixture).
-Backup taken first: `data/backup-pre-loadtest-20261014.db`.
+chats `-9e12-`, so the bot never messages them). Backup taken first: `data/backup-pre-loadtest-20261014.db`.
+
+> **2026-11-11:** the synthetic rows were removed from production (9.8 GB; they had also inflated the counters of
+> the real accounts that shared groups with them). Load tests now refuse the live database
+> (`scripts/loadtest/safety.py`) and default to their own file, `data/loadtest.db`, which is deleted when done.
 
 ## Tools (`scripts/loadtest/`)
 
@@ -17,10 +20,10 @@ Backup taken first: `data/backup-pre-loadtest-20261014.db`.
 
 ```bash
 python -m scripts.loadtest.fuzz --games 1000000
-python -m scripts.loadtest.generate --db data/tezmafia.db --users 1000000 --games 1000000
-python -m scripts.loadtest.bench_queries --db data/tezmafia.db
-python -m scripts.loadtest.concurrency --db data/tezmafia.db --steps 10,100,1000
-python -m scripts.loadtest.webapp_load --db data/tezmafia.db
+python -m scripts.loadtest.generate --db data/loadtest.db --users 1000000 --games 1000000
+python -m scripts.loadtest.bench_queries --db data/loadtest.db
+python -m scripts.loadtest.concurrency --db data/loadtest.db --steps 10,100,1000
+python -m scripts.loadtest.webapp_load --db data/loadtest.db
 ```
 
 ## Data volume
