@@ -1,6 +1,6 @@
 """Many groups playing full games at the same time through the real App and handlers.
 
-    python -m scripts.loadtest.concurrency --db PATH --steps 10,100,1000 [--latency 0.08]
+    python -m scripts.loadtest.concurrency [--db data/loadtest.db] --steps 10,100,1000 [--latency 0.08]
 
 Telegram is replaced by the unit tests' FakeBot with an artificial network latency (default 80 ms),
 because the bot really waits on Telegram while it holds a chat lock. Timers are pushed far out and
@@ -27,6 +27,7 @@ from aiogram.enums import ChatType
 from aiogram.types import Chat, User
 
 from scripts.loadtest.generate import FAKE_CHAT, FAKE_USER
+from scripts.loadtest.safety import DEFAULT_DB, checked_db
 
 MAX_NIGHTS = 40
 
@@ -176,11 +177,12 @@ async def run_step(app, botmod, n_chats: int, rng: random.Random, latency: float
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", required=True)
+    ap.add_argument("--db", default=DEFAULT_DB, help="separate test database (never the live one)")
     ap.add_argument("--steps", default="10,100,1000")
     ap.add_argument("--latency", type=float, default=0.08)
     ap.add_argument("--json")
     args = ap.parse_args()
+    args.db = checked_db(args.db)
 
     from tezmafia import bot as botmod
     from tezmafia.bot import App

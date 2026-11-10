@@ -1,6 +1,6 @@
 """Mini App API under concurrent load: the real aiohttp app on a spare local port, signed initData.
 
-    python -m scripts.loadtest.webapp_load --db PATH [--levels 10,100,500] [--requests 2000]
+    python -m scripts.loadtest.webapp_load [--db data/loadtest.db] [--levels 10,100,500] [--requests 2000]
 
 Measures /api/state latency and throughput per concurrency level, then checks that forged or
 missing initData is refused (401) and that a badge-spamming user is cut off (429).
@@ -23,6 +23,7 @@ import aiohttp
 from aiohttp import web
 
 from scripts.loadtest.generate import FAKE_USER
+from scripts.loadtest.safety import DEFAULT_DB, checked_db
 
 TOKEN = "1234567:LOADTEST_TOKEN_NOT_REAL"
 PORT = 8798
@@ -42,11 +43,12 @@ def init_data(user_id: int, token: str = TOKEN, auth_date: int | None = None) ->
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", required=True)
+    ap.add_argument("--db", default=DEFAULT_DB, help="separate test database (never the live one)")
     ap.add_argument("--levels", default="10,100,500")
     ap.add_argument("--requests", type=int, default=2000)
     ap.add_argument("--json")
     args = ap.parse_args()
+    args.db = checked_db(args.db)
 
     from tezmafia.db import Store
     from tezmafia.webapp.server import build_app

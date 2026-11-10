@@ -1,10 +1,11 @@
 """Fill a TezMafia database with synthetic users and engine-played finished games.
 
-    python -m scripts.loadtest.generate --db PATH [--users 1000000] [--games 1000000] [--workers 22]
+    python -m scripts.loadtest.generate [--db data/loadtest.db] [--users 1000000] [--games 1000000] [--workers 22]
 
-Synthetic ids live far outside Telegram's ranges (users 9e12+, chats -9e12-), so the bot never
-messages them for real and `cleanup.py` removes them with one range query. Writes go in short
-transactions so a running bot only waits (busy_timeout) instead of failing. Every phase is timed;
+Runs against its own database file (scripts/loadtest/safety.py refuses the live data/tezmafia.db; a new
+file gets the bot's schema first), so cleaning up is deleting that file. Synthetic ids still live far outside
+Telegram's ranges (users 9e12+, chats -9e12-), so the bot never messages them even if the file is served.
+Writes go in short transactions so a bot sharing the file only waits (busy_timeout) instead of failing. Every phase is timed;
 the timings are printed as JSON at the end (the "insert speed" part of the load report).
 """
 
@@ -18,6 +19,8 @@ import time
 from bisect import bisect
 from itertools import accumulate
 from multiprocessing import Pool
+
+from scripts.loadtest.safety import DEFAULT_DB, checked_db, ensure_schema
 
 FAKE_USER = 9_000_000_000_000
 FAKE_CHAT = -9_000_000_000_000
@@ -76,12 +79,14 @@ def _batched(con: sqlite3.Connection, sql: str, rows: list, size: int = 20_000) 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", required=True)
+    ap.add_argument("--db", default=DEFAULT_DB, help="separate test database (never the live one)")
     ap.add_argument("--users", type=int, default=1_000_000)
     ap.add_argument("--games", type=int, default=1_000_000)
     ap.add_argument("--workers", type=int, default=22)
     ap.add_argument("--seed", type=int, default=20261014)
     args = ap.parse_args()
+    args.db = checked_db(args.db)
+    ensure_schema(args.db)
     rng = random.Random(args.seed)
     con = _connect(args.db)
     timings: dict[str, float] = {}
