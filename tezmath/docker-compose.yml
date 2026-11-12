@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # ── Bot Gateway ──────────────────────────────────────────
   bot-gateway:
@@ -66,18 +64,18 @@ services:
 
   # ── Infrastructure ───────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: tezmath
       POSTGRES_USER: tezmath
       POSTGRES_PASSWORD: password
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data_18:/var/lib/postgresql
     networks: [tezmath]
 
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     restart: unless-stopped
     command: redis-server --requirepass password
     volumes:
@@ -85,7 +83,7 @@ services:
     networks: [tezmath]
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:4-management-alpine
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: tezmath
@@ -118,7 +116,7 @@ services:
     networks: [tezmath]
 
 volumes:
-  pg_data:
+  pg_data_18:
   redis_data:
   rabbit_data:
   minio_data:
