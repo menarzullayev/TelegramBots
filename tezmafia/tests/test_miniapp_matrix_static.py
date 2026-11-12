@@ -54,7 +54,7 @@ def theme_families() -> dict[str, set[str]]:
     base = HTML[HTML.index(":root {"):HTML.index(':root[data-theme="neon"]')]
     out = {}
     for theme in THEMES:
-        m = re.search(r':root\[data-theme="%s"\]\s*\{(.*?)\n  \}' % theme, HTML, re.S)
+        m = re.search(rf':root\[data-theme="{theme}"\]\s*\{{(.*?)\n  \}}', HTML, re.S)
         block = m.group(1) if m else ""
         explicit = " ".join(re.findall(rf':root\[data-theme="{theme}"\][^{{]*\{{([^}}]*)\}}', HTML))
         out[theme] = stacks(block) | stacks(explicit) | (stacks(base) if not re.search(r"--(serif|type)", block) else set())
