@@ -1,5 +1,5 @@
 anthropic==0.43.0
-aio-pika==9.4.3
+aio-pika==10.2.3
 asyncpg==0.29.0
 httpx==0.27.2
 pydantic-settings==2.5.2
