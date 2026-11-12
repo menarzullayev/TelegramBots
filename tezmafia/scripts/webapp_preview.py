@@ -1,6 +1,9 @@
 """Local design preview of the Mini App page with sample data (no Telegram, no auth, no bot token).
 
 Usage (from the tezmafia directory):  python -m scripts.webapp_preview  -> http://127.0.0.1:8797
+
+Preview only: ``/?lang=ru&theme=comic`` forces a language and a theme (the page's own /api/state call carries the
+query string in its Referer), so scripts/miniapp_matrix.py can walk every combination. The real server has no such hook.
 """
 
 from __future__ import annotations
@@ -57,8 +60,22 @@ async def main(port: int = 8797) -> None:
     async def index(_r: web.Request) -> web.FileResponse:
         return web.FileResponse(STATIC / "index.html")
 
-    async def state(_r: web.Request) -> web.Response:
-        return web.json_response(await build_state(fake_app, user))  # type: ignore[arg-type]
+    force_lock = asyncio.Lock()
+
+    async def state(r: web.Request) -> web.Response:
+        from urllib.parse import parse_qs, urlparse
+
+        from tezmafia.i18n import ALLOWED
+        from tezmafia.webapp.server import THEMES
+
+        want = parse_qs(urlparse(r.headers.get("Referer", "")).query)
+        lang, th = (want.get("lang") or [""])[0], (want.get("theme") or [""])[0]
+        async with force_lock:
+            if lang in ALLOWED:
+                await store.set_lang(7, lang)
+            if th in THEMES:
+                await store.set_theme(7, th)
+            return web.json_response(await build_state(fake_app, user))  # type: ignore[arg-type]
 
     async def theme(r: web.Request) -> web.Response:
         from tezmafia.webapp.server import THEMES
