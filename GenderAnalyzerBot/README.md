@@ -17,6 +17,8 @@ Telegram kanallari va guruhlari a'zolarini Gemini AI yordamida gender bo'yicha t
 
 ## O'rnatish
 
+> Python 3.13 kerak. `pyrogram` 2.0.106 (oxirgi reliz) Python 3.14 da import bo'lmaydi (`RuntimeError: There is no current event loop`).
+
 1. Virtual environment yarating va faollashtiring:
    ```bash
    python3 -m venv venv
