@@ -9,7 +9,7 @@ ignore = ["E501"]
 known-first-party = ["config", "middleware", "handlers", "database", "services", "keyboards"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.15"
 strict = false
 ignore_missing_imports = true
 explicit_package_bases = true
