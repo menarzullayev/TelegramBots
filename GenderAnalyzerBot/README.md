@@ -37,8 +37,8 @@ Telegram kanallari va guruhlari a'zolarini Gemini AI yordamida gender bo'yicha t
 '''
 
 API key details
-API Key
-AIzaSyDwfp5FSPZLCjHQjLmoBu4Wl7EHpqDL4vY
+API Key (never commit the real key: put it in .env as GEMINI_API_KEY)
+<YOUR_GEMINI_API_KEY>
 Name
 GenderAnalyzerBot
 Project name
@@ -48,7 +48,7 @@ Project number
 
 curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent" \
   -H 'Content-Type: application/json' \
-  -H 'X-goog-api-key: AIzaSyDwfp5FSPZLCjHQjLmoBu4Wl7EHpqDL4vY' \
+  -H 'X-goog-api-key: <YOUR_GEMINI_API_KEY>' \
   -X POST \
   -d '{
     "contents": [
@@ -62,5 +62,5 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lates
     ]
   }'
 
-  AIzaSyDwfp5FSPZLCjHQjLmoBu4Wl7EHpqDL4vY
+  <YOUR_GEMINI_API_KEY>
 '''
