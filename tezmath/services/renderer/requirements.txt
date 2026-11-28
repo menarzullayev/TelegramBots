@@ -1,5 +1,5 @@
-fastapi==0.162.5
+fastapi==0.165.0
 uvicorn[standard]==0.54.0
 matplotlib==3.11.2
-boto3==1.44.2
-pydantic-settings==2.16.2
+boto3==1.44.11
+pydantic-settings==2.16.3
