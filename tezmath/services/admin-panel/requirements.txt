@@ -5,4 +5,4 @@ pydantic-settings==2.16.2
 aio-pika==10.2.3
 PyJWT==2.15.1
 python-multipart==0.0.33
-sentry-sdk==2.75.0
+sentry-sdk==3.0.1
